@@ -4,6 +4,7 @@ import {
   Boxes,
   CheckCircle2,
   ClipboardList,
+  FilePenLine,
   Flag,
   GitBranch,
   MonitorCog,
@@ -71,6 +72,12 @@ export default function MissionControlPage() {
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="secondary">
                 <Link href="/">Marketplace</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/mission-control/edit">
+                  <FilePenLine className="mr-2 h-4 w-4" />
+                  Edit ops
+                </Link>
               </Button>
               <Button asChild variant="secondary">
                 <a href="http://127.0.0.1:8090/creator-preview.html" target="_blank">
@@ -222,6 +229,12 @@ export default function MissionControlPage() {
                     <span className="mt-1 block text-xs uppercase tracking-[0.18em] text-surface-500">{link.href}</span>
                   </a>
                 ))}
+              </div>
+
+              <div className="mt-6 rounded-[20px] border border-white/80 bg-white/76 px-4 py-4">
+                <div className="text-xs uppercase tracking-[0.18em] text-surface-500">Ops config file</div>
+                <div className="mt-2 break-all font-mono text-xs text-surface-700">{snapshot.configPath}</div>
+                <div className="mt-2 text-sm text-surface-600">Last saved {snapshot.configUpdatedAt}</div>
               </div>
             </Card>
           </div>

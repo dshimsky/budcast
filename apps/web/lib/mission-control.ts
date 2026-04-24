@@ -1,6 +1,14 @@
 import { execFileSync } from "child_process";
-import { existsSync, readdirSync } from "fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync
+} from "fs";
 import { join, relative } from "path";
+import { missionControlDefaults } from "./mission-control-defaults";
 
 export type MissionStatus = "not_started" | "in_progress" | "blocked" | "done";
 
@@ -32,7 +40,22 @@ export type LaunchItem = {
   detail: string;
 };
 
-export type MissionControlSnapshot = {
+export type PreviewLink = {
+  label: string;
+  href: string;
+};
+
+export type MissionControlConfig = {
+  phases: MissionPhase[];
+  workstreams: MissionWorkstream[];
+  recentUpdates: MissionUpdate[];
+  blockers: string[];
+  nextMoves: string[];
+  launchChecklist: LaunchItem[];
+  previewLinks: PreviewLink[];
+};
+
+export type MissionControlSnapshot = MissionControlConfig & {
   now: string;
   repoBranch: string;
   repoDirtyCount: number;
@@ -42,219 +65,15 @@ export type MissionControlSnapshot = {
   webRoutes: string[];
   nativeRoutes: string[];
   envReady: Array<{ key: string; ready: boolean }>;
-  phases: MissionPhase[];
-  workstreams: MissionWorkstream[];
-  recentUpdates: MissionUpdate[];
-  blockers: string[];
-  nextMoves: string[];
-  launchChecklist: LaunchItem[];
-  previewLinks: Array<{ label: string; href: string }>;
+  configPath: string;
+  configUpdatedAt: string;
 };
 
 const runtimeCwd = process.cwd();
 const workspaceRoot = existsSync(join(runtimeCwd, "apps", "web")) ? runtimeCwd : join(runtimeCwd, "..", "..");
 const webAppRoot = join(workspaceRoot, "apps", "web");
 const nativeAppRoot = join(workspaceRoot, "apps", "native");
-
-const phases: MissionPhase[] = [
-  {
-    id: "concept",
-    title: "Concept And Product Direction",
-    status: "done",
-    progress: 100,
-    summary: "Stack, migration direction, business constraints, and platform posture are locked.",
-    milestones: [
-      "Read handoff and business context",
-      "Approved Next.js + Expo split",
-      "Approved migration plan into BUDCASTAPP"
-    ]
-  },
-  {
-    id: "foundation",
-    title: "Foundation And Shared Runtime",
-    status: "done",
-    progress: 100,
-    summary: "Monorepo, shared package, Supabase client wiring, strict TypeScript, and platform shells are in place.",
-    milestones: [
-      "Monorepo created in BUDCASTAPP",
-      "Shared data layer ported",
-      "Web and native compile successfully"
-    ]
-  },
-  {
-    id: "identity",
-    title: "Auth, Profiles, And Onboarding",
-    status: "done",
-    progress: 100,
-    summary: "Auth, onboarding, profile hydration, and profile editing are wired across web and native.",
-    milestones: [
-      "Sign-in and sign-up wired",
-      "Onboarding writes into locked users row",
-      "Profile and edit flows live on both platforms"
-    ]
-  },
-  {
-    id: "marketplace-core",
-    title: "Marketplace Core",
-    status: "in_progress",
-    progress: 72,
-    summary: "Brand publish/review flows and creator browse/apply flows exist, but deeper navigation, QA, and real-session polish remain.",
-    milestones: [
-      "Brand dashboard and campaign builder exist",
-      "Applicant review queue exists",
-      "Creator catalog, details, and applications exist"
-    ]
-  },
-  {
-    id: "submission-loop",
-    title: "Submission And Payout Loop",
-    status: "in_progress",
-    progress: 68,
-    summary: "Submission, verification, and payout confirmation are wired, but need deeper end-to-end QA and refined happy-path transitions.",
-    milestones: [
-      "Creator proof submission flow exists",
-      "Brand verification queue exists",
-      "Two-sided payment confirmation exists"
-    ]
-  },
-  {
-    id: "polish",
-    title: "Premium Design And Product Cohesion",
-    status: "in_progress",
-    progress: 64,
-    summary: "Premium visual language is strong on web and advancing on native, but final consistency and runtime stability work remain.",
-    milestones: [
-      "Landing, auth, onboarding, and dashboard upgraded",
-      "Operational brand surfaces upgraded",
-      "Native creator surfaces upgraded"
-    ]
-  },
-  {
-    id: "release",
-    title: "QA, Store Prep, And Launch",
-    status: "not_started",
-    progress: 14,
-    summary: "Release operations, compliance copy, full QA, and store submission prep still need dedicated execution.",
-    milestones: [
-      "App Store and Play Store packaging not started",
-      "Full device QA not started",
-      "Compliance review pass not started"
-    ]
-  }
-];
-
-const workstreams: MissionWorkstream[] = [
-  {
-    name: "Web Brand Workspace",
-    status: "in_progress",
-    progress: 78,
-    detail: "Strong operator-facing dashboard, campaign builder, applicant review, submissions, and local mission-control support."
-  },
-  {
-    name: "Native Creator App",
-    status: "in_progress",
-    progress: 66,
-    detail: "Premium creator home, catalog, detail, submissions, applications, onboarding, and profile surfaces are in place."
-  },
-  {
-    name: "Shared Data Layer",
-    status: "done",
-    progress: 92,
-    detail: "Supabase client, shared hooks, query logic, and stores are ported and driving both platforms."
-  },
-  {
-    name: "Design System",
-    status: "in_progress",
-    progress: 71,
-    detail: "Premium visual system exists on web and native, but consistency and reusable owner-console patterns are still growing."
-  },
-  {
-    name: "Runtime Stability",
-    status: "blocked",
-    progress: 44,
-    detail: "The customer product builds cleanly, but local preview tooling has intermittent Next/Expo runtime instability that needs cleanup."
-  },
-  {
-    name: "Release Readiness",
-    status: "not_started",
-    progress: 12,
-    detail: "Store packaging, submission assets, compliance copy, and final launch checklists still need to be built."
-  }
-];
-
-const recentUpdates: MissionUpdate[] = [
-  {
-    date: "2026-04-23",
-    title: "Split-stack platform foundation established",
-    detail: "Monorepo, shared package, web shell, native shell, and locked-backend data layer were stood up inside BUDCASTAPP."
-  },
-  {
-    date: "2026-04-23",
-    title: "Auth, onboarding, and profile flows shipped",
-    detail: "Shared auth hydration, onboarding persistence, and profile editing now work across web and native."
-  },
-  {
-    date: "2026-04-23",
-    title: "Core marketplace loops shipped",
-    detail: "Brand campaign creation, applicant review, creator discovery, applications, submission proof, and payout confirmation are in place."
-  },
-  {
-    date: "2026-04-23",
-    title: "Premium visual direction raised across both apps",
-    detail: "Web received a stronger operator-grade visual system and native creator surfaces were rebuilt around the same premium direction."
-  },
-  {
-    date: "2026-04-23",
-    title: "Owner-facing mission control started",
-    detail: "A local-only command center is being added to track progress, blockers, and build health while the product is under construction."
-  }
-];
-
-const blockers = [
-  "Supabase public env vars are still missing for full live-session product validation.",
-  "Local runtime previews are less stable than the formal build pipeline; Next dev and Expo web both need cleanup.",
-  "Store-prep work has not started yet, so launch readiness is still operationally early."
-];
-
-const nextMoves = [
-  "Finish the owner-facing mission control dashboard and make it the daily local control tower.",
-  "Stabilize local preview/runtime paths so creator and brand surfaces are easy to review without manual cleanup.",
-  "Continue native creator polish and tighten cross-platform cohesion in the marketplace loop.",
-  "Move into QA and release-prep planning once the local product loop is visually and functionally stable."
-];
-
-const launchChecklist: LaunchItem[] = [
-  {
-    name: "Brand web workflow",
-    status: "in_progress",
-    detail: "Publish, review, and submissions exist, but need QA and finish work."
-  },
-  {
-    name: "Creator native workflow",
-    status: "in_progress",
-    detail: "Discovery, applications, profile, and submissions exist, but need full runtime QA."
-  },
-  {
-    name: "Environment readiness",
-    status: "blocked",
-    detail: "Supabase public keys are still missing for true live local validation."
-  },
-  {
-    name: "App Store prep",
-    status: "not_started",
-    detail: "Store packaging, listing assets, and submission workflow not started."
-  },
-  {
-    name: "Play Store prep",
-    status: "not_started",
-    detail: "Android packaging and listing assets not started."
-  },
-  {
-    name: "Compliance and copy review",
-    status: "not_started",
-    detail: "Cannabis-adjacent positioning and store-facing copy still need a launch pass."
-  }
-];
+const missionControlConfigPath = join(workspaceRoot, "ops", "mission-control.json");
 
 function runGit(args: string[]) {
   try {
@@ -329,6 +148,182 @@ function listExpoRoutes(appDir: string) {
   return routes.sort();
 }
 
+function isMissionStatus(value: unknown): value is MissionStatus {
+  return value === "not_started" || value === "in_progress" || value === "blocked" || value === "done";
+}
+
+function asString(value: unknown, fallback: string) {
+  return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+function asStringArray(value: unknown, fallback: string[]) {
+  if (!Array.isArray(value)) return fallback;
+  const next = value.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean);
+  return next.length > 0 ? next : fallback;
+}
+
+function asProgress(value: unknown, fallback: number) {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback;
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function asStatus(value: unknown, fallback: MissionStatus) {
+  return isMissionStatus(value) ? value : fallback;
+}
+
+function asRecord(value: unknown) {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+}
+
+function normalizePhaseList(value: unknown, fallback: MissionPhase[]) {
+  if (!Array.isArray(value)) return fallback;
+  const phases = value
+    .map((item, index) => {
+      const source = asRecord(item);
+      const fallbackPhase = fallback[index] ?? fallback[fallback.length - 1];
+      return {
+        id: asString(source.id, `${fallbackPhase?.id ?? "phase"}-${index + 1}`),
+        title: asString(source.title, fallbackPhase?.title ?? `Phase ${index + 1}`),
+        status: asStatus(source.status, fallbackPhase?.status ?? "not_started"),
+        progress: asProgress(source.progress, fallbackPhase?.progress ?? 0),
+        summary: asString(source.summary, fallbackPhase?.summary ?? ""),
+        milestones: asStringArray(source.milestones, fallbackPhase?.milestones ?? [])
+      };
+    })
+    .filter((item) => item.title);
+
+  return phases.length > 0 ? phases : fallback;
+}
+
+function normalizeWorkstreamList(value: unknown, fallback: MissionWorkstream[]) {
+  if (!Array.isArray(value)) return fallback;
+  const workstreams = value
+    .map((item, index) => {
+      const source = asRecord(item);
+      const fallbackItem = fallback[index] ?? fallback[fallback.length - 1];
+      return {
+        name: asString(source.name, fallbackItem?.name ?? `Workstream ${index + 1}`),
+        status: asStatus(source.status, fallbackItem?.status ?? "not_started"),
+        progress: asProgress(source.progress, fallbackItem?.progress ?? 0),
+        detail: asString(source.detail, fallbackItem?.detail ?? "")
+      };
+    })
+    .filter((item) => item.name);
+
+  return workstreams.length > 0 ? workstreams : fallback;
+}
+
+function normalizeUpdateList(value: unknown, fallback: MissionUpdate[]) {
+  if (!Array.isArray(value)) return fallback;
+  const updates = value
+    .map((item, index) => {
+      const source = asRecord(item);
+      const fallbackItem = fallback[index] ?? fallback[fallback.length - 1];
+      return {
+        date: asString(source.date, fallbackItem?.date ?? ""),
+        title: asString(source.title, fallbackItem?.title ?? `Update ${index + 1}`),
+        detail: asString(source.detail, fallbackItem?.detail ?? "")
+      };
+    })
+    .filter((item) => item.title);
+
+  return updates.length > 0 ? updates : fallback;
+}
+
+function normalizeLaunchList(value: unknown, fallback: LaunchItem[]) {
+  if (!Array.isArray(value)) return fallback;
+  const launchItems = value
+    .map((item, index) => {
+      const source = asRecord(item);
+      const fallbackItem = fallback[index] ?? fallback[fallback.length - 1];
+      return {
+        name: asString(source.name, fallbackItem?.name ?? `Checklist ${index + 1}`),
+        status: asStatus(source.status, fallbackItem?.status ?? "not_started"),
+        detail: asString(source.detail, fallbackItem?.detail ?? "")
+      };
+    })
+    .filter((item) => item.name);
+
+  return launchItems.length > 0 ? launchItems : fallback;
+}
+
+function normalizePreviewLinks(value: unknown, fallback: PreviewLink[]) {
+  if (!Array.isArray(value)) return fallback;
+  const links = value
+    .map((item, index) => {
+      const source = asRecord(item);
+      const fallbackItem = fallback[index] ?? fallback[fallback.length - 1];
+      return {
+        label: asString(source.label, fallbackItem?.label ?? `Preview ${index + 1}`),
+        href: asString(source.href, fallbackItem?.href ?? "/")
+      };
+    })
+    .filter((item) => item.label && item.href);
+
+  return links.length > 0 ? links : fallback;
+}
+
+export function normalizeMissionControlConfig(value: unknown): MissionControlConfig {
+  const source = asRecord(value);
+
+  return {
+    phases: normalizePhaseList(source.phases, missionControlDefaults.phases),
+    workstreams: normalizeWorkstreamList(source.workstreams, missionControlDefaults.workstreams),
+    recentUpdates: normalizeUpdateList(source.recentUpdates, missionControlDefaults.recentUpdates),
+    blockers: asStringArray(source.blockers, missionControlDefaults.blockers),
+    nextMoves: asStringArray(source.nextMoves, missionControlDefaults.nextMoves),
+    launchChecklist: normalizeLaunchList(source.launchChecklist, missionControlDefaults.launchChecklist),
+    previewLinks: normalizePreviewLinks(source.previewLinks, missionControlDefaults.previewLinks)
+  };
+}
+
+export function getMissionControlConfigPath() {
+  return missionControlConfigPath;
+}
+
+export function getMissionControlConfig() {
+  if (!existsSync(missionControlConfigPath)) {
+    saveMissionControlConfig(missionControlDefaults);
+    return missionControlDefaults;
+  }
+
+  try {
+    const raw = readFileSync(missionControlConfigPath, "utf8");
+    return normalizeMissionControlConfig(JSON.parse(raw));
+  } catch {
+    return missionControlDefaults;
+  }
+}
+
+export function getMissionControlConfigRaw() {
+  return JSON.stringify(getMissionControlConfig(), null, 2);
+}
+
+export function getMissionControlConfigUpdatedAt() {
+  try {
+    return statSync(missionControlConfigPath).mtime.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  } catch {
+    return "Not saved yet";
+  }
+}
+
+export function saveMissionControlConfig(value: unknown) {
+  const config = normalizeMissionControlConfig(value);
+  mkdirSync(join(workspaceRoot, "ops"), { recursive: true });
+  writeFileSync(missionControlConfigPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+  return {
+    config,
+    updatedAt: getMissionControlConfigUpdatedAt(),
+    path: missionControlConfigPath
+  };
+}
+
 function normalizeStatus(status: MissionStatus) {
   switch (status) {
     case "done":
@@ -355,6 +350,7 @@ export function getMissionControlSnapshot(): MissionControlSnapshot {
 
   const webRoutes = listNextAppRoutes(join(webAppRoot, "app"));
   const nativeRoutes = listExpoRoutes(join(nativeAppRoot, "app"));
+  const config = getMissionControlConfig();
 
   const envKeys = [
     "NEXT_PUBLIC_SUPABASE_URL",
@@ -364,6 +360,7 @@ export function getMissionControlSnapshot(): MissionControlSnapshot {
   ];
 
   return {
+    ...config,
     now: new Date().toLocaleString("en-US", {
       month: "short",
       day: "numeric",
@@ -379,18 +376,8 @@ export function getMissionControlSnapshot(): MissionControlSnapshot {
     webRoutes,
     nativeRoutes,
     envReady: envKeys.map((key) => ({ key, ready: Boolean(process.env[key]) })),
-    phases,
-    workstreams,
-    recentUpdates,
-    blockers,
-    nextMoves,
-    launchChecklist,
-    previewLinks: [
-      { label: "Marketplace home", href: "/" },
-      { label: "Brand dashboard", href: "/dashboard" },
-      { label: "Mission control", href: "/mission-control" },
-      { label: "Creator visual preview", href: "http://127.0.0.1:8090/creator-preview.html" }
-    ]
+    configPath: missionControlConfigPath,
+    configUpdatedAt: getMissionControlConfigUpdatedAt()
   };
 }
 
