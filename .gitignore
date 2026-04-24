@@ -1,0 +1,12 @@
+node_modules
+.next
+.expo
+dist
+build
+coverage
+*.log
+apps/native/.expo
+apps/native/.expo-shared
+apps/native/android
+apps/native/ios
+.DS_Store

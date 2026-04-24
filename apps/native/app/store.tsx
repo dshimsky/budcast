@@ -1,0 +1,113 @@
+import {
+  formatCampaignType,
+  formatCurrency,
+  formatDeadline,
+  hasCompletedOnboarding,
+  useAuth,
+  useCampaigns,
+  useMyApplications,
+  type CampaignType
+} from "@budcast/shared";
+import { Link, router } from "expo-router";
+import { useEffect, useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import { FadeInSection, GlassCard, HeroChip, PremiumScroll, SectionTitle, SoftCard } from "../components/premium";
+
+const campaignTypes: Array<{ label: string; value: CampaignType | null }> = [
+  { label: "All", value: null },
+  { label: "Gifting", value: "gifting" },
+  { label: "Paid", value: "paid" },
+  { label: "Hybrid", value: "hybrid" }
+];
+
+export default function StoreScreen() {
+  const { loading, session, profile } = useAuth();
+  const [activeType, setActiveType] = useState<CampaignType | null>(null);
+  const campaigns = useCampaigns({ type: activeType, sort: "newest" });
+  const myApplications = useMyApplications();
+
+  useEffect(() => {
+    if (!loading && !session) {
+      router.replace("/sign-in");
+      return;
+    }
+
+    if (!loading && session && !hasCompletedOnboarding(profile)) {
+      router.replace("/onboarding");
+    }
+  }, [loading, profile, session]);
+
+  return (
+    <PremiumScroll>
+      <FadeInSection>
+        <GlassCard>
+          <SectionTitle
+            eyebrow="Free store"
+            title="Browse live creator opportunities with more market energy."
+            description="The catalog is reading the same shared campaign query used by web. Apply state and credit refreshes still come from the real RPC."
+          />
+          <View className="mt-6 flex-row flex-wrap gap-2">
+            {campaignTypes.map((type) => {
+              const active = activeType === type.value;
+              return (
+                <Pressable
+                  className={`rounded-full px-4 py-2 ${active ? "bg-[#435730]" : "border border-[#d7c2ab] bg-[#fffaf4]"}`}
+                  key={type.label}
+                  onPress={() => setActiveType(type.value)}
+                >
+                  <Text className={`text-sm ${active ? "font-semibold text-white" : "text-[#624330]"}`}>{type.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </GlassCard>
+      </FadeInSection>
+
+      <FadeInSection className="mt-6 gap-4 pb-8" delay={80}>
+        {campaigns.data?.map((campaign) => {
+          const applied = myApplications.isApplied(campaign.id);
+
+          return (
+            <SoftCard key={campaign.id}>
+              <Text className="text-xs uppercase tracking-[2px] text-[#7a6656]">
+                {formatCampaignType(campaign.campaign_type)}
+              </Text>
+              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#221b14]">{campaign.title}</Text>
+              <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+                {campaign.short_description || campaign.description}
+              </Text>
+              <View className="mt-4 flex-row flex-wrap gap-2">
+                <HeroChip>{campaign.cash_amount ? formatCurrency(campaign.cash_amount) : "Product-led"}</HeroChip>
+                <HeroChip>{campaign.credit_cost_per_slot ?? campaign.credit_cost} credits</HeroChip>
+                <HeroChip>{formatDeadline(campaign.application_deadline)}</HeroChip>
+              </View>
+              <View className="mt-5 flex-row items-center justify-between gap-3">
+                <Text className="text-sm leading-6 text-[#5e5448]">
+                  {campaign.brand?.company_name ?? "Unknown brand"} • {campaign.slots_filled}/{campaign.slots_available} filled
+                </Text>
+                <View className="flex-row gap-3">
+                  {applied ? (
+                    <View className="rounded-full border border-[#b9d0a5] bg-[#edf5e6] px-4 py-2">
+                      <Text className="text-sm font-medium text-[#435730]">Applied</Text>
+                    </View>
+                  ) : null}
+                  <Link asChild href={`/campaigns/${campaign.id}`}>
+                    <Pressable className="rounded-full bg-[#435730] px-4 py-2">
+                      <Text className="text-sm font-semibold text-white">Details</Text>
+                    </Pressable>
+                  </Link>
+                </View>
+              </View>
+            </SoftCard>
+          );
+        })}
+
+        {campaigns.isLoading ? (
+          <SoftCard>
+            <Text className="text-base text-[#5e5448]">Loading campaigns...</Text>
+          </SoftCard>
+        ) : null}
+      </FadeInSection>
+    </PremiumScroll>
+  );
+}
