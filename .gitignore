@@ -5,6 +5,7 @@ dist
 build
 coverage
 *.log
+*.tsbuildinfo
 apps/native/.expo
 apps/native/.expo-shared
 apps/native/android
