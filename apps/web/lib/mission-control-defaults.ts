@@ -210,6 +210,7 @@ export const missionControlDefaults: MissionControlConfig = {
     { label: "Marketplace home", href: "/" },
     { label: "Brand dashboard", href: "/dashboard" },
     { label: "Mission control", href: "/mission-control" },
-    { label: "Creator visual preview", href: "http://127.0.0.1:8090/creator-preview.html" }
+    { label: "BudCast Operations", href: "/mission-control/operations" },
+    { label: "Creator visual preview", href: "/creator-preview" }
   ]
 };

@@ -80,9 +80,13 @@ export default function MissionControlPage() {
                 </Link>
               </Button>
               <Button asChild variant="secondary">
-                <a href="http://127.0.0.1:8090/creator-preview.html" target="_blank">
-                  Creator preview
-                </a>
+                <Link href="/mission-control/operations">
+                  <MonitorCog className="mr-2 h-4 w-4" />
+                  BudCast Operations
+                </Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href="/creator-preview">Creator preview</Link>
               </Button>
               <Button asChild>
                 <Link href="/dashboard">
