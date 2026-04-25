@@ -144,7 +144,7 @@ export default function BrandCampaignDetailPage() {
     return (
       <RouteTransitionScreen
         eyebrow="Checking session"
-        title="Preparing campaign command."
+        title="Preparing campaign brief."
         description="BudCast is validating your session before opening this campaign."
       />
     );
@@ -155,7 +155,7 @@ export default function BrandCampaignDetailPage() {
       <RouteTransitionScreen
         eyebrow="Routing to setup"
         title="Campaign details unlock after setup."
-        description="Brand routing and profile context need to be complete before the operator surfaces open."
+        description="Complete your brand profile before managing campaign briefs."
       />
     );
   }
@@ -164,8 +164,8 @@ export default function BrandCampaignDetailPage() {
     return (
       <RouteTransitionScreen
         eyebrow="Brand only"
-        title="This surface is reserved for brand operators."
-        description="Creator accounts can browse campaigns, but campaign operations live in the brand workspace."
+        title="This campaign dashboard is for cannabis brands."
+        description="Creators can browse opportunities in the mobile app; brands manage briefs, applicants, submissions, and payments here."
       />
     );
   }
@@ -175,7 +175,7 @@ export default function BrandCampaignDetailPage() {
       <RouteTransitionScreen
         eyebrow="Loading campaign"
         title="Pulling live campaign state."
-        description="The operator view is loading the brief, applicants, and submission pipeline from Supabase."
+        description="BudCast is loading the campaign brief, creator applicants, and content submission status."
       />
     );
   }
@@ -187,7 +187,7 @@ export default function BrandCampaignDetailPage() {
           <Eyebrow>Campaign detail</Eyebrow>
           <h1 className="mt-3 font-display text-5xl text-[#f5efe6]">Campaign not available.</h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-stone-300">
-            This campaign either no longer exists in the active workspace or does not belong to the signed-in brand.
+            This campaign either no longer exists in your brand dashboard or does not belong to the signed-in brand.
           </p>
           <div className="mt-6">
             <Button asChild>
@@ -202,7 +202,7 @@ export default function BrandCampaignDetailPage() {
   const detail = campaign.data;
   const counts = applicants.counts;
   const remainingSlots = Math.max((detail.slots_available ?? 0) - (detail.slots_filled ?? 0), 0);
-  const payoutSummary =
+  const compensationSummary =
     detail.cash_amount != null
       ? formatCurrency(detail.cash_amount)
       : detail.product_description || "Product-led";
@@ -213,7 +213,7 @@ export default function BrandCampaignDetailPage() {
         <LacquerSurface className="overflow-hidden px-7 py-8">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div className="max-w-4xl">
-              <Eyebrow>Campaign command</Eyebrow>
+              <Eyebrow>Campaign brief</Eyebrow>
               <h1 className="mt-3 font-display text-5xl text-[#f5efe6] md:text-6xl">{detail.title}</h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
                 {detail.short_description || detail.description || "No campaign summary available yet."}
@@ -249,11 +249,11 @@ export default function BrandCampaignDetailPage() {
 
         {submissionQueue.error ? (
           <SmokedPanel className="border-red-500/30 bg-red-500/10 p-5" role="alert">
-            <Eyebrow className="text-red-200">Submission pipeline</Eyebrow>
+            <Eyebrow className="text-red-200">Submission queue</Eyebrow>
             <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Submission metrics unavailable.</div>
             <p className="mt-2 text-sm leading-7 text-red-100/80">
-              BudCast could not load the proof and payout queue for this campaign, so those counts are withheld instead
-              of shown as zero.
+              BudCast could not load the content submission and payment queue for this campaign, so those counts are
+              withheld instead of shown as zero.
             </p>
           </SmokedPanel>
         ) : null}
@@ -270,13 +270,13 @@ export default function BrandCampaignDetailPage() {
             value={counts.accepted}
           />
           <PipelineCard
-            detail="Accepted creators who have not submitted proof yet."
+            detail="Accepted creators who have not submitted content yet."
             label="Awaiting content"
             value={submissionQueue.error ? "Unavailable" : submissionCounts.awaitingContent}
           />
           <PipelineCard
-            detail="Verified submissions still waiting on final payout confirmation."
-            label="Awaiting payout"
+            detail="Approved submissions still waiting on final payment confirmation."
+            label="Awaiting payment"
             value={submissionQueue.error ? "Unavailable" : submissionCounts.awaitingPayout}
           />
         </section>
@@ -302,11 +302,11 @@ export default function BrandCampaignDetailPage() {
                     <CircleDollarSign className="h-4 w-4" />
                     <span className="text-xs uppercase tracking-[0.2em]">Compensation</span>
                   </div>
-                  <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">{payoutSummary}</div>
+                  <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">{compensationSummary}</div>
                   <div className="mt-2 text-sm leading-6 text-stone-400">
                     {detail.payment_methods?.length > 0
                       ? `Pays through ${detail.payment_methods.map((item) => formatPaymentMethod(item)).join(", ")}.`
-                      : "No payment rail selected for this campaign type."}
+                      : "No payment method selected for this campaign type."}
                   </div>
                 </SmokedPanel>
 
@@ -371,7 +371,7 @@ export default function BrandCampaignDetailPage() {
                   <div className="text-xs uppercase tracking-[0.2em] text-stone-500">Brand mention</div>
                   <div className="mt-3 text-lg font-semibold text-[#f5efe6]">{detail.brand_mention || "Not set"}</div>
                   <div className="mt-2 text-sm leading-6 text-stone-400">
-                    Mention handling is part of the submission verification flow.
+                    Mention handling is part of the content approval flow.
                   </div>
                 </SmokedPanel>
               </div>
@@ -406,7 +406,7 @@ export default function BrandCampaignDetailPage() {
             <LacquerSurface className="p-8">
               <div className="mb-5 flex items-center gap-3 text-[#f5efe6]">
                 <Inbox className="h-5 w-5 text-[#d7c2a0]" />
-                <h2 className="font-display text-3xl">Applicant pipeline</h2>
+                <h2 className="font-display text-3xl">Application queue</h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
                 <SmokedPanel className="p-4">
@@ -417,12 +417,12 @@ export default function BrandCampaignDetailPage() {
                 <SmokedPanel className="p-4">
                   <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Accepted</div>
                   <div className="mt-2 text-2xl font-semibold text-[#f5efe6]">{counts.accepted}</div>
-                  <div className="mt-2 text-sm text-stone-400">Accepted creators feeding the submission loop.</div>
+                  <div className="mt-2 text-sm text-stone-400">Accepted creators moving toward content submission.</div>
                 </SmokedPanel>
                 <SmokedPanel className="p-4">
                   <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Rejected</div>
                   <div className="mt-2 text-2xl font-semibold text-[#f5efe6]">{counts.rejected}</div>
-                  <div className="mt-2 text-sm text-stone-400">Reviewed out of the opportunity pipeline.</div>
+                  <div className="mt-2 text-sm text-stone-400">Reviewed out of this opportunity.</div>
                 </SmokedPanel>
                 <SmokedPanel className="p-4">
                   <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Total</div>
@@ -443,7 +443,7 @@ export default function BrandCampaignDetailPage() {
             <LacquerSurface className="p-8">
               <div className="mb-5 flex items-center gap-3 text-[#f5efe6]">
                 <ShieldCheck className="h-5 w-5 text-[#d7c2a0]" />
-                <h2 className="font-display text-3xl">Submission pipeline</h2>
+                <h2 className="font-display text-3xl">Submission queue</h2>
               </div>
               <div className="grid gap-4">
                 <SmokedPanel className="p-4">
@@ -453,7 +453,7 @@ export default function BrandCampaignDetailPage() {
                   </div>
                 </SmokedPanel>
                 <SmokedPanel className="p-4">
-                  <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Pending verification</div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Needs approval</div>
                   <div className="mt-2 text-2xl font-semibold text-[#f5efe6]">
                     {submissionQueue.error ? "Unavailable" : submissionCounts.pendingVerification}
                   </div>
@@ -465,18 +465,19 @@ export default function BrandCampaignDetailPage() {
                   </div>
                 </SmokedPanel>
                 <SmokedPanel className="p-4">
-                  <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Completed payouts</div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-stone-500">Completed payments</div>
                   <div className="mt-2 text-2xl font-semibold text-[#f5efe6]">
                     {submissionQueue.error ? "Unavailable" : submissionCounts.completed}
                   </div>
                 </SmokedPanel>
               </div>
               <div className="mt-5 text-sm leading-6 text-stone-400">
-                Submission state is computed from the live brand queue backed by `content_submissions`.
+                Submission status is based on accepted creators, submitted content links, approvals, and payment
+                confirmations.
               </div>
               <div className="mt-5">
                 <Button asChild variant="secondary">
-                  <Link href={`/dashboard/submissions?campaign=${detail.id}`}>Open submission operations</Link>
+                  <Link href={`/dashboard/submissions?campaign=${detail.id}`}>Open content submissions</Link>
                 </Button>
               </div>
             </LacquerSurface>

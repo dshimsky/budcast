@@ -79,11 +79,11 @@ export default function ProfileEditScreen() {
           <SectionTitle
             eyebrow="Profile Edit"
             title="Refine the profile brands or creators judge in seconds."
-            description="Edits here use the same shared save mutation as onboarding, so profile quality improves without diverging from the locked data contract."
+            description="Edits here update the same public profile creators and brands see across BudCast."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
             <HeroChip>{isCreator ? "Creator-facing identity" : "Brand-facing identity"}</HeroChip>
-            <HeroChip>Shared save path</HeroChip>
+            <HeroChip>Public profile</HeroChip>
             <HeroChip>Mobile-first editing</HeroChip>
           </View>
         </GlassCard>
@@ -95,7 +95,7 @@ export default function ProfileEditScreen() {
           <TextInput
             className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={(value) => onboarding.setField("name", value)}
-            placeholder={isCreator ? "Display name" : "Operator name"}
+            placeholder={isCreator ? "Display name" : "Brand contact name"}
             placeholderTextColor="#a59a86"
             value={onboarding.name}
           />

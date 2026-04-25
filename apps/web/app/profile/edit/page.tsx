@@ -109,8 +109,8 @@ export default function EditProfilePage() {
                 Edit the public profile the marketplace will actually see.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
-                This writes directly into the locked users row through the existing onboarding save path. The screen is
-                darker and clearer, but the data contract stays exactly the same.
+                This updates your public BudCast profile using the same setup flow, so creators and brands see one
+                consistent profile across the marketplace.
               </p>
             </div>
             <Button asChild variant="secondary">
@@ -128,7 +128,7 @@ export default function EditProfilePage() {
                   {isCreator ? "Creator editing flow" : "Brand editing flow"}
                 </Eyebrow>
                 <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">
-                  Shape the identity, proof, and context the marketplace reads first.
+                  Shape the identity, trust, and context the marketplace reads first.
                 </div>
               </div>
               <div className="rounded-full border border-[#a48756]/30 bg-[#a48756]/10 px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#d7c2a0]">
@@ -144,11 +144,10 @@ export default function EditProfilePage() {
               <div className="max-w-3xl">
                 <Eyebrow className="text-[#b59663]">Profile fields</Eyebrow>
                 <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">
-                  {isCreator ? "Creator identity and niche proof" : "Brand identity and credibility proof"}
+                  {isCreator ? "Creator identity and niche fit" : "Brand identity and credibility"}
                 </div>
                 <p className="mt-3 text-sm leading-7 text-stone-400">
-                  Keep this concise and specific. Every field here feeds the same save flow that onboarding already
-                  hydrates and persists.
+                  Keep this concise and specific. Every field here saves through the same setup flow you already used.
                 </p>
               </div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-stone-300">

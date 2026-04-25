@@ -212,6 +212,11 @@ const STATUS_LABELS: Record<string, string> = {
   active: 'Active',
   paused: 'Paused',
   closed: 'Closed',
+  awaiting_creator: 'Awaiting content',
+  pending_verification: 'Needs review',
+  ready_for_payout: 'Ready for payment',
+  needs_revision: 'Needs revision',
+  verified: 'Approved',
 };
 
 export function formatStatus(raw: string): string {

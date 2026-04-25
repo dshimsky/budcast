@@ -10,9 +10,9 @@ import { Eyebrow } from "../../components/ui/eyebrow";
 import { LacquerSurface } from "../../components/ui/surface-tone";
 
 const signals = [
-  "Paid creator opportunities",
-  "Brand-safe applicant review",
-  "Submission and payout clarity"
+  "Paid content opportunities",
+  "Cannabis brand campaigns",
+  "Submissions, approvals, and payments"
 ];
 
 export default function SignInPage() {
@@ -52,11 +52,11 @@ export default function SignInPage() {
               <div className="max-w-3xl">
                 <Eyebrow className="text-[#b59663]">BudCast access</Eyebrow>
                 <h1 className="mt-4 font-display text-5xl leading-[0.92] text-[#f5efe6] md:text-6xl">
-                  Sign in to the operator layer where campaigns, creators, and payouts stay in sync.
+                  Cannabis brands and content creators, meet where paid content gets done.
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
-                  Shared Supabase auth already routes this session into the right next step. The page just needs to
-                  feel like the same protected marketplace before any campaign data loads.
+                  Creators find paid opportunities from cannabis brands. Brands hire creators for product drops,
+                  launches, UGC, and social campaigns.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
@@ -70,18 +70,18 @@ export default function SignInPage() {
                 <div className="mt-10 grid gap-4 border-t border-white/10 pt-6 md:grid-cols-3">
                   <div>
                     <ShieldCheck className="h-5 w-5 text-stone-400" />
-                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Unified auth</div>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">One session model for both sides of the marketplace.</p>
+                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">One account</div>
+                    <p className="mt-2 text-sm leading-7 text-stone-400">Use BudCast as a creator or cannabis brand.</p>
                   </div>
                   <div>
                     <Sparkles className="h-5 w-5 text-stone-400" />
-                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Premium first impression</div>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">The funnel should stay composed, dark, and credible.</p>
+                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Paid content work</div>
+                    <p className="mt-2 text-sm leading-7 text-stone-400">Find briefs, review applicants, and manage content.</p>
                   </div>
                   <div>
                     <Users2 className="h-5 w-5 text-stone-400" />
-                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Two-sided routing</div>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">Brands and creators diverge after profile hydration, not before.</p>
+                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Clear next steps</div>
+                    <p className="mt-2 text-sm leading-7 text-stone-400">Creators go mobile-first. Brands manage campaigns on desktop.</p>
                   </div>
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function SignInPage() {
                   <Eyebrow className="text-[#b59663]">Sign in</Eyebrow>
                   <h2 className="mt-3 text-3xl font-semibold text-[#f5efe6]">Back into BudCast</h2>
                   <p className="mt-3 text-sm leading-7 text-stone-400">
-                    Enter the account that owns your creator profile or brand workspace.
+                    Sign in to browse opportunities, manage campaigns, submit content, review approvals, and track payments.
                   </p>
                 </div>
 
@@ -101,7 +101,7 @@ export default function SignInPage() {
                     <input
                       className="premium-input mt-2"
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder="name@company.com"
+                      placeholder="creator@email.com or brand@company.com"
                       type="email"
                       value={email}
                     />
@@ -131,7 +131,7 @@ export default function SignInPage() {
                   ) : null}
 
                   <Button className="w-full" disabled={loading || submitting} size="lg" type="submit">
-                    {submitting ? "Signing in..." : "Enter BudCast"}
+                    {submitting ? "Signing in..." : "Sign in to BudCast"}
                     {!submitting ? <ArrowRight className="ml-2 h-4 w-4" /> : null}
                   </Button>
                 </form>

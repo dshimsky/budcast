@@ -13,18 +13,18 @@ import { Eyebrow } from "../components/ui/eyebrow";
 import { LacquerSurface } from "../components/ui/surface-tone";
 
 const metrics = [
-  { label: "Campaigns in motion", value: "18", hint: "seed + live pipeline" },
-  { label: "Verified creator matches", value: "126", hint: "high-intent applicants" },
-  { label: "Median response time", value: "4h", hint: "brand inbox cadence" }
+  { label: "Content briefs live", value: "18", hint: "campaigns ready for creators" },
+  { label: "Creator matches", value: "126", hint: "high-intent applicants" },
+  { label: "Median response time", value: "4h", hint: "brand-to-creator replies" }
 ];
 
 const operatingSignals = [
-  "Verified creator rosters",
-  "Credit-aware campaign launches",
-  "Native creator submissions",
-  "Payout confirmation tracking",
-  "Reputation-first brand ops",
-  "Premium marketplace presentation"
+  "Paid content opportunities",
+  "Cannabis brand campaign briefs",
+  "Creator applications",
+  "Content submissions",
+  "Approval tracking",
+  "Payment confirmation"
 ];
 
 const dualTracks = [
@@ -32,15 +32,15 @@ const dualTracks = [
     title: "Brands",
     eyebrow: "Desktop-grade control",
     description:
-      "Launch paid or gifting campaigns, review creators with evidence, and keep the operation credible from first brief to final payout.",
-    stats: ["Campaign board", "Applicant evidence", "Submission queue"]
+      "Post paid or product-based content briefs, review creator applications, approve submissions, and track payment status.",
+    stats: ["Campaign briefs", "Creator applicants", "Submission queue"]
   },
   {
     title: "Creators",
     eyebrow: "Mobile-native momentum",
     description:
-      "Discover fitting opportunities, apply fast, submit proof cleanly, and keep payment follow-through visible instead of vague.",
-    stats: ["Niche feed", "Fast apply", "Proof + payout tracker"]
+      "Find cannabis brand opportunities, apply from your phone, submit content links, and keep payment status visible.",
+    stats: ["Opportunity feed", "Fast apply", "Submission tracker"]
   }
 ];
 
@@ -57,7 +57,7 @@ export default function HomePage() {
             <div className="h-2.5 w-2.5 rounded-full bg-[#b59663] shadow-[0_0_18px_rgba(181,150,99,0.32)]" />
             <div>
               <div className="text-xs uppercase tracking-[0.3em] text-stone-500">BudCast</div>
-              <div className="text-sm font-medium text-[#f5efe6]">Cannabis creator marketplace</div>
+              <div className="text-sm font-medium text-[#f5efe6]">Cannabis brands meet content creators</div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -66,7 +66,7 @@ export default function HomePage() {
               <Link href="/mission-control">Mission control</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href={workspaceHref}>{session ? "Open workspace" : "Open auth"}</Link>
+              <Link href={workspaceHref}>{session ? "Open BudCast" : "Sign in"}</Link>
             </Button>
           </div>
         </header>
@@ -75,25 +75,24 @@ export default function HomePage() {
           <LacquerSurface className="overflow-hidden px-7 py-8 md:px-10 md:py-10">
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.2fr)_240px] xl:items-end">
               <div className="max-w-4xl">
-                <Eyebrow className="text-[#b59663]">Dark premium moody</Eyebrow>
+                <Eyebrow className="text-[#b59663]">Creator marketplace for cannabis brands</Eyebrow>
                 <h1 className="mt-4 max-w-4xl font-display text-5xl leading-[0.9] text-[#f5efe6] md:text-7xl">
-                  The marketplace should feel expensive before the first campaign ever opens.
+                  Cannabis brands hire creators for paid content.
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300 md:text-lg">
-                  BudCast is the private operator desk for cannabis brands and creators. Discovery, review,
-                  submissions, and payout follow-through should arrive with the same trust signal from the first public
-                  screen onward.
+                  BudCast helps creators find paid opportunities from cannabis brands, and helps brands manage creator
+                  campaigns from brief to submission, approval, and payment.
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Button asChild size="lg">
                     <Link href={workspaceHref}>
-                      {session ? "Enter workspace" : "Open auth"}
+                      {session ? "Open BudCast" : "Sign in"}
                       <ArrowUpRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                   <Button asChild size="lg" variant="secondary">
-                    <Link href="/dashboard/submissions">See marketplace operations</Link>
+                    <Link href="/sign-up">Create an account</Link>
                   </Button>
                 </div>
 
@@ -109,14 +108,14 @@ export default function HomePage() {
               </div>
 
               <div className="max-w-[240px] xl:justify-self-end">
-                <Eyebrow className="text-[#b59663]">Operating split</Eyebrow>
+                <Eyebrow className="text-[#b59663]">Built for both sides</Eyebrow>
                 <div className="mt-3 text-lg font-semibold text-[#f5efe6]">Two-sided by design</div>
                 <p className="mt-3 text-sm leading-7 text-stone-400">
                   {loading
-                    ? "Hydrating the persisted session before the route branches into dashboard or onboarding."
+                    ? "Checking whether this account is a creator or brand."
                     : profile
-                      ? "The public surface stays dark and branded even when the workspace is one click away."
-                      : "The public routes now carry the same protected-marketplace tone before login."}
+                      ? "Your account is ready to continue into the right BudCast flow."
+                      : "Creators usually use mobile. Brands usually manage campaigns on desktop."}
                 </p>
 
                 <div className="mt-6 space-y-5">
@@ -147,9 +146,8 @@ export default function HomePage() {
               </div>
 
               <p className="mt-4 max-w-4xl text-sm leading-7 text-stone-300">
-                Verified creator rosters, credit-aware campaign launches, native submissions, payout confirmation
-                tracking, and premium brand presentation already shape the working product. The public route should
-                simply frame that reality instead of breaking into more dashboard zones.
+                Creators discover opportunities and apply from mobile. Cannabis brands post briefs, review applicants,
+                approve submitted content, and track payment status from desktop.
               </p>
 
               <div className="market-marquee mt-5 border-y border-white/8 py-4">
@@ -167,7 +165,7 @@ export default function HomePage() {
 
               <div className="mt-5 flex flex-wrap gap-3">
                 <Button asChild variant="ghost">
-                  <Link href={session ? "/dashboard" : "/profile"}>{session ? "Dashboard" : "Profile shell"}</Link>
+                  <Link href={session ? "/dashboard" : "/profile"}>{session ? "Brand dashboard" : "Profile"}</Link>
                 </Button>
                 <Button asChild variant="ghost">
                   <Link href="/sign-up">Sign up</Link>

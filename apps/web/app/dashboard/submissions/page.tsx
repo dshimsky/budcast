@@ -103,8 +103,8 @@ function SubmissionQueueInner() {
   const tabs: Array<{ value: QueueTab; label: string; count: number }> = [
     { value: "all", label: "All", count: counts.all },
     { value: "awaiting_creator", label: "Awaiting content", count: counts.awaiting_creator },
-    { value: "pending_verification", label: "Verify", count: counts.pending_verification },
-    { value: "ready_for_payout", label: "Payout", count: counts.ready_for_payout },
+    { value: "pending_verification", label: "Review", count: counts.pending_verification },
+    { value: "ready_for_payout", label: "Payment", count: counts.ready_for_payout },
     { value: "completed", label: "Completed", count: counts.completed }
   ];
 
@@ -113,7 +113,7 @@ function SubmissionQueueInner() {
       <RouteTransitionScreen
         eyebrow="Checking session"
         title="Preparing the submission queue."
-        description="BudCast is validating your session before opening verification and payout operations."
+        description="BudCast is validating your session before opening content review and payment tracking."
       />
     );
   }
@@ -122,8 +122,8 @@ function SubmissionQueueInner() {
     return (
       <RouteTransitionScreen
         eyebrow="Routing to setup"
-        title="Complete setup before opening operations."
-        description="Submission verification depends on a hydrated brand profile and marketplace routing."
+        title="Complete setup before reviewing submissions."
+        description="Content submissions unlock after your brand profile is complete."
       />
     );
   }
@@ -133,7 +133,7 @@ function SubmissionQueueInner() {
       <RouteTransitionScreen
         eyebrow="Brand only"
         title="This queue is brand-side only."
-        description="Creators still track proof and payment from the native app, but verification lives in the brand workspace."
+        description="Creators track submitted content and payment status from the mobile app; brands review submitted content here."
       />
     );
   }
@@ -145,7 +145,7 @@ function SubmissionQueueInner() {
           <Eyebrow>Submission queue</Eyebrow>
           <h1 className="mt-3 font-display text-5xl text-[#f5efe6]">Submission queue unavailable.</h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-stone-300">
-            BudCast could not load verification and payout operations. Try reopening the queue from the dashboard.
+            BudCast could not load content review and payment status. Try reopening the queue from the dashboard.
           </p>
           <div className="mt-6">
             <Button asChild>
@@ -167,7 +167,7 @@ function SubmissionQueueInner() {
         verificationFeedback: feedbackByApplication[applicationId] ?? null
       });
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : "Submission verification failed.");
+      setActionError(error instanceof Error ? error.message : "Content review failed.");
     }
   }
 
@@ -199,11 +199,11 @@ function SubmissionQueueInner() {
             <div className="max-w-3xl">
               <Eyebrow>Submission queue</Eyebrow>
               <h1 className="mt-3 font-display text-5xl text-[#f5efe6] md:text-6xl">
-                Content verification and payout follow-through
+                Review creator content and track payments
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
-                This queue sits between accepted applications and final payment confirmation. It is wired directly to
-                the locked <code>content_submissions</code> table.
+                Accepted creators submit content links here. Brands approve, request changes, and confirm payment
+                status without losing the campaign context.
               </p>
               {activeCampaignTitle ? (
                 <div className="mt-4 inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-stone-300">
@@ -211,7 +211,7 @@ function SubmissionQueueInner() {
                 </div>
               ) : null}
               <div className="mt-5 flex flex-wrap gap-2">
-                {["Submission proof", "Verification motion", "Payout closure"].map((item, index) => (
+                {["Content links", "Approval status", "Payment status"].map((item, index) => (
                   <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
                     {item}
                   </div>
@@ -247,7 +247,7 @@ function SubmissionQueueInner() {
           <SmokedPanel className="p-6">
             <div className="flex items-center gap-3 text-[#d7c2a0]">
               <CircleDollarSign className="h-5 w-5" />
-              <span className="text-sm font-medium uppercase tracking-[0.18em]">Ready for payout</span>
+              <span className="text-sm font-medium uppercase tracking-[0.18em]">Ready for payment</span>
             </div>
             <div className="mt-4 text-4xl font-semibold text-[#f5efe6]">{counts.ready_for_payout}</div>
           </SmokedPanel>
@@ -328,9 +328,9 @@ function SubmissionQueueInner() {
 
           {queue.isLoading ? (
             <SmokedPanel className="border-dashed px-6 py-12 text-center">
-              <p className="text-lg font-medium text-[#f5efe6]">Loading submission operations...</p>
+              <p className="text-lg font-medium text-[#f5efe6]">Loading content submissions...</p>
               <p className="mt-2 text-sm leading-6 text-stone-400">
-                BudCast is pulling the live proof and payout queue before showing empty states.
+                BudCast is pulling the live content and payment queue before showing empty states.
               </p>
             </SmokedPanel>
           ) : visibleRows.length === 0 ? (
@@ -388,7 +388,7 @@ function SubmissionQueueInner() {
                           <div className="text-sm font-medium text-[#f5efe6]">Awaiting creator submission</div>
                           <div className="mt-3 text-sm leading-6 text-stone-400">
                             Creator has been accepted but has not posted content yet. Once they submit a post URL from
-                            the native app, it will appear here for verification.
+                            the mobile app, it will appear here for review.
                           </div>
                         </>
                       ) : (
@@ -421,7 +421,7 @@ function SubmissionQueueInner() {
                     <div className="flex flex-col gap-3">
                       {submission && !submission.payment_confirmed_by_brand ? (
                         <SmokedPanel className="p-4">
-                          <div className="text-sm font-medium text-[#f5efe6]">Payout route</div>
+                          <div className="text-sm font-medium text-[#f5efe6]">Payment method</div>
                           <div className="mt-3 flex flex-wrap gap-2">
                             {(row.opportunity?.payment_methods ?? []).map((method) => {
                               const active = selectedMethod === method;
@@ -449,13 +449,13 @@ function SubmissionQueueInner() {
 
                       {submission ? (
                         <label className="block text-sm font-medium text-stone-200">
-                          Verification or revision note
+                          Approval or revision note
                           <textarea
                             className="premium-textarea mt-2 min-h-[116px] text-sm"
                             onChange={(event) =>
                               setFeedbackByApplication((current) => ({ ...current, [row.id]: event.target.value }))
                             }
-                            placeholder="Optional verification or revision note..."
+                            placeholder="Optional approval or revision note..."
                             value={feedbackByApplication[row.id] ?? submission.verification_feedback ?? ""}
                           />
                         </label>
@@ -468,7 +468,7 @@ function SubmissionQueueInner() {
                               disabled={verifySubmission.isPending}
                               onClick={() => void handleVerification(row.id, submission.id, "verified")}
                             >
-                              Mark verified
+                              Approve content
                             </Button>
                             <Button
                               disabled={verifySubmission.isPending}
@@ -515,8 +515,8 @@ export default function SubmissionQueuePage() {
       fallback={
         <RouteTransitionScreen
           eyebrow="Loading queue"
-          title="Preparing submission operations."
-          description="BudCast is opening the verification queue and applying your current campaign filter."
+          title="Preparing content submissions."
+          description="BudCast is opening the content review queue and applying your current campaign filter."
         />
       }
     >

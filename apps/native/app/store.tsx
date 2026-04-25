@@ -51,9 +51,9 @@ export default function StoreScreen() {
       <FadeInSection>
         <GlassCard>
           <SectionTitle
-            eyebrow="Free store"
-            title="Browse live creator opportunities with more market energy."
-            description="The catalog is reading the same shared campaign query used by web. Apply state and credit refreshes still come from the real RPC."
+            eyebrow="Creator Opportunities"
+            title="Browse paid content opportunities from cannabis brands."
+            description="Find product drops, launches, UGC briefs, and social campaigns that match your niche and audience."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
             {campaignTypes.map((type) => {
@@ -88,7 +88,7 @@ export default function StoreScreen() {
                 {campaign.short_description || campaign.description}
               </Text>
               <View className="mt-4 flex-row flex-wrap gap-2">
-                <HeroChip>{campaign.cash_amount ? formatCurrency(campaign.cash_amount) : "Product-led"}</HeroChip>
+                <HeroChip>{campaign.cash_amount ? formatCurrency(campaign.cash_amount) : "Product only"}</HeroChip>
                 <HeroChip>{campaign.credit_cost_per_slot ?? campaign.credit_cost} credits</HeroChip>
                 <HeroChip>{formatDeadline(campaign.application_deadline)}</HeroChip>
               </View>
@@ -103,7 +103,7 @@ export default function StoreScreen() {
                     </View>
                   ) : null}
                   <Link asChild href={`/campaigns/${campaign.id}`}>
-                    <PrimaryPill className="px-4 py-2">Details</PrimaryPill>
+                    <PrimaryPill className="px-4 py-2">View brief</PrimaryPill>
                   </Link>
                 </View>
               </View>
@@ -113,7 +113,7 @@ export default function StoreScreen() {
 
         {campaigns.isLoading ? (
           <SoftCard>
-            <Text className="text-base text-[#d7cdbd]">Loading campaigns...</Text>
+            <Text className="text-base text-[#d7cdbd]">Loading creator opportunities...</Text>
           </SoftCard>
         ) : null}
       </FadeInSection>

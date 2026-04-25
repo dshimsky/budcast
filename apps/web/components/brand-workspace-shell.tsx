@@ -42,31 +42,31 @@ export function BrandWorkspaceShell({ children }: { children: React.ReactNode })
       href: "/dashboard",
       icon: LayoutDashboard,
       label: "Overview",
-      description: "Workspace pulse"
+      description: "Campaign snapshot"
     },
     {
       href: "/dashboard/campaigns/new",
       icon: Sparkles,
       label: "New Campaign",
-      description: "Launch opportunity"
+      description: "Post a brief"
     },
     {
       href: "/dashboard/submissions",
       icon: ShieldCheck,
       label: "Submissions",
-      description: "Verify and payout"
+      description: "Approve content"
     },
     {
       href: "/profile",
       icon: UserRound,
       label: "Profile",
-      description: "Market identity"
+      description: "Brand identity"
     },
     {
       href: "/onboarding",
       icon: Settings2,
       label: "Setup",
-      description: "Profile routing"
+      description: "Brand details"
     }
   ];
 
@@ -78,14 +78,14 @@ export function BrandWorkspaceShell({ children }: { children: React.ReactNode })
             <div className="rounded-[28px] border border-white/8 bg-white/[0.04] p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <Eyebrow>BudCast Workspace</Eyebrow>
+                  <Eyebrow>BudCast For Brands</Eyebrow>
                   <div className="mt-3 font-display text-3xl leading-tight text-[#f5efe6]">
-                    {profile?.company_name || profile?.name || "Brand workspace"}
+                    {profile?.company_name || profile?.name || "Cannabis brand"}
                   </div>
                   <div className="mt-3 text-sm leading-6 text-stone-300">
                     {onboardingComplete
-                      ? "Protected operator desk for campaign release, creator review, and payout follow-through."
-                      : "Finish setup to unlock the full brand operating flow."}
+                      ? "Post campaign briefs, review creators, approve submitted content, and track payments."
+                      : "Finish setup so creators can understand your brand before applying."}
                   </div>
                 </div>
                 <div
@@ -106,7 +106,7 @@ export function BrandWorkspaceShell({ children }: { children: React.ReactNode })
             </div>
 
             <SmokedPanel className="mt-4 p-4">
-              <Eyebrow>Operator Evidence</Eyebrow>
+              <Eyebrow>Brand Account</Eyebrow>
               <div className="mt-4 grid gap-4">
                 <div className="flex items-center justify-between gap-3 border-b border-white/8 pb-4">
                   <div className="flex items-center gap-3 text-stone-300">

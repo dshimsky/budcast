@@ -87,8 +87,8 @@ export default function DashboardPage() {
     return (
       <RouteTransitionScreen
         eyebrow="Checking session"
-        title="Preparing your brand workspace."
-        description="BudCast is validating your session before opening the dashboard."
+        title="Preparing your brand dashboard."
+        description="BudCast is checking your account before loading campaign briefs and creator applications."
       />
     );
   }
@@ -97,8 +97,8 @@ export default function DashboardPage() {
     return (
       <RouteTransitionScreen
         eyebrow="Routing to setup"
-        title="Your workspace is almost ready."
-        description="Finishing onboarding comes first so the marketplace can route you with the right brand context."
+        title="Your brand profile is almost ready."
+        description="Finish setup so creators can understand your cannabis brand before applying."
       />
     );
   }
@@ -108,13 +108,13 @@ export default function DashboardPage() {
       <main className="grid-overlay min-h-screen px-6 py-10">
         <div className="mx-auto max-w-4xl">
           <Card className="p-8">
-            <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Web workspace</div>
+            <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Brand dashboard</div>
             <h1 className="mt-3 font-display text-5xl text-surface-900">
-              This web shell is optimized for brand operations.
+              This desktop view is built for cannabis brands.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-surface-700">
-              Creator accounts still authenticate here, but the primary creator experience lives in the native app. Use
-              your profile while the responsive creator web surface remains intentionally lightweight.
+              Creators can sign in on web, but the main creator experience is mobile. Use your profile here, then switch
+              to the phone app for opportunities, applications, and content submissions.
             </p>
             <div className="mt-6 flex gap-3">
               <Button asChild>
@@ -138,11 +138,11 @@ export default function DashboardPage() {
             <div className="max-w-3xl">
               <Eyebrow>BudCast Dashboard</Eyebrow>
               <h1 className="mt-3 font-display text-5xl text-[#f5efe6] md:text-6xl">
-                {profile?.company_name || profile?.name || "Brand workspace"}
+                {profile?.company_name || profile?.name || "Brand dashboard"}
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-8 text-stone-300">
-                Run BudCast like a protected operator desk: review creators, release campaigns, and move proof and
-                payouts with confidence.
+                Post campaign briefs, review creator applications, approve content submissions, and track payments in
+                one place.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm">
@@ -164,13 +164,13 @@ export default function DashboardPage() {
             <LacquerSurface className="p-6 md:p-7">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="max-w-3xl">
-                  <Eyebrow>Decision Queue</Eyebrow>
+                  <Eyebrow>Creator Applications</Eyebrow>
                   <div className="mt-3 text-3xl font-semibold text-[#f5efe6] md:text-4xl">
-                    Priority campaigns and next moves
+                    Campaigns that need your next decision
                   </div>
                   <p className="mt-3 text-sm leading-7 text-stone-300">
-                    Keep attention on live review pressure first, then move accepted creators into submission and payout
-                    follow-through.
+                    Start with creator applications, then move accepted creators into content submission, approval, and
+                    payment.
                   </p>
                 </div>
                 <div
@@ -197,14 +197,14 @@ export default function DashboardPage() {
                     <SmokedPanel className="px-6 py-10 text-center">
                       <div className="text-lg font-medium text-[#f5efe6]">Loading live campaigns...</div>
                       <p className="mt-2 text-sm leading-6 text-stone-400">
-                        Holding the decision surface while BudCast hydrates the active campaign queue.
+                        Loading the campaigns your brand has posted.
                       </p>
                     </SmokedPanel>
                   ) : priorityCampaigns.length === 0 ? (
                     <SmokedPanel className="px-6 py-10 text-center">
                       <div className="text-lg font-medium text-[#f5efe6]">No active campaigns yet.</div>
                       <p className="mt-2 text-sm leading-6 text-stone-400">
-                        Open the campaign builder when you are ready to release the first brief into the marketplace.
+                        Create your first campaign brief when you are ready to hire creators.
                       </p>
                     </SmokedPanel>
                   ) : (
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                               </div>
                               <div className="mt-2 text-xl font-semibold text-[#f5efe6]">{campaign.title}</div>
                               <div className="mt-2 text-sm leading-6 text-stone-400">
-                                {campaign.product_description || "Cash-based campaign flow."}
+                                {campaign.product_description || "Paid content campaign."}
                               </div>
                             </div>
                             {campaign.pending_applications > 0 ? (
@@ -252,7 +252,7 @@ export default function DashboardPage() {
                               <div className="mt-2 text-lg font-semibold text-[#f5efe6]">
                                 {formatDeadline(campaign.application_deadline)}
                               </div>
-                              <div className="mt-1 text-sm text-stone-400">Review before the queue hardens.</div>
+                              <div className="mt-1 text-sm text-stone-400">Review before applications close.</div>
                             </div>
                           </div>
 
@@ -276,17 +276,17 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="rounded-[28px] border border-[#a48756]/20 bg-[#120f0c] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
-                  <Eyebrow className="text-[#b59663]">Command Brief</Eyebrow>
-                  <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Release one clear next action</div>
+                  <Eyebrow className="text-[#b59663]">Next Step</Eyebrow>
+                  <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Keep the campaign moving</div>
                   <div className="mt-4 space-y-3 text-sm leading-6 text-stone-300">
-                    <p>Launch a new brief when you need fresh creator supply.</p>
-                    <p>Open the submission queue when proof or payouts need attention.</p>
-                    <p>Keep guidance scarce so the desk reads like command, not decoration.</p>
+                    <p>Post a new brief when you need creators for a product drop, launch, UGC, or social campaign.</p>
+                    <p>Open submissions when accepted creators have content ready for approval.</p>
+                    <p>Use payment status to keep both sides clear on what is complete.</p>
                   </div>
                   <div className="mt-6 grid gap-3">
                     <Button asChild className="w-full justify-center">
                       <Link href="/dashboard/campaigns/new">
-                        Launch campaign
+                        Post a campaign brief
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -294,7 +294,7 @@ export default function DashboardPage() {
                       className="text-center text-sm font-medium text-stone-400 transition hover:text-stone-200"
                       href="/dashboard/submissions"
                     >
-                      Open submission queue
+                      Open content submissions
                     </Link>
                   </div>
                 </div>
@@ -304,8 +304,8 @@ export default function DashboardPage() {
             <LacquerSurface className="p-6">
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <Eyebrow>Campaign Ledger</Eyebrow>
-                  <h2 className="mt-3 font-display text-4xl text-[#f5efe6]">Live opportunities</h2>
+                  <Eyebrow>Campaign Briefs</Eyebrow>
+                  <h2 className="mt-3 font-display text-4xl text-[#f5efe6]">Live creator campaigns</h2>
                 </div>
                 {campaignsQuery.isLoading ? <div className="text-sm text-stone-400">Loading campaigns...</div> : null}
               </div>
@@ -314,14 +314,14 @@ export default function DashboardPage() {
                 <SmokedPanel className="px-6 py-12 text-center">
                   <p className="text-lg font-medium text-[#f5efe6]">Loading live campaigns...</p>
                   <p className="mt-2 text-sm leading-6 text-stone-400">
-                    Keeping the campaign ledger stable while the live opportunity feed resolves.
+                    Loading the campaign briefs your brand has posted.
                   </p>
                 </SmokedPanel>
               ) : campaigns.length === 0 ? (
                 <SmokedPanel className="border-dashed px-6 py-12 text-center">
                   <p className="text-lg font-medium text-[#f5efe6]">No active campaigns yet.</p>
                   <p className="mt-2 text-sm leading-6 text-stone-400">
-                    The dashboard is live on the real brand query and ready for the first campaign release.
+                    Your brand dashboard is ready for the first campaign brief.
                   </p>
                 </SmokedPanel>
               ) : (
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="mt-2 text-xl font-semibold text-[#f5efe6]">{campaign.title}</div>
                             <div className="mt-2 text-sm leading-6 text-stone-400">
-                              {campaign.product_description || "Cash-based campaign flow."}
+                              {campaign.product_description || "Paid content campaign."}
                             </div>
                           </div>
                           <div>
@@ -387,33 +387,33 @@ export default function DashboardPage() {
 
           <div className="grid gap-6">
             <SmokedPanel className="p-5">
-              <Eyebrow>Evidence Rail</Eyebrow>
-              <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Operational state</div>
+              <Eyebrow>Brand Snapshot</Eyebrow>
+              <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Campaign activity</div>
               <div className="mt-5 divide-y divide-white/8 rounded-[22px] border border-white/8 bg-black/20">
                 {[
                   {
                     icon: BriefcaseBusiness,
                     label: "Active campaigns",
                     value: campaigns.length,
-                    note: "Currently live in the marketplace."
+                    note: "Campaign briefs currently visible to creators."
                   },
                   {
                     icon: Inbox,
                     label: "Pending applicants",
                     value: pendingApplicants,
-                    note: "Queue requiring brand review."
+                    note: "Creators waiting for your decision."
                   },
                   {
                     icon: Sparkles,
                     label: "Open slots",
                     value: totalOpenSlots,
-                    note: "Remaining creator acceptances."
+                    note: "Open creator spots across live briefs."
                   },
                   {
                     icon: CreditCard,
                     label: "Credits available",
                     value: profile?.credits_balance ?? 0,
-                    note: "Locked backend balance."
+                    note: "Available for posting creator campaigns."
                   }
                 ].map((item) => {
                   const Icon = item.icon;
@@ -434,22 +434,23 @@ export default function DashboardPage() {
             </SmokedPanel>
 
             <SmokedPanel className="p-5">
-              <Eyebrow>Submission Operations</Eyebrow>
+              <Eyebrow>Content Submissions</Eyebrow>
               <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">
-                {submissionQueueCount} accepted creator commitments in motion
+                {submissionQueueCount} accepted creator assignments in motion
               </div>
               <p className="mt-3 text-sm leading-7 text-stone-300">
-                Verification and payment confirmation remain wired through the locked content submission contract.
+                Review submitted content links, request changes when needed, and confirm payment once the work is
+                approved.
               </p>
               <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#a48756]/20 bg-[#a48756]/10 px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#d7c2a0]">
                 <ShieldCheck className="h-4 w-4 text-[#d7c2a0]" />
-                Submission contract active
+                Submission flow active
               </div>
               <Link
                 className="mt-5 inline-block text-sm font-medium text-stone-300 transition hover:text-[#f5efe6]"
                 href="/dashboard/submissions"
               >
-                Open queue
+                Open submissions
               </Link>
             </SmokedPanel>
 
@@ -457,15 +458,15 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3 text-[#f5efe6]">
                 <Workflow className="h-5 w-5 text-[#d7c2a0]" />
                 <div>
-                  <Eyebrow>Operator Cadence</Eyebrow>
-                  <div className="mt-2 text-2xl font-semibold">Keep the desk moving</div>
+                  <Eyebrow>Brand Workflow</Eyebrow>
+                  <div className="mt-2 text-2xl font-semibold">What to do next</div>
                 </div>
               </div>
               <div className="mt-5 grid gap-3">
                 {[
-                  "Launch campaigns with tighter briefs and cleaner compensation framing.",
-                  "Review creator evidence before the queue goes stale.",
-                  "Push accepted creators into submission and payout follow-through."
+                  "Write clear campaign briefs so creators understand the content you need.",
+                  "Review creator applications before the campaign deadline closes.",
+                  "Approve submitted content and keep payment status visible."
                 ].map((item, index) => (
                   <div className="rounded-[20px] border border-white/8 bg-black/20 p-4" key={item}>
                     <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">Step 0{index + 1}</div>

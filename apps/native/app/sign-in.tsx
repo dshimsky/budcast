@@ -15,9 +15,9 @@ import {
 } from "../components/premium";
 
 const authSignals = [
-  "Creator access",
-  "Brand-safe auth",
-  "Premium first impression"
+  "Paid content opportunities",
+  "Cannabis brand campaigns",
+  "Submissions and payments"
 ];
 
 export default function SignInScreen() {
@@ -90,9 +90,9 @@ export default function SignInScreen() {
       <FadeInSection>
         <GlassCard>
           <SectionTitle
-            eyebrow="BudCast Auth"
-            title="Sign in to the creator marketplace."
-            description="Shared Supabase auth is already mounted here. Native onboarding and creator flows sit on top of the same backend identity."
+            eyebrow="BudCast Sign In"
+            title="Sign in to find paid content work or manage creator campaigns."
+            description="Creators use the phone app to browse cannabis brand opportunities, apply, submit content, and track payment status."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
             {authSignals.map((signal) => (
@@ -109,7 +109,7 @@ export default function SignInScreen() {
             autoCapitalize="none"
             className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={setEmail}
-            placeholder="name@brand.com"
+            placeholder="creator@email.com or brand@company.com"
             placeholderTextColor="#a59a86"
             value={email}
           />
@@ -138,7 +138,7 @@ export default function SignInScreen() {
 
         <SoftCard>
           <Text className="text-sm leading-7 text-surface-300">
-            Need an account or want the mobile preview first?
+            New to BudCast? Create an account, then choose creator or cannabis brand during setup.
           </Text>
           <View className="mt-4 flex-row flex-wrap gap-3">
             <Link asChild href="/">

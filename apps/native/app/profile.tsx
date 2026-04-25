@@ -98,7 +98,7 @@ export default function ProfileScreen() {
             <SectionEyebrow>Creator hub</SectionEyebrow>
             <View className="mt-4 flex-row flex-wrap gap-3">
               <Link asChild href="/store">
-                <PrimaryPill>Browse campaigns</PrimaryPill>
+                <PrimaryPill>Browse opportunities</PrimaryPill>
               </Link>
               <Link asChild href="/applications">
                 <SecondaryPill>My applications</SecondaryPill>
@@ -109,7 +109,7 @@ export default function ProfileScreen() {
             </View>
             <View className="mt-4 gap-3">
               <InfoTile label="Workflow pulse">
-                {pendingApplications} pending applications, {acceptedApplications} accepted campaigns, {awaitingPayout} payout confirmations waiting on you.
+                {pendingApplications} pending applications, {acceptedApplications} accepted campaigns, {awaitingPayout} payment confirmations waiting on you.
               </InfoTile>
             </View>
           </SoftCard>

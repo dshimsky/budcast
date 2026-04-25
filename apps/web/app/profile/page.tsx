@@ -33,7 +33,7 @@ export default function ProfilePage() {
       <RouteTransitionScreen
         eyebrow="Checking session"
         title="Loading your BudCast profile."
-        description="BudCast is validating your account before loading the marketplace identity surface."
+        description="BudCast is checking your account before loading your public marketplace profile."
       />
     );
   }
@@ -49,8 +49,8 @@ export default function ProfilePage() {
   }
 
   const identitySignals = isCreator
-    ? ["Creator trust", "Niche visibility", "Marketplace proof"]
-    : ["Brand trust", "Campaign authority", "Operator identity"];
+    ? ["Creator trust", "Niche visibility", "Marketplace trust"]
+    : ["Brand trust", "Campaign authority", "Brand identity"];
 
   const profileStats = [
     {
@@ -64,21 +64,21 @@ export default function ProfilePage() {
       icon: Sparkles,
       label: "Credits balance",
       value: String(profile?.credits_balance ?? 0),
-      helper: "Locked backend balance, not client-side math.",
+      helper: "Your current BudCast credit balance.",
       valueClassName: ""
     },
     {
       icon: Star,
       label: "Tier",
       value: profile?.tier ?? "free",
-      helper: "Subscription posture carried by the current user row.",
+      helper: "Your current BudCast account tier.",
       valueClassName: "capitalize"
     },
     {
       icon: BadgeCheck,
       label: "Reputation",
       value: String(profile?.review_score ?? "—"),
-      helper: `${profile?.review_count ?? 0} reviews in the current contract.`,
+      helper: `${profile?.review_count ?? 0} reviews on the current profile.`,
       valueClassName: ""
     }
   ];
@@ -87,7 +87,7 @@ export default function ProfilePage() {
     ? [
         "Brands review this profile when deciding who to accept.",
         "Niches drive campaign relevance on the creator side.",
-        "Completion and review signals shape trust before payout."
+        "Completion and review signals shape trust before payment."
       ]
     : [
         "Creators use this profile to decide if a campaign feels credible.",
@@ -132,8 +132,8 @@ export default function ProfilePage() {
                 {profile?.name || profile?.company_name || "No profile yet"}
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
-                This is the identity surface BudCast uses for routing, reputation, and campaign trust. It should read
-                quickly for the other side of the marketplace without feeling like a settings dump.
+                This is the profile creators and cannabis brands see when deciding whether to work together. It should
+                explain who you are quickly without feeling like a settings page.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
                 {identitySignals.map((item) => (
@@ -168,7 +168,7 @@ export default function ProfilePage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <Eyebrow className="text-[#b59663]">
-                  {isCreator ? "Creator identity ledger" : "Brand credibility ledger"}
+                  {isCreator ? "Creator profile" : "Brand credibility"}
                 </Eyebrow>
                 <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">
                   Keep the public surface clear enough to scan in one pass.
@@ -203,10 +203,9 @@ export default function ProfilePage() {
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-6">
               <div className="max-w-3xl">
                 <Eyebrow className="text-[#b59663]">Public details</Eyebrow>
-                <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">Identity, proof, and niche context</div>
+                <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">Identity, trust, and niche context</div>
                 <p className="mt-3 text-sm leading-7 text-stone-400">
-                  The essentials stay grouped here so the profile reads like a working marketplace identity rather than
-                  a stack of disconnected settings.
+                  The essentials stay grouped here so the other side can understand your profile before a campaign starts.
                 </p>
               </div>
               <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-stone-300">
@@ -258,7 +257,7 @@ export default function ProfilePage() {
               <Eyebrow className="text-[#b59663]">Next move</Eyebrow>
               <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Keep the profile current</div>
               <p className="mt-3 text-sm leading-7 text-stone-400">
-                Update the identity source of truth before you ask the marketplace to trust it.
+                Keep your profile current before asking creators or brands to trust it.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Button asChild>

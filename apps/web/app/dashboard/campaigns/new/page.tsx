@@ -269,7 +269,7 @@ export default function NewCampaignPage() {
       <RouteTransitionScreen
         eyebrow="Routing to setup"
         title="A few setup details come first."
-        description="The campaign builder unlocks after onboarding so brand context and credit state are grounded in your real profile."
+        description="The campaign builder unlocks after onboarding so creators can see a complete brand profile."
       />
     );
   }
@@ -278,8 +278,8 @@ export default function NewCampaignPage() {
     return (
       <RouteTransitionScreen
         eyebrow="Brand only"
-        title="This workspace is reserved for brand operators."
-        description="Creator accounts can still use BudCast on web, but campaign publishing lives inside the brand workflow."
+        title="This dashboard is reserved for cannabis brands."
+        description="Creators use BudCast to find opportunities. Cannabis brands use this dashboard to publish campaign briefs."
       />
     );
   }
@@ -293,8 +293,8 @@ export default function NewCampaignPage() {
               <Eyebrow>Campaign builder</Eyebrow>
               <h1 className="mt-3 font-display text-5xl text-[#f5efe6] md:text-6xl">Create a new opportunity</h1>
               <p className="mt-4 max-w-2xl text-base leading-8 text-stone-300">
-                Launch a campaign that feels intentional before it ever reaches the creator feed. Shared store, shared
-                autosave, RPC-only publish, and no client-side credit writes.
+                Create a campaign brief that gives creators clear expectations before it reaches the opportunity feed.
+                Keep compensation, deliverables, deadlines, and brand context easy to understand.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {["Premium brief", "Credit-safe publish", "Creator-facing presentation"].map((item, index) => (
@@ -403,7 +403,7 @@ export default function NewCampaignPage() {
                           ? "Product-only exchange. Lowest credit cost, best for sampling and seeding."
                           : type === "paid"
                             ? "Cash-only creator work. Highest scrutiny and strongest spam resistance."
-                            : "Product + cash. Balanced for premium campaigns with selective payout."}
+                            : "Product + cash. Balanced for premium campaigns with selective payment."}
                       </div>
                       <div className="mt-4 text-sm font-medium text-[#d7c2a0]">
                         {type === "gifting" ? "50" : type === "paid" ? "100" : "75"} credits per slot

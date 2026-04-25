@@ -108,7 +108,7 @@ export default function CampaignApplicantsPage() {
     return (
       <RouteTransitionScreen
         eyebrow="Brand only"
-        title="Applicant review belongs to the brand workspace."
+        title="Applicant review is for cannabis brands."
         description="Creator accounts can manage applications and submissions, but not review queues."
       />
     );
@@ -140,7 +140,7 @@ export default function CampaignApplicantsPage() {
           <Eyebrow>Applicant review</Eyebrow>
           <h1 className="mt-3 font-display text-5xl text-[#f5efe6]">Campaign not available.</h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-stone-300">
-            This campaign either no longer exists in the active workspace or is not available to this brand account.
+            This campaign either no longer exists in your brand dashboard or is not available to this brand account.
           </p>
           <div className="mt-6">
             <Button asChild>
@@ -163,11 +163,11 @@ export default function CampaignApplicantsPage() {
                 {campaign.data?.title || "Campaign applicants"}
               </h1>
               <p className="mt-4 text-base leading-8 text-stone-300">
-                Review queue for {campaign.data?.brand?.company_name ?? "your brand"} with RPC-backed accept/reject
-                logic.
+                Review creator applications for {campaign.data?.brand?.company_name ?? "your brand"} and decide who
+                should create content for this brief.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {["Creator evidence", "Fit review", "Decision queue"].map((item, index) => (
+                {["Creator profile", "Fit review", "Decision queue"].map((item, index) => (
                   <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
                     {item}
                   </div>
@@ -256,7 +256,7 @@ export default function CampaignApplicantsPage() {
             <SmokedPanel className="border-dashed px-6 py-12 text-center">
               <p className="text-lg font-medium text-[#f5efe6]">No applicants in this view.</p>
               <p className="mt-2 text-sm leading-6 text-stone-400">
-                Once creators apply from mobile, they will appear here with RPC-backed review actions.
+                Once creators apply from mobile, they will appear here for brand review.
               </p>
             </SmokedPanel>
           ) : (
@@ -344,7 +344,7 @@ export default function CampaignApplicantsPage() {
                         ) : null}
                         {!pending ? (
                           <div className="mt-4 rounded-[18px] border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-stone-300">
-                            Decision recorded. The queue reflects the locked RPC outcome.
+                            Decision recorded. The application queue is up to date.
                           </div>
                         ) : null}
                       </div>

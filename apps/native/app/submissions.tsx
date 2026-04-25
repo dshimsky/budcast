@@ -131,12 +131,12 @@ export default function SubmissionPipelineScreen() {
         <GlassCard>
           <SectionTitle
             eyebrow="Creator submissions"
-            title="Submit proof, track verification, and confirm payout."
-            description="This screen is wired to accepted applications plus the locked content submission table. It is the creator-side follow-through after application acceptance."
+            title="Submit content, track approval, and confirm payment."
+            description="Accepted campaigns appear here so you can send content links, see brand feedback, and confirm when payment is complete."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
             <HeroChip>{rows.length} accepted campaigns</HeroChip>
-            <HeroChip>{verifiedCount} verified submissions</HeroChip>
+            <HeroChip>{verifiedCount} approved submissions</HeroChip>
           </View>
           {actionError ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{actionError}</Text> : null}
         </GlassCard>
@@ -164,7 +164,7 @@ export default function SubmissionPipelineScreen() {
                     {formatPostType(submission.post_type)} • {formatStatus(submission.verification_status)}
                   </Text>
                   <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
-                    Payment route: {formatPaymentMethod(submission.payment_method)}
+                    Payment method: {formatPaymentMethod(submission.payment_method)}
                   </Text>
                   {submission.verification_feedback ? (
                     <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">{submission.verification_feedback}</Text>
@@ -277,8 +277,8 @@ export default function SubmissionPipelineScreen() {
 
               {submission?.verification_status === "verified" && !submission.payment_confirmed_by_creator ? (
                 <View className="mt-4 gap-3">
-                  <InfoTile label="Payout checkpoint">
-                    Verified proof awaiting your payment confirmation. Confirm only after the brand has paid you.
+                  <InfoTile label="Payment checkpoint">
+                    Approved content is waiting for your payment confirmation. Confirm only after the brand has paid you.
                   </InfoTile>
                   <PrimaryPill onPress={() => void handleConfirmPayment(row.id, submission.id)}>
                     Confirm I was paid

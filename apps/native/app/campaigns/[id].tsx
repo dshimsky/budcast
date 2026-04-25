@@ -29,13 +29,13 @@ function applyErrorCopy(key: ReturnType<typeof parseApplyError>) {
     case "USER_NOT_CREATOR":
       return "Only creator accounts can apply.";
     case "OPPORTUNITY_NOT_AVAILABLE":
-      return "This campaign is no longer available.";
+      return "This opportunity is no longer available.";
     case "OPPORTUNITY_FULL":
       return "All slots are filled.";
     case "ALREADY_APPLIED":
-      return "You already applied to this campaign.";
+      return "You already applied to this opportunity.";
     case "PITCH_REQUIRED":
-      return "Paid and hybrid campaigns require a pitch.";
+      return "Paid and hybrid briefs require a pitch.";
     case "PITCH_LENGTH_INVALID":
       return "Pitch must be between 50 and 500 characters.";
     case "INSUFFICIENT_CREDITS":
@@ -82,7 +82,7 @@ export default function CampaignDetailScreen() {
       <PremiumScroll>
         <GlassCard>
           <Text className="text-base text-surface-300">
-            {campaign.isLoading ? "Loading campaign..." : "Campaign not found."}
+            {campaign.isLoading ? "Loading opportunity..." : "Opportunity not found."}
           </Text>
         </GlassCard>
       </PremiumScroll>
@@ -140,7 +140,7 @@ export default function CampaignDetailScreen() {
               className="mt-3 min-h-[132px] rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               multiline
               onChangeText={setMessage}
-              placeholder="Tell the brand why you are a fit. Paid and hybrid campaigns require 50-500 characters."
+              placeholder="Tell the cannabis brand why your content fits this brief. Paid and hybrid briefs require 50-500 characters."
               placeholderTextColor="#a59a86"
               textAlignVertical="top"
               value={message}
@@ -159,7 +159,7 @@ export default function CampaignDetailScreen() {
         <View className="mb-8 mt-2 flex-row flex-wrap gap-3">
           <HeroChip>{profile?.credits_balance ?? 0} credits available</HeroChip>
           <Link asChild href="/store">
-            <SecondaryPill>Back to store</SecondaryPill>
+            <SecondaryPill>Back to opportunities</SecondaryPill>
           </Link>
           <PrimaryPill
             className={applied ? "opacity-50" : ""}

@@ -54,7 +54,7 @@ const opportunityCards = [
 const creatorFlow = [
   "Browse niche-aligned opportunities with stronger market energy.",
   "Apply quickly without losing trust cues about the brand.",
-  "Track proof, revisions, and payout confirmation in one place."
+  "Track content submissions, revisions, and payment confirmation in one place."
 ];
 
 export default function CreatorPreviewPage() {
@@ -90,7 +90,7 @@ export default function CreatorPreviewPage() {
                 <span className="text-sm font-medium uppercase tracking-[0.22em]">Creator home</span>
               </div>
               <div className="rounded-full border border-white/70 bg-white/55 px-4 py-2 text-xs uppercase tracking-[0.24em] text-surface-600">
-                Discovery x trust x payout clarity
+                Discovery x trust x payment clarity
               </div>
             </div>
 
@@ -99,8 +99,8 @@ export default function CreatorPreviewPage() {
                 A creator dashboard that feels alive, curated, and worth checking daily.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-surface-700 md:text-lg">
-                This preview represents the creator-side command surface: live opportunity discovery, quick-apply
-                momentum, and a clear line from application to proof to payout confirmation.
+                This preview represents the creator dashboard: live opportunity discovery, quick-apply momentum, and a
+                clear line from application to content submission to payment confirmation.
               </p>
             </div>
 
@@ -153,15 +153,15 @@ export default function CreatorPreviewPage() {
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <div className="text-xs uppercase tracking-[0.24em] text-surface-500">Creator signals</div>
-                  <h2 className="mt-2 font-display text-3xl text-surface-900">Activity rail</h2>
+                  <h2 className="mt-2 font-display text-3xl text-surface-900">Activity feed</h2>
                 </div>
                 <HeartHandshake className="h-5 w-5 text-herb-700" />
               </div>
               <div className="grid gap-3">
                 {[
                   "2 brands viewed your profile today",
-                  "1 submission is awaiting verification",
-                  "1 accepted campaign is ready for content proof"
+                  "1 submission is awaiting brand review",
+                  "1 accepted campaign is ready for content"
                 ].map((item, index) => (
                   <div className="rounded-[22px] border border-white/80 bg-white/75 p-4" key={item}>
                     <div className="text-xs uppercase tracking-[0.2em] text-surface-500">Signal 0{index + 1}</div>
@@ -213,7 +213,7 @@ export default function CreatorPreviewPage() {
             <Card className="animate-enter animate-enter-delay-2 p-6">
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.24em] text-surface-500">Proof and payout</div>
+                  <div className="text-xs uppercase tracking-[0.24em] text-surface-500">Content and payment</div>
                   <h2 className="mt-2 font-display text-3xl text-surface-900">Submission clarity</h2>
                 </div>
                 <BadgeCheck className="h-5 w-5 text-herb-700" />
@@ -222,8 +222,8 @@ export default function CreatorPreviewPage() {
                 {[
                   {
                     label: "Northbank Extracts",
-                    state: "Verified by brand",
-                    note: "Waiting on payout confirmation"
+                    state: "Approved by brand",
+                    note: "Waiting on payment confirmation"
                   },
                   {
                     label: "Juniper Farms",

@@ -78,13 +78,13 @@ export default function OnboardingScreen() {
         <GlassCard>
           <SectionTitle
             eyebrow="Marketplace Setup"
-            title="Shape how BudCast presents you before the first match."
-            description="This is the mobile-first profile setup for creators and brands. It writes to the same locked shared user row as web, but the experience is lighter, faster, and more personal."
+            title="Tell BudCast whether you are a content creator or a cannabis brand."
+            description="Creators build a profile brands can review. Brands set up the company profile creators will see before applying to paid content briefs."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
-            <HeroChip>Creator-ready identity</HeroChip>
-            <HeroChip>Brand-safe presentation</HeroChip>
-            <HeroChip>Shared backend contract</HeroChip>
+            <HeroChip>Creator profiles</HeroChip>
+            <HeroChip>Cannabis brand profiles</HeroChip>
+            <HeroChip>Paid content matching</HeroChip>
           </View>
         </GlassCard>
       </FadeInSection>
@@ -113,7 +113,7 @@ export default function OnboardingScreen() {
               onPress={() => onboarding.setUserType("brand")}
             >
               <Text className={onboarding.userType === "brand" ? selectedPillTextClass : unselectedPillTextClass}>
-                Brand operator
+                Cannabis brand
               </Text>
             </Pressable>
             <Pressable
@@ -123,7 +123,7 @@ export default function OnboardingScreen() {
               onPress={() => onboarding.setUserType("creator")}
             >
               <Text className={onboarding.userType === "creator" ? selectedPillTextClass : unselectedPillTextClass}>
-                Creator talent
+                Content creator
               </Text>
             </Pressable>
             <Pressable
@@ -148,7 +148,7 @@ export default function OnboardingScreen() {
           <TextInput
             className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={(value) => onboarding.setField("name", value)}
-            placeholder={isCreator ? "Display name" : "Operator name"}
+            placeholder={isCreator ? "Creator name" : "Brand contact name"}
             placeholderTextColor="#a59a86"
             value={onboarding.name}
           />
@@ -163,7 +163,7 @@ export default function OnboardingScreen() {
             className="mt-3 min-h-[108px] rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             multiline
             onChangeText={(value) => onboarding.setField("bio", value)}
-            placeholder="Tell brands or creators what makes you a strong fit."
+            placeholder={isCreator ? "Tell cannabis brands what kind of content you make." : "Tell creators what your cannabis brand is about."}
             placeholderTextColor="#a59a86"
             textAlignVertical="top"
             value={onboarding.bio}
@@ -190,7 +190,7 @@ export default function OnboardingScreen() {
             <View className="mt-4">
               <Text className="text-sm font-medium text-surface-300">Niche focus</Text>
               <Text className="mt-2 text-sm leading-6 text-surface-300">
-                Select the categories where you want paid opportunities to find you first.
+                Select the cannabis categories where you want paid content opportunities to find you first.
               </Text>
               <View className="mt-4 flex-row flex-wrap gap-2">
                 {creatorNiches.map((niche) => {
@@ -234,7 +234,8 @@ export default function OnboardingScreen() {
 
         <SoftCard>
           <Text className="text-sm leading-6 text-surface-300">
-            BudCast uses this profile to control matching context, marketplace trust, and role-based routing across web and native.
+            BudCast uses this profile so creators and cannabis brands understand who they are working with before a
+            campaign starts.
           </Text>
           <PrimaryPill
             className={`mt-5 py-4 ${!session || saveProfile.isPending || !canSubmit ? "opacity-50" : ""}`}

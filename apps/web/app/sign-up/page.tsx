@@ -11,8 +11,8 @@ import { LacquerSurface } from "../../components/ui/surface-tone";
 
 const valueProps = [
   "Find paid creator opportunities",
-  "Launch brand-safe campaigns",
-  "Keep payout follow-through visible"
+  "Post cannabis brand campaign briefs",
+  "Track submissions, approvals, and payments"
 ];
 
 export default function SignUpPage() {
@@ -57,8 +57,7 @@ export default function SignUpPage() {
                   <Eyebrow className="text-[#b59663]">Create account</Eyebrow>
                   <h1 className="mt-3 text-3xl font-semibold text-[#f5efe6]">Open your BudCast account</h1>
                   <p className="mt-3 text-sm leading-7 text-stone-400">
-                    Shared auth is already live. After this route, onboarding decides whether the same backend powers a
-                    creator or brand profile.
+                    Create one account, then choose whether you are joining as a content creator or a cannabis brand.
                   </p>
                 </div>
 
@@ -68,7 +67,7 @@ export default function SignUpPage() {
                     <input
                       className="premium-input mt-2"
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder="name@company.com"
+                      placeholder="creator@email.com or brand@company.com"
                       type="email"
                       value={email}
                     />
@@ -112,11 +111,11 @@ export default function SignUpPage() {
               <div className="max-w-3xl lg:pl-4">
                 <Eyebrow className="text-[#b59663]">Marketplace entry</Eyebrow>
                 <h2 className="mt-4 font-display text-5xl leading-[0.92] text-[#f5efe6] md:text-6xl">
-                  A creator marketplace should feel like a high-trust invitation, not a commodity sign-up form.
+                  Join the marketplace where cannabis brands hire creators for paid content.
                 </h2>
                 <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
-                  BudCast sells credibility to both sides. The moment of account creation should already suggest the
-                  quality of the brands, creators, and campaign flow behind the door.
+                  Creators can apply to paid content opportunities. Brands can post campaign briefs, review creators,
+                  approve submissions, and keep payment status clear.
                 </p>
 
                 <div className="mt-10 grid gap-4 border-t border-white/10 pt-6 md:grid-cols-3">

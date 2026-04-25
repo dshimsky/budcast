@@ -15,9 +15,9 @@ import {
 } from "../components/premium";
 
 const signUpSignals = [
-  "Creator discovery",
-  "Paid opportunities",
-  "Clean payout follow-through"
+  "Paid creator opportunities",
+  "Cannabis brand briefs",
+  "Submissions and payments"
 ];
 
 export default function SignUpScreen() {
@@ -54,9 +54,9 @@ export default function SignUpScreen() {
       <FadeInSection>
         <GlassCard>
           <SectionTitle
-            eyebrow="BudCast Auth"
-            title="Create an account that opens into the marketplace, not a dead form."
-            description="Sign-up is wired to the same shared auth provider as web. Onboarding remains native-first so the creator path feels more personal."
+            eyebrow="Create BudCast Account"
+            title="Join as a content creator or cannabis brand."
+            description="Creators can find paid content opportunities from cannabis brands. Brands can post campaign briefs and manage creator work."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
             {signUpSignals.map((signal) => (
@@ -73,7 +73,7 @@ export default function SignUpScreen() {
             autoCapitalize="none"
             className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={setEmail}
-            placeholder="name@brand.com"
+            placeholder="creator@email.com or brand@company.com"
             placeholderTextColor="#a59a86"
             value={email}
           />

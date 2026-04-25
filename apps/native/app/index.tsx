@@ -40,8 +40,8 @@ export default function NativeHomeScreen() {
           <GlassCard>
             <SectionTitle
               eyebrow="Creator home"
-              title="Discover the market from inside the dark room."
-              description="BudCast mobile should feel premium, alive, and trustworthy while staying easier to approach than the brand workspace."
+              title="Find paid content opportunities from cannabis brands."
+              description="BudCast mobile helps creators browse briefs, apply quickly, submit content, and track payment status."
             />
             <View className="mt-6 flex-row flex-wrap gap-3">
               <Link asChild href="/sign-in">
@@ -50,7 +50,7 @@ export default function NativeHomeScreen() {
               <Link asChild href="/sign-up">
                 <SecondaryPill>Create account</SecondaryPill>
               </Link>
-              <HeroChip>{loading ? "Hydrating session" : "No active session"}</HeroChip>
+              <HeroChip>{loading ? "Checking sign-in" : "No active session"}</HeroChip>
             </View>
           </GlassCard>
         </FadeInSection>
@@ -72,7 +72,7 @@ export default function NativeHomeScreen() {
             <SectionTitle
               eyebrow="Finish setup"
               title="Your account needs a real public profile before the marketplace opens."
-              description="We already know who you are from auth. Now write the public profile row that powers campaigns, reputation, and application logic."
+              description="Create the public profile that powers campaign matching, creator applications, and brand trust."
             />
             <View className="mt-6 flex-row flex-wrap gap-3">
               <Link asChild href="/onboarding">
@@ -96,8 +96,8 @@ export default function NativeHomeScreen() {
           <GlassCard>
             <SectionTitle
               eyebrow="Brand on mobile"
-              title="Desktop still owns the serious control plane for brand operations."
-              description="Native brand support can exist, but the heavy campaign management surface remains web-first. This mobile shell is a cleaner quick-check layer."
+              title="Desktop is best for managing campaigns."
+              description="Mobile gives cannabis brands a quick-check view. Use desktop to post briefs, review creators, approve content, and track payments."
             />
             <View className="mt-6 flex-row flex-wrap gap-3">
               <Link asChild href="/profile">
@@ -133,14 +133,14 @@ export default function NativeHomeScreen() {
           <SectionTitle
             eyebrow="Creator home"
             title="The creator marketplace lives here first."
-            description="This feed is already powered by the real niche-based campaign query. The goal now is to make discovery feel alive, not just functional."
+            description="Browse cannabis brand briefs that match your niche, then apply from your phone when the fit is right."
           />
           <View className="mt-6 flex-row flex-wrap gap-3">
             <Link asChild href="/profile">
               <PrimaryPill>Open profile</PrimaryPill>
             </Link>
             <Link asChild href="/store">
-              <SecondaryPill>Open store</SecondaryPill>
+              <SecondaryPill>Browse opportunities</SecondaryPill>
             </Link>
             <Link asChild href="/applications">
               <SecondaryPill>My applications</SecondaryPill>

@@ -73,11 +73,11 @@ export default function OnboardingPage() {
                 <div className="max-w-3xl">
                   <Eyebrow className="text-[#b59663]">Onboarding</Eyebrow>
                   <h1 className="mt-4 font-display text-5xl leading-[0.92] text-[#f5efe6] md:text-6xl">
-                    BudCast should know whether you are here to hire creators or become one.
+                    Tell BudCast whether you are a content creator or a cannabis brand.
                   </h1>
                   <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
-                    Creator and brand onboarding diverge immediately, but they still persist through the same shared
-                    store and profile save path. The fork should feel intentional, not technical.
+                    Creators build a profile brands can review. Brands set up the company profile creators will see
+                    before applying to a paid content brief.
                   </p>
                 </div>
 
@@ -88,7 +88,7 @@ export default function OnboardingPage() {
                     variant={userType === "brand" ? "primary" : "secondary"}
                   >
                     <BriefcaseBusiness className="mr-2 h-4 w-4" />
-                    I&apos;m a brand
+                    I&apos;m a cannabis brand
                   </Button>
                   <Button
                     aria-pressed={userType === "creator"}
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
                     variant={userType === "creator" ? "primary" : "secondary"}
                   >
                     <Users2 className="mr-2 h-4 w-4" />
-                    I&apos;m a creator
+                    I&apos;m a content creator
                   </Button>
                   <Button onClick={() => onboarding.reset()} variant="ghost">
                     <RefreshCcw className="mr-2 h-4 w-4" />
@@ -107,7 +107,7 @@ export default function OnboardingPage() {
 
               {!session && !loading ? (
                 <div className="mt-6 rounded-[24px] border border-amber-400/20 bg-amber-400/10 px-4 py-4 text-sm leading-7 text-amber-100">
-                  You need an authenticated session before this can save to Supabase.
+                  You need to sign in before this can save.
                   <Link className="ml-2 font-medium text-[#f5efe6]" href="/sign-in">
                     Sign in
                   </Link>
@@ -121,7 +121,7 @@ export default function OnboardingPage() {
                       {isCreator ? "Creator profile setup" : "Brand profile setup"}
                     </Eyebrow>
                     <h2 className="mt-3 text-3xl font-semibold text-[#f5efe6]">
-                      {isCreator ? "Build the creator profile brands will review." : "Set up the brand profile creators will trust."}
+                      {isCreator ? "Build the profile cannabis brands will review." : "Set up the brand profile creators will trust."}
                     </h2>
                   </div>
                   <div
@@ -138,20 +138,20 @@ export default function OnboardingPage() {
                 <div className="mt-5 max-w-3xl text-sm leading-7 text-stone-400">
                   {isCreator ? (
                     <p>
-                      Creator setup asks for identity, social proof, and clear niches so brands can trust the profile
-                      enough to spend credits on it.
+                      Add your creator name, location, social handles, and cannabis content niches so brands understand
+                      what type of paid work fits you.
                     </p>
                   ) : (
                     <p>
-                      Brand setup asks for owner context and company credibility so creators can trust who is posting
-                      the campaign.
+                      Add your company name, location, website, and brand context so creators know who is posting the
+                      campaign brief.
                     </p>
                   )}
                 </div>
 
                 <div className="mt-8 grid gap-5 md:grid-cols-2">
                   <label className="text-sm font-medium text-stone-200">
-                    {isCreator ? "Display name" : "Owner name"}
+                    {isCreator ? "Creator name" : "Brand contact name"}
                     <input
                       className="premium-input mt-2"
                       onChange={(event) => onboarding.setField("name", event.target.value)}

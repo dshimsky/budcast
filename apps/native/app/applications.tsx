@@ -52,13 +52,13 @@ export default function ApplicationsScreen() {
         <GlassCard>
           <SectionTitle
             eyebrow="Applications"
-            title="Track every creator commitment like an active deal flow."
-            description="This view reflects the shared applications query, with accepted, pending, and completed commitments tied directly to the real marketplace contract."
+            title="Track your applications to cannabis brand campaigns."
+            description="See which content opportunities are pending, accepted, or complete, and jump into submissions when a brand accepts you."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
-            <HeroChip>Real backend statuses</HeroChip>
-            <HeroChip>Deadline-aware</HeroChip>
-            <HeroChip>Submission-linked workflow</HeroChip>
+            <HeroChip>Application status</HeroChip>
+            <HeroChip>Brand deadlines</HeroChip>
+            <HeroChip>Submission-ready</HeroChip>
           </View>
         </GlassCard>
       </FadeInSection>
@@ -96,7 +96,7 @@ export default function ApplicationsScreen() {
 
             <View className="mt-5 flex-row flex-wrap gap-3">
               <Link asChild href={`/campaigns/${application.opportunity_id}`}>
-                <PrimaryPill className="px-4 py-3">View campaign</PrimaryPill>
+                <PrimaryPill className="px-4 py-3">View brief</PrimaryPill>
               </Link>
               {application.status === "accepted" || application.status === "completed" ? (
                 <Link asChild href="/submissions">
@@ -116,11 +116,11 @@ export default function ApplicationsScreen() {
         {!applications.isLoading && (applications.data?.length ?? 0) === 0 ? (
           <SoftCard>
             <Text className="text-base leading-7 text-surface-300">
-              You have not applied to any campaigns yet. The store is where new paid opportunities start moving.
+              You have not applied to any content opportunities yet. Browse cannabis brand briefs to find paid work.
             </Text>
             <View className="mt-4 flex-row flex-wrap gap-3">
               <Link asChild href="/store">
-                <PrimaryPill className="px-4 py-3">Browse campaigns</PrimaryPill>
+                <PrimaryPill className="px-4 py-3">Browse opportunities</PrimaryPill>
               </Link>
             </View>
           </SoftCard>
