@@ -11,6 +11,7 @@ import {
   selectCanPublish,
   selectCreditCost,
   selectHasInsufficientCredits,
+  selectStepMissingFields,
   selectStepStatus,
   selectTotalCreditsRequired,
   STEP_NAMES,
@@ -29,8 +30,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, CircleCheckBig, LoaderCircle, Save, Sparkles, TriangleAlert } from "lucide-react";
 import { BrandWorkspaceShell } from "../../../../components/brand-workspace-shell";
 import { RouteTransitionScreen } from "../../../../components/route-transition-screen";
+import { Eyebrow } from "../../../../components/ui/eyebrow";
 import { Button } from "../../../../components/ui/button";
-import { Card } from "../../../../components/ui/card";
+import { LacquerSurface, SmokedPanel } from "../../../../components/ui/surface-tone";
 
 const categories: CampaignCategory[] = [
   "flower",
@@ -56,6 +58,8 @@ const paymentMethods: PaymentMethod[] = ["venmo", "zelle", "cashapp", "paypal"];
 const inputClassName = "premium-input mt-2";
 const textAreaClassName = "premium-textarea mt-2";
 const compactInputClassName = "premium-input";
+const fieldLabelClassName = "text-sm font-medium text-stone-200";
+const detailPanelClassName = "rounded-[24px] border border-white/8 bg-black/20 p-4";
 
 function toDateTimeLocal(value: string | null | undefined) {
   if (!value) return "";
@@ -80,21 +84,22 @@ function StepChip({
 }) {
   const tone =
     status === "complete"
-      ? "border-herb-200 bg-herb-50/90 text-herb-800 shadow-[0_16px_34px_rgba(67,87,48,0.10)]"
+      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100 shadow-[0_18px_44px_rgba(16,185,129,0.12)]"
       : status === "error"
-        ? "border-red-200 bg-red-50 text-red-700"
+        ? "border-red-400/30 bg-red-500/10 text-red-100"
         : active
-          ? "border-white/85 bg-white/84 text-surface-900 shadow-[0_18px_40px_rgba(33,27,20,0.08)]"
-          : "border-white/70 bg-white/58 text-surface-700";
+          ? "border-[#a48756]/40 bg-[#a48756]/14 text-[#f5efe6] shadow-[0_20px_50px_rgba(0,0,0,0.24)]"
+          : "border-white/8 bg-white/[0.03] text-stone-300";
 
   return (
     <button
-      className={`flex w-full items-center justify-between rounded-[24px] border px-4 py-4 text-left transition duration-300 hover:-translate-y-0.5 ${tone}`}
+      aria-pressed={active}
+      className={`flex w-full items-center justify-between rounded-[24px] border px-4 py-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-white/14 hover:bg-white/[0.05] ${tone}`}
       onClick={onClick}
       type="button"
     >
       <div>
-        <div className="text-xs uppercase tracking-[0.18em]">Step {step}</div>
+        <div className="text-xs uppercase tracking-[0.22em] text-stone-500">Step {step}</div>
         <div className="mt-1 text-sm font-medium">{label}</div>
       </div>
       {status === "complete" ? <CircleCheckBig className="h-4 w-4" /> : null}
@@ -113,10 +118,11 @@ function ToggleChip({
 }) {
   return (
     <button
+      aria-pressed={active}
       className={`rounded-full px-4 py-2 text-sm transition duration-300 ${
         active
-          ? "bg-herb-700 text-white shadow-[0_14px_30px_rgba(67,87,48,0.18)]"
-          : "border border-surface-200 bg-white/82 text-surface-700 hover:-translate-y-0.5"
+          ? "border border-[#a48756]/40 bg-[#a48756]/14 text-[#f5efe6] shadow-[0_14px_30px_rgba(164,135,86,0.16)]"
+          : "border border-white/10 bg-white/[0.04] text-stone-300 hover:-translate-y-0.5 hover:border-white/16 hover:bg-white/[0.06]"
       }`}
       onClick={onClick}
       type="button"
@@ -127,7 +133,14 @@ function ToggleChip({
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <div className="mb-2 text-sm font-medium uppercase tracking-[0.18em] text-surface-600">{children}</div>;
+  return <div className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-stone-500">{children}</div>;
+}
+
+function formatMissingFieldList(items: string[]) {
+  if (items.length === 0) return "";
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
 export default function NewCampaignPage() {
@@ -144,6 +157,7 @@ export default function NewCampaignPage() {
   const [hashtagInput, setHashtagInput] = useState("");
   const [referenceInput, setReferenceInput] = useState("");
   const [publishFeedback, setPublishFeedback] = useState<string | null>(null);
+  const [draftFeedback, setDraftFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !session) {
@@ -173,13 +187,22 @@ export default function NewCampaignPage() {
       ([1, 2, 3, 4, 5, 6] as StepNumber[]).map((step) => ({
         step,
         label: STEP_NAMES[step],
-        status: selectStepStatus(state, step)
+        status: selectStepStatus(state, step),
+        missing: selectStepMissingFields(state, step)
       })),
     [state]
+  );
+  const unmetRequirements = useMemo(
+    () =>
+      steps
+        .filter(({ step }) => step < 6)
+        .flatMap(({ label, missing }) => missing.map((item) => `${label}: ${item}`)),
+    [steps]
   );
 
   async function handleResumeLatestDraft() {
     if (!profile || !latestDraft) return;
+    setDraftFeedback(null);
     useCampaignForm.getState().hydrate(latestDraft, profile.credits_balance ?? 0);
     hasHydratedRef.current = true;
     setDraftPromptDismissed(true);
@@ -187,6 +210,7 @@ export default function NewCampaignPage() {
 
   async function handleDiscardDrafts() {
     try {
+      setDraftFeedback(null);
       await drafts.deleteAllDrafts.mutateAsync();
       if (profile) {
         useCampaignForm.getState().hydrate(null, profile.credits_balance ?? 0);
@@ -194,7 +218,7 @@ export default function NewCampaignPage() {
       }
       setDraftPromptDismissed(true);
     } catch (error) {
-      setPublishFeedback(error instanceof Error ? error.message : "Failed to discard drafts.");
+      setDraftFeedback(error instanceof Error ? error.message : "Failed to discard drafts.");
     }
   }
 
@@ -263,45 +287,45 @@ export default function NewCampaignPage() {
   return (
     <BrandWorkspaceShell>
       <div className="flex flex-col gap-6">
-        <header className="hero-orbit overflow-hidden rounded-[34px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.9),rgba(255,248,240,0.72))] px-6 py-6 shadow-[0_24px_70px_rgba(33,27,20,0.1)] backdrop-blur">
+        <LacquerSurface className="overflow-hidden px-7 py-8">
           <div className="flex flex-wrap items-start justify-between gap-5">
-          <div className="max-w-3xl">
-            <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Campaign builder</div>
-            <h1 className="mt-3 font-display text-5xl text-surface-900 md:text-6xl">Create a new opportunity</h1>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-surface-700">
-              Launch a campaign that feels intentional before it ever reaches the creator feed. Shared store, shared
-              autosave, RPC-only publish, and no client-side credit writes.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {["Premium brief", "Credit-safe publish", "Creator-facing presentation"].map((item, index) => (
-                <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
-                  {item}
-                </div>
-              ))}
+            <div className="max-w-3xl">
+              <Eyebrow>Campaign builder</Eyebrow>
+              <h1 className="mt-3 font-display text-5xl text-[#f5efe6] md:text-6xl">Create a new opportunity</h1>
+              <p className="mt-4 max-w-2xl text-base leading-8 text-stone-300">
+                Launch a campaign that feels intentional before it ever reaches the creator feed. Shared store, shared
+                autosave, RPC-only publish, and no client-side credit writes.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {["Premium brief", "Credit-safe publish", "Creator-facing presentation"].map((item, index) => (
+                  <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-stone-300">
+                <Save className="h-4 w-4 text-[#d7c2a0]" />
+                {state.last_saved_at ? `Saved ${new Date(state.last_saved_at).toLocaleTimeString()}` : "Autosave ready"}
+              </div>
+              <Button asChild variant="secondary">
+                <Link href="/dashboard">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to dashboard
+                </Link>
+              </Button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-surface-600">
-              <Save className="h-4 w-4" />
-              {state.last_saved_at ? `Saved ${new Date(state.last_saved_at).toLocaleTimeString()}` : "Autosave ready"}
-            </div>
-            <Button asChild variant="secondary">
-              <Link href="/dashboard">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to dashboard
-              </Link>
-            </Button>
-          </div>
-          </div>
-        </header>
+        </LacquerSurface>
 
         {latestDraft && !state.draft_id && !draftPromptDismissed ? (
-          <Card className="soft-panel p-6">
+          <SmokedPanel className="p-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <div className="text-sm font-semibold text-surface-900">Resume latest draft?</div>
-                <p className="mt-1 text-sm leading-6 text-surface-700">
-                  Found an unfinished draft: <span className="font-medium">{latestDraft.display_title}</span>
+                <div className="text-sm font-semibold text-[#f5efe6]">Resume latest draft?</div>
+                <p className="mt-1 text-sm leading-6 text-stone-300">
+                  Found an unfinished draft: <span className="font-medium text-stone-100">{latestDraft.display_title}</span>
                 </p>
               </div>
               <div className="flex gap-3">
@@ -315,54 +339,73 @@ export default function NewCampaignPage() {
                   Discard drafts
                 </Button>
               </div>
+              {draftFeedback ? (
+                <div className="basis-full rounded-[24px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+                  {draftFeedback}
+                </div>
+              ) : null}
             </div>
-          </Card>
+          </SmokedPanel>
         ) : null}
 
         <section className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
-          <aside className="space-y-3">
-            {steps.map(({ step, label, status }) => (
-              <StepChip
-                active={currentStep === step}
-                key={step}
-                label={label}
-                onClick={() => useCampaignForm.getState().setStep(step)}
-                status={status}
-                step={step}
-              />
-            ))}
-          </aside>
+          <LacquerSurface className="h-fit p-4">
+            <div className="mb-4 px-2">
+              <Eyebrow>Builder flow</Eyebrow>
+              <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Step control</div>
+              <p className="mt-2 text-sm leading-6 text-stone-400">
+                Move through the brief in order. Completed sections stay marked, but publish rules remain unchanged.
+              </p>
+            </div>
+            <aside className="space-y-3">
+              {steps.map(({ step, label, status }) => (
+                <StepChip
+                  active={currentStep === step}
+                  key={step}
+                  label={label}
+                  onClick={() => useCampaignForm.getState().setStep(step)}
+                  status={status}
+                  step={step}
+                />
+              ))}
+            </aside>
+          </LacquerSurface>
 
-          <Card className="soft-panel p-8">
+          <LacquerSurface className="p-8">
             {currentStep === 1 ? (
               <div>
-                <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Step 1</div>
-                <h2 className="mt-2 font-display text-4xl text-surface-900">Choose campaign type</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-surface-700">
+                <Eyebrow>Step 1</Eyebrow>
+                <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">Choose campaign type</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-300">
                   Type determines credit cost, compensation requirements, and locked compliance hashtags.
                 </p>
                 <div className="mt-6 grid gap-4 lg:grid-cols-3">
                   {(["gifting", "paid", "hybrid"] as const).map((type) => (
                     <button
-                      className="rounded-[28px] border border-white/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.86),rgba(251,248,244,0.72))] p-5 text-left transition duration-300 hover:-translate-y-1 hover:border-herb-300 hover:shadow-[0_20px_50px_rgba(33,27,20,0.10)]"
+                      aria-pressed={state.campaign_type === type}
+                      className={`rounded-[28px] border p-5 text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.24)] ${
+                        state.campaign_type === type
+                          ? "border-[#a48756]/40 bg-[#a48756]/12"
+                          : "border-white/8 bg-white/[0.04] hover:border-white/14 hover:bg-white/[0.06]"
+                      }`}
                       key={type}
                       onClick={() => setCampaignType(type)}
                       type="button"
                     >
-                      <div className="text-xs uppercase tracking-[0.18em] text-surface-500">
+                      <div className="text-xs uppercase tracking-[0.18em] text-stone-500">
                         {creditCost === 0 ? `${type}` : ""}
                       </div>
-                      <div className="mt-2 text-2xl font-semibold text-surface-900">
+                      <div className="mt-2 text-2xl font-semibold text-[#f5efe6]">
                         {formatCampaignType(type)}
                       </div>
-                      <div className="mt-3 text-sm leading-6 text-surface-700">
+                      <div className="mt-3 text-sm leading-6 text-stone-300">
                         {type === "gifting"
                           ? "Product-only exchange. Lowest credit cost, best for sampling and seeding."
                           : type === "paid"
                             ? "Cash-only creator work. Highest scrutiny and strongest spam resistance."
                             : "Product + cash. Balanced for premium campaigns with selective payout."}
                       </div>
-                      <div className="mt-4 text-sm font-medium text-herb-700">
+                      <div className="mt-4 text-sm font-medium text-[#d7c2a0]">
                         {type === "gifting" ? "50" : type === "paid" ? "100" : "75"} credits per slot
                       </div>
                     </button>
@@ -374,11 +417,11 @@ export default function NewCampaignPage() {
             {currentStep === 2 ? (
               <div className="space-y-6">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Step 2</div>
-                  <h2 className="mt-2 font-display text-4xl text-surface-900">Basics</h2>
+                  <Eyebrow>Step 2</Eyebrow>
+                  <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">Basics</h2>
                 </div>
                 <div className="grid gap-4">
-                  <label className="text-sm font-medium text-surface-800">
+                  <label className={fieldLabelClassName}>
                     Title
                     <input
                       className={inputClassName}
@@ -386,7 +429,7 @@ export default function NewCampaignPage() {
                       value={state.title ?? ""}
                     />
                   </label>
-                  <label className="text-sm font-medium text-surface-800">
+                  <label className={fieldLabelClassName}>
                     Short description
                     <textarea
                       className={textAreaClassName}
@@ -396,7 +439,7 @@ export default function NewCampaignPage() {
                       value={state.short_description ?? ""}
                     />
                   </label>
-                  <label className="text-sm font-medium text-surface-800">
+                  <label className={fieldLabelClassName}>
                     Hero image URL
                     <input
                       className={inputClassName}
@@ -425,11 +468,11 @@ export default function NewCampaignPage() {
             {currentStep === 3 ? (
               <div className="space-y-6">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Step 3</div>
-                  <h2 className="mt-2 font-display text-4xl text-surface-900">Compensation</h2>
+                  <Eyebrow>Step 3</Eyebrow>
+                  <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">Compensation</h2>
                 </div>
                 {(state.campaign_type === "paid" || state.campaign_type === "hybrid") ? (
-                  <label className="text-sm font-medium text-surface-800">
+                  <label className={fieldLabelClassName}>
                     Cash amount
                     <input
                       className={inputClassName}
@@ -461,7 +504,7 @@ export default function NewCampaignPage() {
                   </div>
                 ) : null}
                 {(state.campaign_type === "gifting" || state.campaign_type === "hybrid") ? (
-                  <label className="text-sm font-medium text-surface-800">
+                  <label className={fieldLabelClassName}>
                     Product description
                     <textarea
                       className={textAreaClassName}
@@ -478,8 +521,8 @@ export default function NewCampaignPage() {
             {currentStep === 4 ? (
               <div className="space-y-6">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Step 4</div>
-                  <h2 className="mt-2 font-display text-4xl text-surface-900">Creative brief</h2>
+                  <Eyebrow>Step 4</Eyebrow>
+                  <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">Creative brief</h2>
                 </div>
                 <div>
                   <SectionLabel>Required content formats</SectionLabel>
@@ -495,7 +538,7 @@ export default function NewCampaignPage() {
                     ))}
                   </div>
                 </div>
-                <label className="text-sm font-medium text-surface-800">
+                <label className={fieldLabelClassName}>
                   Brand mention
                   <input
                     className={inputClassName}
@@ -503,7 +546,7 @@ export default function NewCampaignPage() {
                     value={state.brand_mention ?? ""}
                   />
                 </label>
-                <label className="text-sm font-medium text-surface-800">
+                <label className={fieldLabelClassName}>
                   Campaign brief
                   <textarea
                     className={textAreaClassName}
@@ -523,7 +566,9 @@ export default function NewCampaignPage() {
                       return (
                         <button
                           className={`rounded-full px-4 py-2 text-sm ${
-                            locked ? "bg-surface-200 text-surface-700" : "bg-surface-100 text-surface-800"
+                            locked
+                              ? "border border-white/8 bg-black/20 text-stone-500"
+                              : "border border-white/10 bg-white/[0.05] text-stone-200"
                           }`}
                           disabled={locked}
                           key={tag}
@@ -613,7 +658,7 @@ export default function NewCampaignPage() {
                   <SectionLabel>Reference image URLs</SectionLabel>
                   <div className="mb-3 flex flex-wrap gap-2">
                     {(state.reference_image_urls ?? []).map((url) => (
-                      <div className="rounded-full border border-surface-200 bg-surface-50 px-4 py-2 text-sm text-surface-700" key={url}>
+                      <div className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-stone-300" key={url}>
                         {url}
                       </div>
                     ))}
@@ -635,10 +680,10 @@ export default function NewCampaignPage() {
             {currentStep === 5 ? (
               <div className="space-y-6">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Step 5</div>
-                  <h2 className="mt-2 font-display text-4xl text-surface-900">Slots & timing</h2>
+                  <Eyebrow>Step 5</Eyebrow>
+                  <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">Slots & timing</h2>
                 </div>
-                <label className="text-sm font-medium text-surface-800">
+                <label className={fieldLabelClassName}>
                   Slots available
                   <input
                     className={inputClassName}
@@ -652,7 +697,7 @@ export default function NewCampaignPage() {
                     value={state.slots_available ?? 1}
                   />
                 </label>
-                <label className="text-sm font-medium text-surface-800">
+                <label className={fieldLabelClassName}>
                   Application deadline
                   <input
                     className={inputClassName}
@@ -662,6 +707,10 @@ export default function NewCampaignPage() {
                     type="datetime-local"
                     value={toDateTimeLocal(state.application_deadline)}
                   />
+                  <div className="mt-2 text-xs leading-6 text-stone-500">
+                    BudCast seeds this seven days out so publish is never blocked by an invisible blank state. Adjust it
+                    before launch if the campaign window should close sooner.
+                  </div>
                 </label>
                 <div>
                   <SectionLabel>Approval mode</SectionLabel>
@@ -681,7 +730,7 @@ export default function NewCampaignPage() {
                   </div>
                 </div>
                 {insufficientCredits ? (
-                  <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  <div className="rounded-[24px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
                     Not enough credits. You are short by {Math.abs(balanceAfter)}.
                   </div>
                 ) : null}
@@ -691,42 +740,59 @@ export default function NewCampaignPage() {
             {currentStep === 6 ? (
               <div className="space-y-6">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Step 6</div>
-                  <h2 className="mt-2 font-display text-4xl text-surface-900">Review & publish</h2>
+                  <Eyebrow>Step 6</Eyebrow>
+                  <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">Review & publish</h2>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-5">
-                    <div className="text-sm font-medium text-surface-500">Campaign type</div>
-                    <div className="mt-2 text-lg font-semibold text-surface-900">
+                  <div className={detailPanelClassName}>
+                    <div className="text-sm font-medium text-stone-500">Campaign type</div>
+                    <div className="mt-2 text-lg font-semibold text-[#f5efe6]">
                       {state.campaign_type ? formatCampaignType(state.campaign_type) : "Not set"}
                     </div>
                   </div>
-                  <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-5">
-                    <div className="text-sm font-medium text-surface-500">Credits reserved</div>
-                    <div className="mt-2 text-lg font-semibold text-surface-900">{totalCredits}</div>
+                  <div className={detailPanelClassName}>
+                    <div className="text-sm font-medium text-stone-500">Credits reserved</div>
+                    <div className="mt-2 text-lg font-semibold text-[#f5efe6]">{totalCredits}</div>
                   </div>
-                  <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-5">
-                    <div className="text-sm font-medium text-surface-500">Slots</div>
-                    <div className="mt-2 text-lg font-semibold text-surface-900">{state.slots_available ?? 1}</div>
+                  <div className={detailPanelClassName}>
+                    <div className="text-sm font-medium text-stone-500">Slots</div>
+                    <div className="mt-2 text-lg font-semibold text-[#f5efe6]">{state.slots_available ?? 1}</div>
                   </div>
-                  <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-5">
-                    <div className="text-sm font-medium text-surface-500">Balance after publish</div>
-                    <div className="mt-2 text-lg font-semibold text-surface-900">{balanceAfter}</div>
+                  <div className={detailPanelClassName}>
+                    <div className="text-sm font-medium text-stone-500">Balance after publish</div>
+                    <div className="mt-2 text-lg font-semibold text-[#f5efe6]">{balanceAfter}</div>
                   </div>
                 </div>
-                <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-5">
-                  <div className="text-sm font-medium text-surface-500">Final validation</div>
-                  <div className="mt-3 space-y-2 text-sm text-surface-700">
-                    {steps.slice(0, 5).map(({ step, label, status }) => (
-                      <div className="flex items-center justify-between" key={step}>
-                        <span>{label}</span>
-                        <span className="capitalize">{status.replace("_", " ")}</span>
+                <div className={detailPanelClassName}>
+                  <div className="text-sm font-medium text-stone-500">Final validation</div>
+                  <div className="mt-3 space-y-2 text-sm text-stone-300">
+                    {steps.slice(0, 5).map(({ step, label, status, missing }) => (
+                      <div key={step}>
+                        <div className="flex items-center justify-between">
+                          <span>{label}</span>
+                          <span
+                            className={`capitalize ${
+                              status === "complete"
+                                ? "text-emerald-200"
+                                : status === "error"
+                                  ? "text-red-200"
+                                  : "text-stone-400"
+                            }`}
+                          >
+                            {status.replace("_", " ")}
+                          </span>
+                        </div>
+                        {missing.length > 0 ? (
+                          <div className="mt-1 text-xs leading-6 text-stone-500">
+                            Missing: {formatMissingFieldList(missing)}
+                          </div>
+                        ) : null}
                       </div>
                     ))}
                   </div>
                 </div>
                 {publishFeedback ? (
-                  <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  <div className="rounded-[24px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
                     {publishFeedback}
                   </div>
                 ) : null}
@@ -745,9 +811,16 @@ export default function NewCampaignPage() {
                     )}
                   </Button>
                   {!canPublish ? (
-                    <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-                      <TriangleAlert className="h-4 w-4" />
-                      Complete all steps before publish.
+                    <div className="rounded-[24px] border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                      <div className="flex items-center gap-2">
+                        <TriangleAlert className="h-4 w-4" />
+                        Complete all steps before publish.
+                      </div>
+                      {unmetRequirements.length > 0 ? (
+                        <div className="mt-2 text-xs leading-6 text-amber-100/80">
+                          {unmetRequirements.join(" • ")}
+                        </div>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
@@ -755,7 +828,7 @@ export default function NewCampaignPage() {
             ) : null}
 
             {currentStep > 1 && currentStep < 6 ? (
-              <div className="mt-8 flex items-center justify-between border-t border-surface-200 pt-6">
+              <div className="mt-8 flex items-center justify-between border-t border-white/8 pt-6">
                 <Button
                   onClick={() => useCampaignForm.getState().setStep((currentStep - 1) as StepNumber)}
                   variant="secondary"
@@ -770,68 +843,68 @@ export default function NewCampaignPage() {
                 </Button>
               </div>
             ) : null}
-          </Card>
+          </LacquerSurface>
 
-          <Card className="soft-panel p-6">
-            <div className="flex items-center gap-2 text-herb-700">
+          <LacquerSurface className="p-6">
+            <div className="flex items-center gap-2 text-[#d7c2a0]">
               <Sparkles className="h-4 w-4" />
-              <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Live preview</div>
+              <Eyebrow>Live preview</Eyebrow>
             </div>
-            <h2 className="mt-2 font-display text-4xl text-surface-900">
+            <h2 className="mt-2 font-display text-4xl text-[#f5efe6]">
               {state.title?.trim() || "Untitled campaign"}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-surface-700">
+            <p className="mt-3 text-sm leading-6 text-stone-300">
               {state.short_description?.trim() ||
                 "This card previews how your campaign is shaping up while autosave keeps the draft warm."}
             </p>
 
             <div className="mt-6 space-y-4">
-              <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-4">
-                <div className="text-sm font-medium text-surface-500">Campaign type</div>
-                <div className="mt-2 text-lg font-semibold text-surface-900">
+              <div className={detailPanelClassName}>
+                <div className="text-sm font-medium text-stone-500">Campaign type</div>
+                <div className="mt-2 text-lg font-semibold text-[#f5efe6]">
                   {state.campaign_type ? formatCampaignType(state.campaign_type) : "Choose a type"}
                 </div>
               </div>
-              <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-4">
-                <div className="text-sm font-medium text-surface-500">Compensation snapshot</div>
-                <div className="mt-2 text-lg font-semibold text-surface-900">
+              <div className={detailPanelClassName}>
+                <div className="text-sm font-medium text-stone-500">Compensation snapshot</div>
+                <div className="mt-2 text-lg font-semibold text-[#f5efe6]">
                   {state.cash_amount ? formatCurrency(state.cash_amount) : "No cash set"}
                 </div>
-                <div className="mt-1 text-sm text-surface-600">
+                <div className="mt-1 text-sm text-stone-400">
                   {state.product_description?.trim() || "No product details yet"}
                 </div>
               </div>
-              <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-4">
-                <div className="text-sm font-medium text-surface-500">Credits</div>
-                <div className="mt-2 text-lg font-semibold text-surface-900">
+              <div className={detailPanelClassName}>
+                <div className="text-sm font-medium text-stone-500">Credits</div>
+                <div className="mt-2 text-lg font-semibold text-[#f5efe6]">
                   {creditCost} / slot • {totalCredits} total
                 </div>
-                <div className="mt-1 text-sm text-surface-600">
+                <div className="mt-1 text-sm text-stone-400">
                   Balance after publish: {balanceAfter}
                 </div>
               </div>
-              <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-4">
-                <div className="text-sm font-medium text-surface-500">Deadline</div>
-                <div className="mt-2 text-lg font-semibold text-surface-900">
+              <div className={detailPanelClassName}>
+                <div className="text-sm font-medium text-stone-500">Deadline</div>
+                <div className="mt-2 text-lg font-semibold text-[#f5efe6]">
                   {formatDeadline(state.application_deadline)}
                 </div>
               </div>
-              <div className="rounded-[24px] border border-surface-200 bg-surface-50/70 p-4">
-                <div className="text-sm font-medium text-surface-500">Compliance</div>
+              <div className={detailPanelClassName}>
+                <div className="text-sm font-medium text-stone-500">Compliance</div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {previewHashtags.length > 0 ? (
                     previewHashtags.map((tag) => (
-                      <div className="rounded-full bg-surface-200 px-3 py-1 text-sm text-surface-800" key={tag}>
+                      <div className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm text-stone-200" key={tag}>
                         {tag}
                       </div>
                     ))
                   ) : (
-                    <div className="text-sm text-surface-600">No hashtags yet.</div>
+                    <div className="text-sm text-stone-400">No hashtags yet.</div>
                   )}
                 </div>
               </div>
             </div>
-          </Card>
+          </LacquerSurface>
         </section>
       </div>
     </BrandWorkspaceShell>

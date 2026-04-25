@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   type BrandSubmissionQueueRow,
   formatPaymentMethod,
@@ -12,13 +13,13 @@ import {
   useConfirmSubmissionPayment,
   useUpdateContentSubmissionVerification
 } from "@budcast/shared";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, BadgeCheck, CircleDollarSign, ClipboardCheck, Clock3 } from "lucide-react";
 import { BrandWorkspaceShell } from "../../../components/brand-workspace-shell";
 import { RouteTransitionScreen } from "../../../components/route-transition-screen";
+import { Eyebrow } from "../../../components/ui/eyebrow";
 import { Button } from "../../../components/ui/button";
-import { Card } from "../../../components/ui/card";
+import { LacquerSurface, SmokedPanel } from "../../../components/ui/surface-tone";
 
 type QueueTab = "all" | "awaiting_creator" | "pending_verification" | "ready_for_payout" | "completed";
 
@@ -31,15 +32,14 @@ function getQueueStage(row: BrandSubmissionQueueRow): QueueTab {
     if (row.submission.payment_confirmed_by_brand && row.submission.payment_confirmed_by_creator) {
       return "completed";
     }
-    if (!row.submission.payment_confirmed_by_brand) {
-      return "ready_for_payout";
-    }
+    return "ready_for_payout";
   }
   return "all";
 }
 
-export default function SubmissionQueuePage() {
+function SubmissionQueueInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { loading, session, profile } = useAuth();
   const queue = useBrandSubmissionQueue();
   const verifySubmission = useUpdateContentSubmissionVerification();
@@ -47,6 +47,8 @@ export default function SubmissionQueuePage() {
   const [activeTab, setActiveTab] = useState<QueueTab>("all");
   const [feedbackByApplication, setFeedbackByApplication] = useState<Record<string, string>>({});
   const [paymentMethodByApplication, setPaymentMethodByApplication] = useState<Record<string, string>>({});
+  const [actionError, setActionError] = useState<string | null>(null);
+  const activeCampaignId = searchParams.get("campaign");
 
   useEffect(() => {
     if (!loading && !session) {
@@ -63,8 +65,22 @@ export default function SubmissionQueuePage() {
   }, [loading, profile, router, session]);
 
   const rows = queue.data ?? [];
+  const campaignOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+
+    for (const row of rows) {
+      const id = row.opportunity?.id;
+      const title = row.opportunity?.title;
+      if (!id || !title || seen.has(id)) continue;
+      seen.set(id, title);
+    }
+
+    return Array.from(seen.entries()).map(([id, title]) => ({ id, title }));
+  }, [rows]);
+  const campaignRows = activeCampaignId ? rows.filter((row) => row.opportunity?.id === activeCampaignId) : rows;
+  const activeCampaignTitle = campaignOptions.find((option) => option.id === activeCampaignId)?.title ?? null;
   const counts = useMemo(() => {
-    return rows.reduce(
+    return campaignRows.reduce(
       (acc, row) => {
         const stage = getQueueStage(row);
         acc.all += 1;
@@ -81,9 +97,9 @@ export default function SubmissionQueuePage() {
         completed: 0
       }
     );
-  }, [rows]);
+  }, [campaignRows]);
 
-  const visibleRows = rows.filter((row) => activeTab === "all" || getQueueStage(row) === activeTab);
+  const visibleRows = campaignRows.filter((row) => activeTab === "all" || getQueueStage(row) === activeTab);
   const tabs: Array<{ value: QueueTab; label: string; count: number }> = [
     { value: "all", label: "All", count: counts.all },
     { value: "awaiting_creator", label: "Awaiting content", count: counts.awaiting_creator },
@@ -122,123 +138,208 @@ export default function SubmissionQueuePage() {
     );
   }
 
+  if (queue.error) {
+    return (
+      <BrandWorkspaceShell>
+        <LacquerSurface className="p-8">
+          <Eyebrow>Submission queue</Eyebrow>
+          <h1 className="mt-3 font-display text-5xl text-[#f5efe6]">Submission queue unavailable.</h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-stone-300">
+            BudCast could not load verification and payout operations. Try reopening the queue from the dashboard.
+          </p>
+          <div className="mt-6">
+            <Button asChild>
+              <Link href="/dashboard">Back to dashboard</Link>
+            </Button>
+          </div>
+        </LacquerSurface>
+      </BrandWorkspaceShell>
+    );
+  }
+
   async function handleVerification(applicationId: string, submissionId: string, status: "verified" | "needs_revision") {
-    await verifySubmission.mutateAsync({
-      applicationId,
-      submissionId,
-      verificationStatus: status,
-      verificationFeedback: feedbackByApplication[applicationId] ?? null
-    });
+    try {
+      setActionError(null);
+      await verifySubmission.mutateAsync({
+        applicationId,
+        submissionId,
+        verificationStatus: status,
+        verificationFeedback: feedbackByApplication[applicationId] ?? null
+      });
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Submission verification failed.");
+    }
   }
 
   async function handleConfirmPayment(applicationId: string, submissionId: string) {
     const row = rows.find((item) => item.id === applicationId);
     const fallbackMethod = row?.submission?.payment_method ?? row?.opportunity?.payment_methods?.[0] ?? null;
-    await confirmPayment.mutateAsync({
-      applicationId,
-      submissionId,
-      paymentMethod: (paymentMethodByApplication[applicationId] ?? fallbackMethod) as
-        | "venmo"
-        | "zelle"
-        | "cashapp"
-        | "paypal"
-        | null
-    });
+    try {
+      setActionError(null);
+      await confirmPayment.mutateAsync({
+        applicationId,
+        submissionId,
+        paymentMethod: (paymentMethodByApplication[applicationId] ?? fallbackMethod) as
+          | "venmo"
+          | "zelle"
+          | "cashapp"
+          | "paypal"
+          | null
+      });
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Payment confirmation failed.");
+    }
   }
 
   return (
     <BrandWorkspaceShell>
       <div className="flex flex-col gap-6">
-        <header className="hero-orbit overflow-hidden rounded-[34px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.9),rgba(255,248,240,0.72))] px-6 py-6 shadow-[0_24px_70px_rgba(33,27,20,0.1)] backdrop-blur">
+        <LacquerSurface className="overflow-hidden px-7 py-8">
           <div className="flex flex-wrap items-start justify-between gap-5">
-          <div className="max-w-3xl">
-            <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Submission queue</div>
-            <h1 className="mt-3 font-display text-5xl text-surface-900 md:text-6xl">Content verification and payout follow-through</h1>
-            <p className="mt-4 max-w-3xl text-base leading-8 text-surface-700">
-              This queue sits between accepted applications and final payment confirmation. It is wired directly to
-              the locked <code>content_submissions</code> table.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {["Submission proof", "Verification motion", "Payout closure"].map((item, index) => (
-                <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
-                  {item}
+            <div className="max-w-3xl">
+              <Eyebrow>Submission queue</Eyebrow>
+              <h1 className="mt-3 font-display text-5xl text-[#f5efe6] md:text-6xl">
+                Content verification and payout follow-through
+              </h1>
+              <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
+                This queue sits between accepted applications and final payment confirmation. It is wired directly to
+                the locked <code>content_submissions</code> table.
+              </p>
+              {activeCampaignTitle ? (
+                <div className="mt-4 inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-stone-300">
+                  Filtered to campaign: <span className="ml-2 font-medium text-[#f5efe6]">{activeCampaignTitle}</span>
                 </div>
-              ))}
+              ) : null}
+              <div className="mt-5 flex flex-wrap gap-2">
+                {["Submission proof", "Verification motion", "Payout closure"].map((item, index) => (
+                  <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button asChild variant="secondary">
+                <Link href={activeCampaignId ? `/dashboard/campaigns/${activeCampaignId}` : "/dashboard"}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  {activeCampaignId ? "Back to campaign" : "Back to dashboard"}
+                </Link>
+              </Button>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button asChild variant="secondary">
-              <Link href="/dashboard">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to dashboard
-              </Link>
-            </Button>
-          </div>
-          </div>
-        </header>
+        </LacquerSurface>
 
         <section className="grid gap-5 md:grid-cols-4">
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
+          <SmokedPanel className="p-6">
+            <div className="flex items-center gap-3 text-[#d7c2a0]">
               <Clock3 className="h-5 w-5" />
               <span className="text-sm font-medium uppercase tracking-[0.18em]">Awaiting content</span>
             </div>
-            <div className="mt-4 text-4xl font-semibold text-surface-900">{counts.awaiting_creator}</div>
-          </Card>
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
+            <div className="mt-4 text-4xl font-semibold text-[#f5efe6]">{counts.awaiting_creator}</div>
+          </SmokedPanel>
+          <SmokedPanel className="p-6">
+            <div className="flex items-center gap-3 text-[#d7c2a0]">
               <ClipboardCheck className="h-5 w-5" />
               <span className="text-sm font-medium uppercase tracking-[0.18em]">Needs review</span>
             </div>
-            <div className="mt-4 text-4xl font-semibold text-surface-900">{counts.pending_verification}</div>
-          </Card>
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
+            <div className="mt-4 text-4xl font-semibold text-[#f5efe6]">{counts.pending_verification}</div>
+          </SmokedPanel>
+          <SmokedPanel className="p-6">
+            <div className="flex items-center gap-3 text-[#d7c2a0]">
               <CircleDollarSign className="h-5 w-5" />
               <span className="text-sm font-medium uppercase tracking-[0.18em]">Ready for payout</span>
             </div>
-            <div className="mt-4 text-4xl font-semibold text-surface-900">{counts.ready_for_payout}</div>
-          </Card>
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
+            <div className="mt-4 text-4xl font-semibold text-[#f5efe6]">{counts.ready_for_payout}</div>
+          </SmokedPanel>
+          <SmokedPanel className="p-6">
+            <div className="flex items-center gap-3 text-emerald-200">
               <BadgeCheck className="h-5 w-5" />
               <span className="text-sm font-medium uppercase tracking-[0.18em]">Completed</span>
             </div>
-            <div className="mt-4 text-4xl font-semibold text-surface-900">{counts.completed}</div>
-          </Card>
+            <div className="mt-4 text-4xl font-semibold text-[#f5efe6]">{counts.completed}</div>
+          </SmokedPanel>
         </section>
 
-        <Card className="soft-panel p-8">
+        <LacquerSurface className="p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
-              {tabs.map((tab) => {
-                const active = activeTab === tab.value;
-                return (
-                  <button
-                    className={`rounded-full px-4 py-2 text-sm transition ${
-                      active
-                        ? "bg-herb-700 text-white shadow-[0_14px_30px_rgba(67,87,48,0.18)]"
-                        : "border border-surface-200 bg-white/82 text-surface-700 hover:-translate-y-0.5"
-                    }`}
-                    key={tab.value}
-                    onClick={() => setActiveTab(tab.value)}
-                    type="button"
-                  >
-                    {tab.label} ({tab.count})
-                  </button>
-                );
-              })}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  aria-pressed={!activeCampaignId}
+                  className={`rounded-full px-4 py-2 text-sm transition ${
+                    !activeCampaignId
+                      ? "border border-[#a48756]/40 bg-[#a48756]/14 text-[#f5efe6] shadow-[0_14px_30px_rgba(164,135,86,0.16)]"
+                      : "border border-white/10 bg-white/[0.04] text-stone-300 hover:-translate-y-0.5 hover:border-white/16 hover:bg-white/[0.06]"
+                  }`}
+                  onClick={() => router.replace("/dashboard/submissions")}
+                  type="button"
+                >
+                  All campaigns ({rows.length})
+                </button>
+                {campaignOptions.map((option) => {
+                  const active = option.id === activeCampaignId;
+                  return (
+                    <button
+                      aria-pressed={active}
+                      className={`rounded-full px-4 py-2 text-sm transition ${
+                        active
+                          ? "border border-[#a48756]/40 bg-[#a48756]/14 text-[#f5efe6] shadow-[0_14px_30px_rgba(164,135,86,0.16)]"
+                          : "border border-white/10 bg-white/[0.04] text-stone-300 hover:-translate-y-0.5 hover:border-white/16 hover:bg-white/[0.06]"
+                      }`}
+                      key={option.id}
+                      onClick={() => router.replace(`/dashboard/submissions?campaign=${option.id}`)}
+                      type="button"
+                    >
+                      {option.title}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((tab) => {
+                  const active = activeTab === tab.value;
+                  return (
+                    <button
+                      aria-pressed={active}
+                      className={`rounded-full px-4 py-2 text-sm transition ${
+                        active
+                          ? "border border-[#a48756]/40 bg-[#a48756]/14 text-[#f5efe6] shadow-[0_14px_30px_rgba(164,135,86,0.16)]"
+                          : "border border-white/10 bg-white/[0.04] text-stone-300 hover:-translate-y-0.5 hover:border-white/16 hover:bg-white/[0.06]"
+                      }`}
+                      key={tab.value}
+                      onClick={() => setActiveTab(tab.value)}
+                      type="button"
+                    >
+                      {tab.label} ({tab.count})
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            {queue.isLoading ? <div className="text-sm text-surface-600">Loading queue...</div> : null}
+            {queue.isLoading ? <div className="text-sm text-stone-400">Loading queue...</div> : null}
           </div>
 
-          {visibleRows.length === 0 ? (
-            <div className="rounded-[28px] border border-dashed border-surface-300 bg-surface-50/70 px-6 py-12 text-center">
-              <p className="text-lg font-medium text-surface-900">No items in this queue state.</p>
-              <p className="mt-2 text-sm leading-6 text-surface-600">
+          {actionError ? (
+            <div className="mb-5 rounded-[24px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+              {actionError}
+            </div>
+          ) : null}
+
+          {queue.isLoading ? (
+            <SmokedPanel className="border-dashed px-6 py-12 text-center">
+              <p className="text-lg font-medium text-[#f5efe6]">Loading submission operations...</p>
+              <p className="mt-2 text-sm leading-6 text-stone-400">
+                BudCast is pulling the live proof and payout queue before showing empty states.
+              </p>
+            </SmokedPanel>
+          ) : visibleRows.length === 0 ? (
+            <SmokedPanel className="border-dashed px-6 py-12 text-center">
+              <p className="text-lg font-medium text-[#f5efe6]">No items in this queue state.</p>
+              <p className="mt-2 text-sm leading-6 text-stone-400">
                 Accepted applications will land here once creators start submitting content from mobile.
               </p>
-            </div>
+            </SmokedPanel>
           ) : (
             <div className="space-y-4">
               {visibleRows.map((row) => {
@@ -249,47 +350,58 @@ export default function SubmissionQueuePage() {
 
                 return (
                   <div
-                    className="grid gap-5 rounded-[28px] border border-white/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.86),rgba(251,248,244,0.72))] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(33,27,20,0.1)] lg:grid-cols-[1fr_0.9fr_0.8fr]"
+                    className="grid gap-5 rounded-[28px] border border-white/8 bg-white/[0.03] p-5 transition-all duration-300 hover:border-white/12 hover:bg-white/[0.05] lg:grid-cols-[1fr_0.9fr_0.8fr]"
                     key={row.id}
                   >
                     <div>
-                      <div className="text-xs uppercase tracking-[0.18em] text-surface-500">
+                      <div className="text-xs uppercase tracking-[0.18em] text-stone-500">
                         {row.opportunity?.title || "Accepted application"}
                       </div>
-                      <div className="mt-2 text-2xl font-semibold text-surface-900">
+                      <div className="mt-2 text-2xl font-semibold text-[#f5efe6]">
                         {row.creator?.name || "Unnamed creator"}
                       </div>
-                      <div className="mt-2 text-sm leading-6 text-surface-700">
-                        Stage: <span className="font-medium">{formatStatus(stage)}</span>
+                      <div className="mt-2 text-sm leading-6 text-stone-300">
+                        Stage:{" "}
+                        <span
+                          className={`font-medium ${
+                            stage === "completed"
+                              ? "text-emerald-200"
+                              : stage === "ready_for_payout"
+                                ? "text-[#d7c2a0]"
+                              : "text-stone-100"
+                          }`}
+                        >
+                          {formatStatus(stage)}
+                        </span>
                       </div>
-                      <div className="mt-2 text-sm leading-6 text-surface-700">
+                      <div className="mt-2 text-sm leading-6 text-stone-300">
                         @{row.creator?.instagram || row.creator?.tiktok || row.creator?.youtube || "No handle on file"}
                       </div>
-                      <div className="mt-2 text-sm text-surface-600">
+                      <div className="mt-2 text-sm text-stone-400">
                         Niches: {row.creator?.niches?.join(", ") || "None listed"}
                       </div>
                     </div>
 
-                    <div className="rounded-[24px] border border-white/80 bg-white/82 p-4">
+                    <SmokedPanel className="p-4">
                       {!submission ? (
                         <>
-                          <div className="text-sm font-medium text-surface-900">Awaiting creator submission</div>
-                          <div className="mt-3 text-sm leading-6 text-surface-600">
+                          <div className="text-sm font-medium text-[#f5efe6]">Awaiting creator submission</div>
+                          <div className="mt-3 text-sm leading-6 text-stone-400">
                             Creator has been accepted but has not posted content yet. Once they submit a post URL from
                             the native app, it will appear here for verification.
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="text-sm font-medium text-surface-900">Submission details</div>
-                          <div className="mt-3 text-sm text-surface-700">
+                          <div className="text-sm font-medium text-[#f5efe6]">Submission details</div>
+                          <div className="mt-3 text-sm text-stone-300">
                             {formatPostType(submission.post_type)} • {formatStatus(submission.verification_status)}
                           </div>
-                          <div className="mt-2 text-sm text-surface-700">
+                          <div className="mt-2 text-sm text-stone-300">
                             Payment method: {formatPaymentMethod(selectedMethod)}
                           </div>
                           <a
-                            className="mt-3 inline-flex items-center text-sm font-medium text-herb-700"
+                            className="mt-3 inline-flex items-center text-sm font-medium text-[#d7c2a0]"
                             href={submission.post_url}
                             rel="noreferrer"
                             target="_blank"
@@ -298,27 +410,28 @@ export default function SubmissionQueuePage() {
                             <ArrowUpRight className="ml-1 h-4 w-4" />
                           </a>
                           {submission.verification_feedback ? (
-                            <div className="mt-3 rounded-[20px] bg-surface-50 px-3 py-3 text-sm leading-6 text-surface-700">
+                            <div className="mt-3 rounded-[20px] border border-white/8 bg-black/20 px-3 py-3 text-sm leading-6 text-stone-300">
                               {submission.verification_feedback}
                             </div>
                           ) : null}
                         </>
                       )}
-                    </div>
+                    </SmokedPanel>
 
                     <div className="flex flex-col gap-3">
                       {submission && !submission.payment_confirmed_by_brand ? (
-                        <div className="rounded-[24px] border border-white/80 bg-white/82 p-4">
-                          <div className="text-sm font-medium text-surface-900">Payout route</div>
+                        <SmokedPanel className="p-4">
+                          <div className="text-sm font-medium text-[#f5efe6]">Payout route</div>
                           <div className="mt-3 flex flex-wrap gap-2">
                             {(row.opportunity?.payment_methods ?? []).map((method) => {
                               const active = selectedMethod === method;
                               return (
                                 <button
+                                  aria-pressed={active}
                                   className={`rounded-full px-3 py-1 text-sm transition ${
                                     active
-                                      ? "bg-herb-700 text-white"
-                                      : "border border-surface-200 bg-surface-50 text-surface-700"
+                                      ? "border border-[#a48756]/40 bg-[#a48756]/14 text-[#f5efe6]"
+                                      : "border border-white/10 bg-black/20 text-stone-300"
                                   }`}
                                   key={method}
                                   onClick={() =>
@@ -331,18 +444,21 @@ export default function SubmissionQueuePage() {
                               );
                             })}
                           </div>
-                        </div>
+                        </SmokedPanel>
                       ) : null}
 
                       {submission ? (
-                        <textarea
-                          className="premium-textarea min-h-[116px] text-sm text-surface-900"
-                          onChange={(event) =>
-                            setFeedbackByApplication((current) => ({ ...current, [row.id]: event.target.value }))
-                          }
-                          placeholder="Optional verification or revision note..."
-                          value={feedbackByApplication[row.id] ?? submission.verification_feedback ?? ""}
-                        />
+                        <label className="block text-sm font-medium text-stone-200">
+                          Verification or revision note
+                          <textarea
+                            className="premium-textarea mt-2 min-h-[116px] text-sm"
+                            onChange={(event) =>
+                              setFeedbackByApplication((current) => ({ ...current, [row.id]: event.target.value }))
+                            }
+                            placeholder="Optional verification or revision note..."
+                            value={feedbackByApplication[row.id] ?? submission.verification_feedback ?? ""}
+                          />
+                        </label>
                       ) : null}
 
                       <div className="flex flex-wrap gap-3">
@@ -375,11 +491,11 @@ export default function SubmissionQueuePage() {
                       </div>
 
                       {submission ? (
-                        <div className="rounded-[24px] border border-white/80 bg-white/82 p-4 text-sm leading-6 text-surface-700">
+                        <SmokedPanel className="p-4 text-sm leading-6 text-stone-300">
                           Brand confirmed: {submission.payment_confirmed_by_brand ? "Yes" : "No"}
                           <br />
                           Creator confirmed: {submission.payment_confirmed_by_creator ? "Yes" : "No"}
-                        </div>
+                        </SmokedPanel>
                       ) : null}
                     </div>
                   </div>
@@ -387,8 +503,24 @@ export default function SubmissionQueuePage() {
               })}
             </div>
           )}
-        </Card>
+        </LacquerSurface>
       </div>
     </BrandWorkspaceShell>
+  );
+}
+
+export default function SubmissionQueuePage() {
+  return (
+    <Suspense
+      fallback={
+        <RouteTransitionScreen
+          eyebrow="Loading queue"
+          title="Preparing submission operations."
+          description="BudCast is opening the verification queue and applying your current campaign filter."
+        />
+      }
+    >
+      <SubmissionQueueInner />
+    </Suspense>
   );
 }

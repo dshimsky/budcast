@@ -194,6 +194,11 @@ export function formatCampaignType(raw: string): string {
   return CAMPAIGN_TYPE_LABELS[raw] ?? raw;
 }
 
+export function formatValueLabel(raw: string | null | undefined): string {
+  if (!raw) return "—";
+  return startCase(raw);
+}
+
 // ---------------------------------------------------------------------------
 // Application / campaign status enums
 // ---------------------------------------------------------------------------

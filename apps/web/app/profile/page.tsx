@@ -7,7 +7,10 @@ import { useEffect } from "react";
 import { ArrowRight, BadgeCheck, BriefcaseBusiness, LogOut, MapPin, Sparkles, Star, Users2 } from "lucide-react";
 import { RouteTransitionScreen } from "../../components/route-transition-screen";
 import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
+import { Eyebrow } from "../../components/ui/eyebrow";
+import { LacquerSurface, SmokedPanel } from "../../components/ui/surface-tone";
+
+const detailPanelClassName = "rounded-[22px] border border-white/8 bg-black/20 p-5";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -45,34 +48,99 @@ export default function ProfilePage() {
     );
   }
 
+  const identitySignals = isCreator
+    ? ["Creator trust", "Niche visibility", "Marketplace proof"]
+    : ["Brand trust", "Campaign authority", "Operator identity"];
+
+  const profileStats = [
+    {
+      icon: isCreator ? Users2 : BriefcaseBusiness,
+      label: "User type",
+      value: profile?.user_type ?? "Unknown",
+      helper: "Determines which side of BudCast you operate from.",
+      valueClassName: "capitalize"
+    },
+    {
+      icon: Sparkles,
+      label: "Credits balance",
+      value: String(profile?.credits_balance ?? 0),
+      helper: "Locked backend balance, not client-side math.",
+      valueClassName: ""
+    },
+    {
+      icon: Star,
+      label: "Tier",
+      value: profile?.tier ?? "free",
+      helper: "Subscription posture carried by the current user row.",
+      valueClassName: "capitalize"
+    },
+    {
+      icon: BadgeCheck,
+      label: "Reputation",
+      value: String(profile?.review_score ?? "—"),
+      helper: `${profile?.review_count ?? 0} reviews in the current contract.`,
+      valueClassName: ""
+    }
+  ];
+
+  const marketplaceSignals = isCreator
+    ? [
+        "Brands review this profile when deciding who to accept.",
+        "Niches drive campaign relevance on the creator side.",
+        "Completion and review signals shape trust before payout."
+      ]
+    : [
+        "Creators use this profile to decide if a campaign feels credible.",
+        "Company identity frames campaign quality before anyone applies.",
+        "Reputation and payment signals affect future creator trust."
+      ];
+
+  const roleDetails = isCreator
+    ? [
+        { label: "Instagram", value: profile?.instagram ?? "Not set" },
+        {
+          label: "Niches",
+          value: profile?.niches?.length ? profile.niches.join(", ") : "Not set"
+        },
+        {
+          label: "Follower context",
+          value: `${formatCompact(profile?.follower_count_instagram)} IG`
+        },
+        {
+          label: "Completion rate",
+          value: `${profile?.completion_rate ?? "—"}%`
+        }
+      ]
+    : [
+        { label: "Company name", value: profile?.company_name ?? "Not set" },
+        { label: "Website", value: profile?.website ?? "Not set" },
+        { label: "Payment rate", value: String(profile?.payment_rate ?? "—") },
+        {
+          label: "Successful campaigns",
+          value: String(profile?.successful_campaigns ?? 0)
+        }
+      ];
+
   return (
     <main className="grid-overlay min-h-screen px-6 py-10 md:px-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <Card className="hero-orbit soft-panel animate-enter overflow-hidden p-8 md:p-10">
+        <LacquerSurface className="animate-enter overflow-hidden px-7 py-8 md:px-10 md:py-10">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div className="max-w-3xl">
-              <div className="premium-badge">
-                <span className="signal-dot" />
-                <div>
-                  <div className="text-xs uppercase tracking-[0.3em] text-surface-500">Profile</div>
-                  <div className="text-sm font-medium text-surface-900">
-                    {isCreator ? "Creator identity surface" : "Brand credibility surface"}
-                  </div>
-                </div>
-              </div>
-              <h1 className="mt-6 font-display text-5xl leading-[0.96] text-surface-900 md:text-6xl">
-                {loading ? "Loading profile..." : profile?.name || profile?.company_name || "No profile yet"}
+              <Eyebrow className="text-[#b59663]">Profile</Eyebrow>
+              <h1 className="mt-4 font-display text-5xl leading-[0.92] text-[#f5efe6] md:text-6xl">
+                {profile?.name || profile?.company_name || "No profile yet"}
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-surface-700">
-                This page is wired to the shared auth hydration model. Once onboarding writes the users row, this
-                becomes the profile source of truth for routing, reputation, and campaign decisions.
+              <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
+                This is the identity surface BudCast uses for routing, reputation, and campaign trust. It should read
+                quickly for the other side of the marketplace without feeling like a settings dump.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
-                {(isCreator
-                  ? ["Creator trust", "Niche visibility", "Marketplace proof"]
-                  : ["Brand trust", "Campaign authority", "Operator identity"]
-                ).map((item, index) => (
-                  <div className={`premium-chip ${index === 1 ? "animate-float" : ""}`} key={item}>
+                {identitySignals.map((item) => (
+                  <div
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-stone-300"
+                    key={item}
+                  >
                     {item}
                   </div>
                 ))}
@@ -95,144 +163,102 @@ export default function ProfilePage() {
               </Button>
             </div>
           </div>
-        </Card>
+
+          <div className="mt-8 border-t border-white/10 pt-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <Eyebrow className="text-[#b59663]">
+                  {isCreator ? "Creator identity ledger" : "Brand credibility ledger"}
+                </Eyebrow>
+                <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">
+                  Keep the public surface clear enough to scan in one pass.
+                </div>
+              </div>
+              <div className="rounded-full border border-[#a48756]/30 bg-[#a48756]/10 px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#d7c2a0]">
+                {isCreator ? "Creator mode active" : "Brand mode active"}
+              </div>
+            </div>
+          </div>
+        </LacquerSurface>
 
         <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
-              {isCreator ? <Users2 className="h-5 w-5" /> : <BriefcaseBusiness className="h-5 w-5" />}
-              <span className="text-sm font-medium uppercase tracking-[0.18em]">User type</span>
-            </div>
-            <div className="mt-4 text-3xl font-semibold capitalize text-surface-900">{profile?.user_type ?? "Unknown"}</div>
-            <div className="mt-2 text-sm text-surface-600">Determines which side of BudCast you operate from.</div>
-          </Card>
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
-              <Sparkles className="h-5 w-5" />
-              <span className="text-sm font-medium uppercase tracking-[0.18em]">Credits balance</span>
-            </div>
-            <div className="mt-4 text-3xl font-semibold text-surface-900">{profile?.credits_balance ?? 0}</div>
-            <div className="mt-2 text-sm text-surface-600">Locked backend balance, not client-side math.</div>
-          </Card>
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
-              <Star className="h-5 w-5" />
-              <span className="text-sm font-medium uppercase tracking-[0.18em]">Tier</span>
-            </div>
-            <div className="mt-4 text-3xl font-semibold capitalize text-surface-900">{profile?.tier ?? "free"}</div>
-            <div className="mt-2 text-sm text-surface-600">Subscription posture carried by the current user row.</div>
-          </Card>
-          <Card className="sheen p-6">
-            <div className="flex items-center gap-3 text-herb-700">
-              <BadgeCheck className="h-5 w-5" />
-              <span className="text-sm font-medium uppercase tracking-[0.18em]">Reputation</span>
-            </div>
-            <div className="mt-4 text-3xl font-semibold text-surface-900">{profile?.review_score ?? "—"}</div>
-            <div className="mt-2 text-sm text-surface-600">
-              {profile?.review_count ?? 0} reviews in the current contract.
-            </div>
-          </Card>
+          {profileStats.map((stat) => {
+            const Icon = stat.icon;
+
+            return (
+              <SmokedPanel className="p-6" key={stat.label}>
+                <div className="flex items-center gap-3 text-[#b59663]">
+                  <Icon className="h-5 w-5" />
+                  <span className="text-sm font-medium uppercase tracking-[0.18em] text-stone-300">{stat.label}</span>
+                </div>
+                <div className={`mt-4 text-3xl font-semibold text-[#f5efe6] ${stat.valueClassName}`}>{stat.value}</div>
+                <div className="mt-2 text-sm leading-7 text-stone-400">{stat.helper}</div>
+              </SmokedPanel>
+            );
+          })}
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-[1.06fr_0.94fr]">
-          <Card className="soft-panel p-8">
-            <div className="flex items-center gap-3 text-surface-900">
-              {isCreator ? <Users2 className="h-5 w-5 text-herb-700" /> : <BriefcaseBusiness className="h-5 w-5 text-herb-700" />}
-              <h2 className="font-display text-4xl">Public profile details</h2>
+        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_320px]">
+          <LacquerSurface className="p-6 md:p-7">
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-6">
+              <div className="max-w-3xl">
+                <Eyebrow className="text-[#b59663]">Public details</Eyebrow>
+                <div className="mt-3 text-3xl font-semibold text-[#f5efe6]">Identity, proof, and niche context</div>
+                <p className="mt-3 text-sm leading-7 text-stone-400">
+                  The essentials stay grouped here so the profile reads like a working marketplace identity rather than
+                  a stack of disconnected settings.
+                </p>
+              </div>
+              <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-stone-300">
+                {profile?.email ?? "No session"}
+              </div>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Email</div>
-                <div className="mt-3 text-lg text-surface-900">{profile?.email ?? "No session"}</div>
+              <div className={detailPanelClassName}>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">Email</div>
+                <div className="mt-3 text-lg text-stone-100">{profile?.email ?? "No session"}</div>
               </div>
-              <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Location</div>
-                <div className="mt-3 flex items-center gap-2 text-lg text-surface-900">
-                  <MapPin className="h-4 w-4 text-herb-700" />
+              <div className={detailPanelClassName}>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">Location</div>
+                <div className="mt-3 flex items-center gap-2 text-lg text-stone-100">
+                  <MapPin className="h-4 w-4 text-[#b59663]" />
                   {profile?.location ?? "Not set"}
                 </div>
               </div>
-              <div className="rounded-[24px] border border-white/80 bg-white/74 p-5 md:col-span-2">
-                <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Bio</div>
-                <div className="mt-3 text-sm leading-7 text-surface-900">{profile?.bio ?? "Not set"}</div>
+              <div className={`${detailPanelClassName} md:col-span-2`}>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">Bio</div>
+                <div className="mt-3 text-sm leading-7 text-stone-300">{profile?.bio ?? "Not set"}</div>
               </div>
 
-              {isCreator ? (
-                <>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Instagram</div>
-                    <div className="mt-3 text-lg text-surface-900">{profile?.instagram ?? "Not set"}</div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Niches</div>
-                    <div className="mt-3 text-sm leading-7 text-surface-900">
-                      {profile?.niches?.length ? profile.niches.join(", ") : "Not set"}
-                    </div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Follower context</div>
-                    <div className="mt-3 text-lg text-surface-900">
-                      {formatCompact(profile?.follower_count_instagram)} IG
-                    </div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Completion rate</div>
-                    <div className="mt-3 text-lg text-surface-900">{profile?.completion_rate ?? "—"}%</div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Company name</div>
-                    <div className="mt-3 text-lg text-surface-900">{profile?.company_name ?? "Not set"}</div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Website</div>
-                    <div className="mt-3 text-lg text-surface-900">{profile?.website ?? "Not set"}</div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Payment rate</div>
-                    <div className="mt-3 text-lg text-surface-900">{profile?.payment_rate ?? "—"}</div>
-                  </div>
-                  <div className="rounded-[24px] border border-white/80 bg-white/74 p-5">
-                    <div className="text-xs uppercase tracking-[0.22em] text-surface-500">Successful campaigns</div>
-                    <div className="mt-3 text-lg text-surface-900">{profile?.successful_campaigns ?? 0}</div>
-                  </div>
-                </>
-              )}
+              {roleDetails.map((detail) => (
+                <div className={detailPanelClassName} key={detail.label}>
+                  <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">{detail.label}</div>
+                  <div className="mt-3 text-lg text-stone-100">{detail.value}</div>
+                </div>
+              ))}
             </div>
-          </Card>
+          </LacquerSurface>
 
           <div className="grid gap-6">
-            <Card className="soft-panel p-8">
-              <div className="text-xs uppercase tracking-[0.24em] text-surface-500">How this profile is used</div>
-              <h2 className="mt-2 font-display text-3xl text-surface-900">Operational downstream</h2>
+            <SmokedPanel className="p-5">
+              <Eyebrow className="text-[#b59663]">Marketplace reading</Eyebrow>
+              <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">What the other side evaluates first</div>
               <div className="mt-5 grid gap-3">
-                {(isCreator
-                  ? [
-                      "Brands review this profile when deciding who to accept.",
-                      "Niches drive campaign relevance on the creator side.",
-                      "Completion and review signals shape trust before payout."
-                    ]
-                  : [
-                      "Creators use this profile to decide if a campaign feels credible.",
-                      "Company identity frames campaign quality before anyone applies.",
-                      "Reputation and payment signals affect future creator trust."
-                    ]).map((item, index) => (
-                  <div className="rounded-[22px] border border-white/80 bg-white/74 p-4" key={item}>
-                    <div className="text-xs uppercase tracking-[0.2em] text-surface-500">Signal 0{index + 1}</div>
-                    <div className="mt-2 text-sm leading-7 text-surface-800">{item}</div>
+                {marketplaceSignals.map((item, index) => (
+                  <div className="rounded-[20px] border border-white/8 bg-black/20 p-4" key={item}>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">Signal 0{index + 1}</div>
+                    <div className="mt-2 text-sm leading-7 text-stone-300">{item}</div>
                   </div>
                 ))}
               </div>
-            </Card>
+            </SmokedPanel>
 
-            <Card className="soft-panel p-8">
-              <div className="text-xs uppercase tracking-[0.24em] text-surface-500">Quick actions</div>
-              <h2 className="mt-2 font-display text-3xl text-surface-900">Keep the profile current</h2>
-              <p className="mt-3 text-sm leading-7 text-surface-700">
-                This screen should feel like a living market identity, not a dead-end settings page.
+            <SmokedPanel className="p-5">
+              <Eyebrow className="text-[#b59663]">Next move</Eyebrow>
+              <div className="mt-3 text-2xl font-semibold text-[#f5efe6]">Keep the profile current</div>
+              <p className="mt-3 text-sm leading-7 text-stone-400">
+                Update the identity source of truth before you ask the marketplace to trust it.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Button asChild>
@@ -242,9 +268,9 @@ export default function ProfilePage() {
                   <Link href="/dashboard">Open dashboard</Link>
                 </Button>
               </div>
-            </Card>
+            </SmokedPanel>
           </div>
-        </div>
+        </section>
       </div>
     </main>
   );

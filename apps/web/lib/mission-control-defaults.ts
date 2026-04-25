@@ -42,9 +42,9 @@ export const missionControlDefaults: MissionControlConfig = {
       id: "marketplace-core",
       title: "Marketplace Core",
       status: "in_progress",
-      progress: 72,
+      progress: 84,
       summary:
-        "Brand publish/review flows and creator browse/apply flows exist, but deeper navigation, QA, and real-session polish remain.",
+        "Brand publish/review flows and creator browse/apply flows exist across web and native; the next gap is end-to-end QA against real sessions.",
       milestones: [
         "Brand dashboard and campaign builder exist",
         "Applicant review queue exists",
@@ -55,9 +55,9 @@ export const missionControlDefaults: MissionControlConfig = {
       id: "submission-loop",
       title: "Submission And Payout Loop",
       status: "in_progress",
-      progress: 68,
+      progress: 80,
       summary:
-        "Submission, verification, and payout confirmation are wired, but need deeper end-to-end QA and refined happy-path transitions.",
+        "Submission, verification, and payout confirmation are wired on brand web and creator native; the next gap is full happy-path and failure-path QA.",
       milestones: [
         "Creator proof submission flow exists",
         "Brand verification queue exists",
@@ -68,13 +68,14 @@ export const missionControlDefaults: MissionControlConfig = {
       id: "polish",
       title: "Premium Design And Product Cohesion",
       status: "in_progress",
-      progress: 64,
+      progress: 86,
       summary:
-        "Premium visual language is strong on web and advancing on native, but final consistency and runtime stability work remain.",
+        "Dark Premium Moody is now the default across the major web and native product surfaces; formal owner review is next before final polish locks it.",
       milestones: [
         "Landing, auth, onboarding, and dashboard upgraded",
         "Operational brand surfaces upgraded",
-        "Native creator surfaces upgraded"
+        "Native creator surfaces upgraded",
+        "Structured color, typography, motion, and density review still needs approval"
       ]
     },
     {
@@ -94,16 +95,16 @@ export const missionControlDefaults: MissionControlConfig = {
     {
       name: "Web Brand Workspace",
       status: "in_progress",
-      progress: 78,
+      progress: 86,
       detail:
-        "Strong operator-facing dashboard, campaign builder, applicant review, submissions, and local mission-control support."
+        "Operator-facing dashboard, campaign builder, applicant review, submissions, and local mission-control support are dark-system aligned and build cleanly."
     },
     {
       name: "Native Creator App",
       status: "in_progress",
-      progress: 66,
+      progress: 84,
       detail:
-        "Premium creator home, catalog, detail, submissions, applications, onboarding, and profile surfaces are in place."
+        "Creator home, catalog, detail, submissions, applications, onboarding, and profile surfaces are converted to the dark premium system and bundle on iOS."
     },
     {
       name: "Shared Data Layer",
@@ -114,16 +115,23 @@ export const missionControlDefaults: MissionControlConfig = {
     {
       name: "Design System",
       status: "in_progress",
-      progress: 71,
+      progress: 88,
       detail:
-        "Premium visual system exists on web and native, but consistency and reusable owner-console patterns are still growing."
+        "Dark Premium Moody exists on web and native; color, typography, motion, and layout density need owner approval before final polish hardens."
+    },
+    {
+      name: "Design Review And Approval",
+      status: "in_progress",
+      progress: 32,
+      detail:
+        "Core surfaces are strong enough to review now, but the visual direction is still intentionally adjustable before deeper polish locks it in."
     },
     {
       name: "Runtime Stability",
-      status: "blocked",
-      progress: 44,
+      status: "in_progress",
+      progress: 68,
       detail:
-        "The customer product builds cleanly, but local preview tooling has intermittent Next/Expo runtime instability that needs cleanup."
+        "The customer product typechecks and builds cleanly; Expo iOS bundles, but simulator tooling still needs steady screenshot/device-inspection reliability."
     },
     {
       name: "Release Readiness",
@@ -151,10 +159,16 @@ export const missionControlDefaults: MissionControlConfig = {
         "Brand campaign creation, applicant review, creator discovery, applications, submission proof, and payout confirmation are in place."
     },
     {
-      date: "2026-04-23",
-      title: "Premium visual direction raised across both apps",
+      date: "2026-04-25",
+      title: "Dark Premium Moody system applied across web and native",
       detail:
-        "Web received a stronger operator-grade visual system and native creator surfaces were rebuilt around the same premium direction."
+        "Brand web routes, creator native routes, auth, onboarding, profile, marketplace, submissions, and campaign detail screens now share the approved dark premium language."
+    },
+    {
+      date: "2026-04-24",
+      title: "Design checkpoint added to the build process",
+      detail:
+        "Mission control now treats visual review as a first-class step so color, typography, motion, and density can be approved or pivoted before final polish."
     },
     {
       date: "2026-04-23",
@@ -164,17 +178,24 @@ export const missionControlDefaults: MissionControlConfig = {
     }
   ],
   blockers: [
-    "Supabase public env vars are still missing for full live-session product validation.",
-    "Local runtime previews are less stable than the formal build pipeline; Next dev and Expo web both need cleanup.",
+    "Simulator screenshot/device-inspection tooling is intermittently failing through CoreSimulatorService even though Expo iOS bundles successfully.",
+    "The design system is intentionally not visually locked yet; a formal review pass is still needed before final polish.",
     "Store-prep work has not started yet, so launch readiness is still operationally early."
   ],
   nextMoves: [
-    "Finish the owner-facing mission control dashboard and make it the daily local control tower.",
-    "Stabilize local preview/runtime paths so creator and brand surfaces are easy to review without manual cleanup.",
-    "Continue native creator polish and tighten cross-platform cohesion in the marketplace loop.",
+    "Review the current visual direction across landing, dashboard, onboarding, creator home, marketplace, submissions, and campaign builder before locking colors and polish.",
+    "Decide whether the current color system, typography, motion, and density should stay or pivot while the UI system is still flexible.",
+    "Run end-to-end creator and brand QA with real seeded accounts across apply, accept, submit proof, verify, and confirm payout.",
+    "Tighten empty, loading, error, and success states after the design checkpoint.",
     "Move into QA and release-prep planning once the local product loop is visually and functionally stable."
   ],
   launchChecklist: [
+    {
+      name: "Design approval checkpoint",
+      status: "in_progress",
+      detail:
+        "Visual direction is reviewable now, but colors, typography, motion, and overall premium tone are not locked yet."
+    },
     {
       name: "Brand web workflow",
       status: "in_progress",
@@ -183,12 +204,14 @@ export const missionControlDefaults: MissionControlConfig = {
     {
       name: "Creator native workflow",
       status: "in_progress",
-      detail: "Discovery, applications, profile, and submissions exist, but need full runtime QA."
+      detail:
+        "Discovery, applications, profile, campaign detail, and submissions are visually converted and bundle on iOS; full real-session QA remains."
     },
     {
       name: "Environment readiness",
-      status: "blocked",
-      detail: "Supabase public keys are still missing for true live local validation."
+      status: "in_progress",
+      detail:
+        "Supabase public env vars load locally; remaining readiness work is seeded real-session QA and launch environment discipline."
     },
     {
       name: "App Store prep",

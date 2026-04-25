@@ -56,6 +56,9 @@ export interface CampaignFormState extends OpportunityDraftFormState {
   brand_credits_balance: number;
 }
 
+const DEFAULT_APPLICATION_DEADLINE_DAYS_OUT = 7;
+const DEFAULT_APPLICATION_DEADLINE_HOUR = 17;
+
 interface CampaignFormActions {
   // Generic field setter — the form fields are loose JSONB on the way to
   // Supabase, so we accept partial updates that get shallow-merged in.
@@ -126,17 +129,52 @@ function normalizeHashtag(raw: string): string {
   return trimmed.startsWith('#') ? trimmed : `#${trimmed}`;
 }
 
+function normalizeDeadline(value: string | null | undefined) {
+  if (!value?.trim()) return undefined;
+  const normalized = new Date(value);
+  if (Number.isNaN(normalized.getTime())) return value;
+  return normalized.toISOString();
+}
+
+export function createSuggestedApplicationDeadline(baseDate = new Date()) {
+  const next = new Date(baseDate);
+  next.setDate(next.getDate() + DEFAULT_APPLICATION_DEADLINE_DAYS_OUT);
+  next.setHours(DEFAULT_APPLICATION_DEADLINE_HOUR, 0, 0, 0);
+  return next.toISOString();
+}
+
+function buildStepDefaults(state: CampaignFormState, step: StepNumber) {
+  if (step >= 5 && !state.application_deadline) {
+    return { application_deadline: createSuggestedApplicationDeadline() };
+  }
+
+  return {};
+}
+
 export const useCampaignForm = create<CampaignFormState & CampaignFormActions>()(
   subscribeWithSelector((set) => ({
     ...INITIAL_STATE,
 
     patch: (changes) =>
-      set((state) => ({
-        ...state,
-        ...changes,
-      })),
+      set((state) => {
+        const normalizedChanges = { ...changes };
+        if ("application_deadline" in normalizedChanges) {
+          normalizedChanges.application_deadline = normalizeDeadline(
+            normalizedChanges.application_deadline
+          );
+        }
 
-    setStep: (step) => set({ current_step: step }),
+        return {
+          ...state,
+          ...normalizedChanges,
+        };
+      }),
+
+    setStep: (step) =>
+      set((state) => ({
+        current_step: step,
+        ...buildStepDefaults(state, step),
+      })),
 
     toggleCategory: (cat) =>
       set((state) => {
@@ -226,12 +264,18 @@ export const useCampaignForm = create<CampaignFormState & CampaignFormActions>()
         });
         return;
       }
-      set({
+      const currentStep = (draft.current_step as StepNumber) ?? 1;
+      const hydratedState: CampaignFormState = {
         ...INITIAL_STATE,
         ...draft.form_state,
         draft_id: draft.id,
-        current_step: (draft.current_step as StepNumber) ?? 1,
+        current_step: currentStep,
         brand_credits_balance: brandCreditsBalance,
+      };
+
+      set({
+        ...hydratedState,
+        ...buildStepDefaults(hydratedState, currentStep),
       });
     },
 
@@ -376,6 +420,62 @@ export function selectStepStatus(
         return 'complete';
       return 'not_started';
     }
+  }
+}
+
+export function selectStepMissingFields(
+  state: CampaignFormState,
+  step: StepNumber
+): string[] {
+  switch (step) {
+    case 1:
+      return state.campaign_type ? [] : ["campaign type"];
+
+    case 2: {
+      const missing: string[] = [];
+      if (!state.title?.trim()) missing.push("title");
+      if (!state.short_description?.trim()) missing.push("short description");
+      if (!state.image_url?.trim()) missing.push("hero image");
+      if ((state.categories?.length ?? 0) === 0) missing.push("at least one category");
+      return missing;
+    }
+
+    case 3: {
+      const type = state.campaign_type;
+      if (!type) return ["campaign type"];
+
+      const missing: string[] = [];
+      if (type === "paid" || type === "hybrid") {
+        if ((state.cash_amount ?? 0) <= 0) missing.push("cash amount");
+        if ((state.payment_methods?.length ?? 0) === 0) missing.push("payment method");
+      }
+      if (type === "gifting" || type === "hybrid") {
+        if (!state.product_description?.trim()) missing.push("product description");
+      }
+      return missing;
+    }
+
+    case 4: {
+      const missing: string[] = [];
+      if ((state.content_types?.length ?? 0) === 0) missing.push("content format");
+      if (!state.brand_mention?.trim()) missing.push("brand mention");
+      if (!state.description?.trim()) missing.push("campaign brief");
+      if ((state.required_hashtags?.length ?? 0) === 0) missing.push("required hashtags");
+      return missing;
+    }
+
+    case 5: {
+      const missing: string[] = [];
+      if ((state.slots_available ?? 0) <= 0) missing.push("slots available");
+      if (!state.application_deadline) missing.push("application deadline");
+      if (selectHasInsufficientCredits(state)) missing.push("available credits");
+      return missing;
+    }
+
+    case 6:
+      return ([1, 2, 3, 4, 5] as StepNumber[]).flatMap((currentStep) =>
+        selectStepMissingFields(state, currentStep)
+      );
   }
 }
 
