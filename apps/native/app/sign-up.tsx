@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { Link, router } from "expo-router";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import { hasCompletedOnboarding, useAuth } from "@budcast/shared";
 import { useEffect } from "react";
-import { FadeInSection, GlassCard, HeroChip, PremiumScroll, SectionTitle, SoftCard } from "../components/premium";
+import {
+  FadeInSection,
+  GlassCard,
+  HeroChip,
+  PremiumScroll,
+  PrimaryPill,
+  SecondaryPill,
+  SectionTitle,
+  SoftCard
+} from "../components/premium";
 
 const signUpSignals = [
   "Creator discovery",
@@ -59,41 +68,43 @@ export default function SignUpScreen() {
 
       <FadeInSection className="mt-6 gap-4 pb-8" delay={80}>
         <SoftCard>
-          <Text className="text-sm font-medium text-[#46392e]">Email</Text>
+          <Text className="text-sm font-medium text-surface-300">Email</Text>
           <TextInput
             autoCapitalize="none"
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={setEmail}
             placeholder="name@brand.com"
+            placeholderTextColor="#a59a86"
             value={email}
           />
-          <Text className="mt-4 text-sm font-medium text-[#46392e]">Password</Text>
+          <Text className="mt-4 text-sm font-medium text-surface-300">Password</Text>
           <TextInput
             autoCapitalize="none"
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={setPassword}
             placeholder="Create a password"
+            placeholderTextColor="#a59a86"
             secureTextEntry
             value={password}
           />
 
-          {message ? <Text className="mt-4 text-sm leading-6 text-[#435730]">{message}</Text> : null}
-          {error ? <Text className="mt-4 text-sm leading-6 text-[#9a3412]">{error}</Text> : null}
+          {message ? <Text className="mt-4 text-sm leading-6 text-herb-300">{message}</Text> : null}
+          {error ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{error}</Text> : null}
 
-          <Pressable className="mt-5 rounded-full bg-[#435730] px-5 py-4" onPress={handleSignUp}>
-            <Text className="text-center text-sm font-semibold text-white">
-              {submitting ? "Creating account..." : "Create account"}
-            </Text>
-          </Pressable>
+          <PrimaryPill
+            className={`mt-5 py-4 ${loading || submitting ? "opacity-60" : ""}`}
+            disabled={loading || submitting}
+            onPress={handleSignUp}
+          >
+            {submitting ? "Creating account..." : "Create account"}
+          </PrimaryPill>
         </SoftCard>
 
         <SoftCard>
-          <Text className="text-sm leading-7 text-[#5e5448]">Already have an account?</Text>
+          <Text className="text-sm leading-7 text-surface-300">Already have an account?</Text>
           <View className="mt-4 flex-row flex-wrap gap-3">
             <Link asChild href="/sign-in">
-              <Pressable className="rounded-full border border-[#d7c2ab] bg-white px-5 py-3">
-                <Text className="text-sm text-[#624330]">Go to sign in</Text>
-              </Pressable>
+              <SecondaryPill>Go to sign in</SecondaryPill>
             </Link>
           </View>
         </SoftCard>

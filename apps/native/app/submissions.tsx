@@ -12,7 +12,16 @@ import type { PaymentMethod, PostType } from "@budcast/shared";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import { FadeInSection, GlassCard, HeroChip, PremiumScroll, SectionTitle, SoftCard } from "../components/premium";
+import {
+  FadeInSection,
+  GlassCard,
+  HeroChip,
+  PremiumScroll,
+  PrimaryPill,
+  SectionTitle,
+  SoftCard
+} from "../components/premium";
+import { InfoTile, SectionBlock, SectionEyebrow } from "../components/sections";
 
 const postTypes: PostType[] = [
   "instagram_post",
@@ -23,11 +32,17 @@ const postTypes: PostType[] = [
   "youtube_short"
 ];
 
+const selectedPillClass = "bg-[#6b4c2e]";
+const unselectedPillClass = "border border-white/10 bg-white/[0.04]";
+const selectedPillTextClass = "font-semibold text-[#fff8ec]";
+const unselectedPillTextClass = "font-medium text-[#e8dccd]";
+
 export default function SubmissionPipelineScreen() {
   const { loading, session, profile } = useAuth();
   const pipeline = useMySubmissionPipeline();
   const submitContent = useUpsertContentSubmission();
   const confirmPayment = useConfirmSubmissionPayment();
+  const [actionError, setActionError] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<
     Record<
       string,
@@ -83,21 +98,31 @@ export default function SubmissionPipelineScreen() {
     const row = rows.find((item) => item.id === applicationId);
     if (!draft || !row) return;
 
-    await submitContent.mutateAsync({
-      applicationId,
-      submissionId: row.submission?.id,
-      postUrl: draft.postUrl,
-      postType: draft.postType,
-      screenshotUrl: draft.screenshotUrl || null,
-      paymentMethod: draft.paymentMethod
-    });
+    try {
+      setActionError(null);
+      await submitContent.mutateAsync({
+        applicationId,
+        submissionId: row.submission?.id,
+        postUrl: draft.postUrl,
+        postType: draft.postType,
+        screenshotUrl: draft.screenshotUrl || null,
+        paymentMethod: draft.paymentMethod
+      });
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Content submission failed.");
+    }
   }
 
   async function handleConfirmPayment(applicationId: string, submissionId: string) {
-    await confirmPayment.mutateAsync({
-      applicationId,
-      submissionId
-    });
+    try {
+      setActionError(null);
+      await confirmPayment.mutateAsync({
+        applicationId,
+        submissionId
+      });
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Payment confirmation failed.");
+    }
   }
 
   return (
@@ -113,6 +138,7 @@ export default function SubmissionPipelineScreen() {
             <HeroChip>{rows.length} accepted campaigns</HeroChip>
             <HeroChip>{verifiedCount} verified submissions</HeroChip>
           </View>
+          {actionError ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{actionError}</Text> : null}
         </GlassCard>
       </FadeInSection>
 
@@ -123,26 +149,27 @@ export default function SubmissionPipelineScreen() {
           const needsForm = !submission || submission.verification_status === "needs_revision";
 
           return (
-            <SoftCard key={row.id}>
-              <Text className="text-xs uppercase tracking-[2px] text-[#7a6656]">
+            <SectionBlock className="bg-[#11130f]" key={row.id}>
+              <SectionEyebrow>
                 {row.opportunity?.brand?.company_name ?? "Brand"} • {formatStatus(row.status)}
-              </Text>
-              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#221b14]">
+              </SectionEyebrow>
+              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#fbf8f4]">
                 {row.opportunity?.title ?? "Accepted campaign"}
               </Text>
 
               {submission ? (
-                <View className="mt-4 rounded-[20px] border border-[#eadfce] bg-white px-4 py-4">
-                  <Text className="text-sm text-[#46392e]">
+                <View className="mt-4 rounded-[22px] border border-[#a98c5b]/25 bg-[#1a1710] px-4 py-4">
+                  <SectionEyebrow>Submission state</SectionEyebrow>
+                  <Text className="mt-3 text-2xl font-semibold leading-8 text-[#fbf8f4]">
                     {formatPostType(submission.post_type)} • {formatStatus(submission.verification_status)}
                   </Text>
-                  <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+                  <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
                     Payment route: {formatPaymentMethod(submission.payment_method)}
                   </Text>
                   {submission.verification_feedback ? (
-                    <Text className="mt-2 text-sm leading-6 text-[#5e5448]">{submission.verification_feedback}</Text>
+                    <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">{submission.verification_feedback}</Text>
                   ) : null}
-                  <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+                  <Text className="mt-2 text-sm leading-6 text-[#a59a86]">
                     Brand confirmed: {submission.payment_confirmed_by_brand ? "Yes" : "No"} • You confirmed:{" "}
                     {submission.payment_confirmed_by_creator ? "Yes" : "No"}
                   </Text>
@@ -152,7 +179,7 @@ export default function SubmissionPipelineScreen() {
               {needsForm && draft ? (
                 <View className="mt-4 gap-3">
                   <TextInput
-                    className="rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+                    className="rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
                     onChangeText={(value) =>
                       setDrafts((current) => ({
                         ...current,
@@ -163,10 +190,11 @@ export default function SubmissionPipelineScreen() {
                       }))
                     }
                     placeholder="Paste the Instagram, TikTok, or YouTube URL"
+                    placeholderTextColor="#a59a86"
                     value={draft.postUrl}
                   />
                   <TextInput
-                    className="rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+                    className="rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
                     onChangeText={(value) =>
                       setDrafts((current) => ({
                         ...current,
@@ -177,17 +205,20 @@ export default function SubmissionPipelineScreen() {
                       }))
                     }
                     placeholder="Optional screenshot URL"
+                    placeholderTextColor="#a59a86"
                     value={draft.screenshotUrl}
                   />
 
                   <View className="gap-2">
-                    <Text className="text-sm font-medium text-[#46392e]">Post type</Text>
+                    <Text className="text-sm font-medium text-surface-300">Post type</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {postTypes.map((postType) => {
                         const active = draft.postType === postType;
                         return (
                           <Pressable
-                            className={`rounded-full px-3 py-2 ${active ? "bg-[#435730]" : "border border-[#d7c2ab] bg-white"}`}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: active }}
+                            className={`rounded-full px-3 py-2 ${active ? selectedPillClass : unselectedPillClass}`}
                             key={postType}
                             onPress={() =>
                               setDrafts((current) => ({
@@ -199,7 +230,7 @@ export default function SubmissionPipelineScreen() {
                               }))
                             }
                           >
-                            <Text className={`text-sm ${active ? "text-white" : "text-[#624330]"}`}>
+                            <Text className={`text-sm ${active ? selectedPillTextClass : unselectedPillTextClass}`}>
                               {formatPostType(postType)}
                             </Text>
                           </Pressable>
@@ -209,13 +240,15 @@ export default function SubmissionPipelineScreen() {
                   </View>
 
                   <View className="gap-2">
-                    <Text className="text-sm font-medium text-[#46392e]">Payment method</Text>
+                    <Text className="text-sm font-medium text-surface-300">Payment method</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {(row.opportunity?.payment_methods ?? []).map((method) => {
                         const active = draft.paymentMethod === method;
                         return (
                           <Pressable
-                            className={`rounded-full px-3 py-2 ${active ? "bg-[#435730]" : "border border-[#d7c2ab] bg-white"}`}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: active }}
+                            className={`rounded-full px-3 py-2 ${active ? selectedPillClass : unselectedPillClass}`}
                             key={method}
                             onPress={() =>
                               setDrafts((current) => ({
@@ -227,7 +260,7 @@ export default function SubmissionPipelineScreen() {
                               }))
                             }
                           >
-                            <Text className={`text-sm ${active ? "text-white" : "text-[#624330]"}`}>
+                            <Text className={`text-sm ${active ? selectedPillTextClass : unselectedPillTextClass}`}>
                               {formatPaymentMethod(method)}
                             </Text>
                           </Pressable>
@@ -236,35 +269,35 @@ export default function SubmissionPipelineScreen() {
                     </View>
                   </View>
 
-                  <Pressable className="rounded-full bg-[#435730] px-5 py-3" onPress={() => void handleSubmit(row.id)}>
-                    <Text className="text-sm font-semibold text-white">
-                      {submission ? "Resubmit content" : "Submit content"}
-                    </Text>
-                  </Pressable>
+                  <PrimaryPill onPress={() => void handleSubmit(row.id)}>
+                    {submission ? "Resubmit content" : "Submit content"}
+                  </PrimaryPill>
                 </View>
               ) : null}
 
               {submission?.verification_status === "verified" && !submission.payment_confirmed_by_creator ? (
-                <Pressable
-                  className="mt-4 rounded-full border border-[#435730] bg-white px-5 py-3"
-                  onPress={() => void handleConfirmPayment(row.id, submission.id)}
-                >
-                  <Text className="text-sm font-semibold text-[#435730]">Confirm I was paid</Text>
-                </Pressable>
+                <View className="mt-4 gap-3">
+                  <InfoTile label="Payout checkpoint">
+                    Verified proof awaiting your payment confirmation. Confirm only after the brand has paid you.
+                  </InfoTile>
+                  <PrimaryPill onPress={() => void handleConfirmPayment(row.id, submission.id)}>
+                    Confirm I was paid
+                  </PrimaryPill>
+                </View>
               ) : null}
-            </SoftCard>
+            </SectionBlock>
           );
         })}
 
         {pipeline.isLoading ? (
           <SoftCard>
-            <Text className="text-base text-[#5e5448]">Loading accepted campaigns...</Text>
+            <Text className="text-base text-[#d7cdbd]">Loading accepted campaigns...</Text>
           </SoftCard>
         ) : null}
 
         {!pipeline.isLoading && rows.length === 0 ? (
           <SoftCard>
-            <Text className="text-base leading-7 text-[#5e5448]">
+            <Text className="text-base leading-7 text-surface-300">
               No accepted campaigns yet. Once a brand accepts your application, the submission workflow appears here.
             </Text>
           </SoftCard>

@@ -1,6 +1,6 @@
 import { hasCompletedOnboarding, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import {
   FadeInSection,
@@ -8,6 +8,7 @@ import {
   HeroChip,
   MetricTile,
   PremiumScroll,
+  PrimaryPill,
   SectionTitle,
   SoftCard
 } from "../components/premium";
@@ -23,16 +24,24 @@ const creatorNiches = [
   "lifestyle"
 ] as const;
 
+const selectedPillClass = "bg-[#6b4c2e]";
+const unselectedPillClass = "border border-white/10 bg-white/[0.04]";
+const selectedPillTextClass = "font-semibold text-[#fff8ec]";
+const unselectedPillTextClass = "font-medium text-[#e8dccd]";
+
 export default function OnboardingScreen() {
   const { session, profile, loading } = useAuth();
   const onboarding = useOnboarding();
   const saveProfile = useSaveProfile();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const hydratedProfileId = useRef<string | null>(null);
   const isCreator = onboarding.userType === "creator";
   const onboardingComplete = hasCompletedOnboarding(profile);
 
   useEffect(() => {
-    if (profile) onboarding.hydrateFromProfile(profile);
+    if (!profile?.id || hydratedProfileId.current === profile.id) return;
+    onboarding.hydrateFromProfile(profile);
+    hydratedProfileId.current = profile.id;
   }, [onboarding, profile]);
 
   useEffect(() => {
@@ -95,34 +104,39 @@ export default function OnboardingScreen() {
 
       <FadeInSection className="mt-6 gap-4 pb-8" delay={120}>
         <SoftCard>
-          <Text className="text-sm font-medium text-[#46392e]">I am joining as</Text>
+          <Text className="text-sm font-medium text-surface-300">I am joining as</Text>
           <View className="mt-4 flex-row flex-wrap gap-3">
             <Pressable
-              className={`rounded-full px-5 py-3 ${onboarding.userType === "brand" ? "bg-[#435730]" : "border border-[#d7c2ab] bg-white"}`}
+              accessibilityRole="button"
+              accessibilityState={{ selected: onboarding.userType === "brand" }}
+              className={`rounded-full px-5 py-3 ${onboarding.userType === "brand" ? selectedPillClass : unselectedPillClass}`}
               onPress={() => onboarding.setUserType("brand")}
             >
-              <Text className={onboarding.userType === "brand" ? "text-white" : "text-[#624330]"}>
+              <Text className={onboarding.userType === "brand" ? selectedPillTextClass : unselectedPillTextClass}>
                 Brand operator
               </Text>
             </Pressable>
             <Pressable
-              className={`rounded-full px-5 py-3 ${onboarding.userType === "creator" ? "bg-[#435730]" : "border border-[#d7c2ab] bg-white"}`}
+              accessibilityRole="button"
+              accessibilityState={{ selected: onboarding.userType === "creator" }}
+              className={`rounded-full px-5 py-3 ${onboarding.userType === "creator" ? selectedPillClass : unselectedPillClass}`}
               onPress={() => onboarding.setUserType("creator")}
             >
-              <Text className={onboarding.userType === "creator" ? "text-white" : "text-[#624330]"}>
+              <Text className={onboarding.userType === "creator" ? selectedPillTextClass : unselectedPillTextClass}>
                 Creator talent
               </Text>
             </Pressable>
             <Pressable
-              className="rounded-full border border-[#d7c2ab] bg-white px-5 py-3"
+              accessibilityRole="button"
+              className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3"
               onPress={onboarding.reset}
             >
-              <Text className="text-[#624330]">Reset</Text>
+              <Text className="font-medium text-[#e8dccd]">Reset</Text>
             </Pressable>
           </View>
           {!session && !loading ? (
-            <View className="mt-4 rounded-[22px] border border-[#eadfce] bg-[#fff8f1] px-4 py-4">
-              <Text className="text-sm leading-6 text-[#5e5448]">
+            <View className="mt-4 rounded-[22px] border border-[#a98c5b]/25 bg-[#1a1710] px-4 py-4">
+              <Text className="text-sm leading-6 text-[#e8dccd]">
                 Sign in first. This flow saves directly into your shared profile record and does not keep a separate local-only draft.
               </Text>
             </View>
@@ -130,24 +144,27 @@ export default function OnboardingScreen() {
         </SoftCard>
 
         <SoftCard>
-          <Text className="text-sm font-medium text-[#46392e]">Core identity</Text>
+          <Text className="text-sm font-medium text-surface-300">Core identity</Text>
           <TextInput
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={(value) => onboarding.setField("name", value)}
             placeholder={isCreator ? "Display name" : "Operator name"}
+            placeholderTextColor="#a59a86"
             value={onboarding.name}
           />
           <TextInput
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={(value) => onboarding.setField("location", value)}
             placeholder="Location"
+            placeholderTextColor="#a59a86"
             value={onboarding.location}
           />
           <TextInput
-            className="mt-3 min-h-[108px] rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 min-h-[108px] rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             multiline
             onChangeText={(value) => onboarding.setField("bio", value)}
             placeholder="Tell brands or creators what makes you a strong fit."
+            placeholderTextColor="#a59a86"
             textAlignVertical="top"
             value={onboarding.bio}
           />
@@ -155,22 +172,24 @@ export default function OnboardingScreen() {
 
         {isCreator ? (
           <SoftCard>
-            <Text className="text-sm font-medium text-[#46392e]">Creator channels</Text>
+            <Text className="text-sm font-medium text-surface-300">Creator channels</Text>
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("instagram", value)}
               placeholder="Instagram handle"
+              placeholderTextColor="#a59a86"
               value={onboarding.instagram}
             />
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("tiktok", value)}
               placeholder="TikTok handle"
+              placeholderTextColor="#a59a86"
               value={onboarding.tiktok}
             />
             <View className="mt-4">
-              <Text className="text-sm font-medium text-[#46392e]">Niche focus</Text>
-              <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+              <Text className="text-sm font-medium text-surface-300">Niche focus</Text>
+              <Text className="mt-2 text-sm leading-6 text-surface-300">
                 Select the categories where you want paid opportunities to find you first.
               </Text>
               <View className="mt-4 flex-row flex-wrap gap-2">
@@ -178,12 +197,14 @@ export default function OnboardingScreen() {
                   const selected = onboarding.niches.includes(niche);
                   return (
                     <Pressable
-                      className={`rounded-full px-4 py-2 ${selected ? "bg-[#435730]" : "border border-[#d7c2ab] bg-white"}`}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      className={`rounded-full px-4 py-2 ${selected ? selectedPillClass : unselectedPillClass}`}
                       key={niche}
                       onPress={() => onboarding.toggleNiche(niche)}
                     >
-                      <Text className={selected ? "text-white" : "text-[#624330]"}>
-                        {niche.replace("_", " ")}
+                      <Text className={selected ? selectedPillTextClass : unselectedPillTextClass}>
+                        {niche.replace(/_/g, " ")}
                       </Text>
                     </Pressable>
                   );
@@ -193,36 +214,36 @@ export default function OnboardingScreen() {
           </SoftCard>
         ) : (
           <SoftCard>
-            <Text className="text-sm font-medium text-[#46392e]">Brand footprint</Text>
+            <Text className="text-sm font-medium text-surface-300">Brand footprint</Text>
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("companyName", value)}
               placeholder="Company name"
+              placeholderTextColor="#a59a86"
               value={onboarding.companyName}
             />
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("website", value)}
               placeholder="Website"
+              placeholderTextColor="#a59a86"
               value={onboarding.website}
             />
           </SoftCard>
         )}
 
         <SoftCard>
-          <Text className="text-sm leading-6 text-[#5e5448]">
+          <Text className="text-sm leading-6 text-surface-300">
             BudCast uses this profile to control matching context, marketplace trust, and role-based routing across web and native.
           </Text>
-          <Pressable
-            className={`mt-5 rounded-full px-5 py-4 ${!session || saveProfile.isPending || !canSubmit ? "bg-[#91a180]" : "bg-[#435730]"}`}
+          <PrimaryPill
+            className={`mt-5 py-4 ${!session || saveProfile.isPending || !canSubmit ? "opacity-50" : ""}`}
             disabled={!session || saveProfile.isPending || !canSubmit}
             onPress={handleSave}
           >
-            <Text className="text-center text-sm font-semibold text-white">
-              {saveProfile.isPending ? "Saving profile..." : "Save and continue"}
-            </Text>
-          </Pressable>
-          {feedback ? <Text className="mt-4 text-sm leading-6 text-[#9a3412]">{feedback}</Text> : null}
+            {saveProfile.isPending ? "Saving profile..." : "Save and continue"}
+          </PrimaryPill>
+          {feedback ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{feedback}</Text> : null}
         </SoftCard>
       </FadeInSection>
     </PremiumScroll>

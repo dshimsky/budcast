@@ -1,12 +1,14 @@
 import { hasCompletedOnboarding, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import {
   FadeInSection,
   GlassCard,
   HeroChip,
   PremiumScroll,
+  PrimaryPill,
+  SecondaryPill,
   SectionTitle,
   SoftCard
 } from "../components/premium";
@@ -22,11 +24,17 @@ const creatorNiches = [
   "lifestyle"
 ] as const;
 
+const selectedPillClass = "bg-[#6b4c2e]";
+const unselectedPillClass = "border border-white/10 bg-white/[0.04]";
+const selectedPillTextClass = "font-semibold text-[#fff8ec]";
+const unselectedPillTextClass = "font-medium text-[#e8dccd]";
+
 export default function ProfileEditScreen() {
   const { loading, session, profile } = useAuth();
   const onboarding = useOnboarding();
   const saveProfile = useSaveProfile();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const hydratedProfileId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!loading && !session) {
@@ -40,7 +48,9 @@ export default function ProfileEditScreen() {
   }, [loading, profile, session]);
 
   useEffect(() => {
-    if (profile) onboarding.hydrateFromProfile(profile);
+    if (!profile?.id || hydratedProfileId.current === profile.id) return;
+    onboarding.hydrateFromProfile(profile);
+    hydratedProfileId.current = profile.id;
   }, [onboarding, profile]);
 
   const isCreator = profile?.user_type === "creator";
@@ -81,24 +91,27 @@ export default function ProfileEditScreen() {
 
       <FadeInSection className="mt-6 gap-4 pb-8" delay={90}>
         <SoftCard>
-          <Text className="text-sm font-medium text-[#46392e]">Identity</Text>
+          <Text className="text-sm font-medium text-surface-300">Identity</Text>
           <TextInput
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={(value) => onboarding.setField("name", value)}
             placeholder={isCreator ? "Display name" : "Operator name"}
+            placeholderTextColor="#a59a86"
             value={onboarding.name}
           />
           <TextInput
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={(value) => onboarding.setField("location", value)}
             placeholder="Location"
+            placeholderTextColor="#a59a86"
             value={onboarding.location}
           />
           <TextInput
-            className="mt-3 min-h-[108px] rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 min-h-[108px] rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             multiline
             onChangeText={(value) => onboarding.setField("bio", value)}
             placeholder="Tighten your bio so it reads like a clear marketplace pitch."
+            placeholderTextColor="#a59a86"
             textAlignVertical="top"
             value={onboarding.bio}
           />
@@ -106,23 +119,26 @@ export default function ProfileEditScreen() {
 
         {isCreator ? (
           <SoftCard>
-            <Text className="text-sm font-medium text-[#46392e]">Channels and niches</Text>
+            <Text className="text-sm font-medium text-surface-300">Channels and niches</Text>
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("instagram", value)}
               placeholder="Instagram"
+              placeholderTextColor="#a59a86"
               value={onboarding.instagram}
             />
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("tiktok", value)}
               placeholder="TikTok"
+              placeholderTextColor="#a59a86"
               value={onboarding.tiktok}
             />
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("youtube", value)}
               placeholder="YouTube"
+              placeholderTextColor="#a59a86"
               value={onboarding.youtube}
             />
             <View className="mt-4 flex-row flex-wrap gap-2">
@@ -130,12 +146,14 @@ export default function ProfileEditScreen() {
                 const selected = onboarding.niches.includes(niche);
                 return (
                   <Pressable
-                    className={`rounded-full px-4 py-2 ${selected ? "bg-[#435730]" : "border border-[#d7c2ab] bg-white"}`}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    className={`rounded-full px-4 py-2 ${selected ? selectedPillClass : unselectedPillClass}`}
                     key={niche}
                     onPress={() => onboarding.toggleNiche(niche)}
                   >
-                    <Text className={selected ? "text-white" : "text-[#624330]"}>
-                      {niche.replace("_", " ")}
+                    <Text className={selected ? selectedPillTextClass : unselectedPillTextClass}>
+                      {niche.replace(/_/g, " ")}
                     </Text>
                   </Pressable>
                 );
@@ -144,45 +162,40 @@ export default function ProfileEditScreen() {
           </SoftCard>
         ) : (
           <SoftCard>
-            <Text className="text-sm font-medium text-[#46392e]">Brand details</Text>
+            <Text className="text-sm font-medium text-surface-300">Brand details</Text>
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("companyName", value)}
               placeholder="Company name"
+              placeholderTextColor="#a59a86"
               value={onboarding.companyName}
             />
             <TextInput
-              className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               onChangeText={(value) => onboarding.setField("website", value)}
               placeholder="Website"
+              placeholderTextColor="#a59a86"
               value={onboarding.website}
             />
           </SoftCard>
         )}
 
         <SoftCard>
-          <Text className="text-sm leading-6 text-[#5e5448]">
+          <Text className="text-sm leading-6 text-surface-300">
             Better profiles create better marketplace decisions. This is a trust surface, not a hidden settings page.
           </Text>
           <View className="mt-5 flex-row flex-wrap gap-3">
-            <Pressable
-              className={`rounded-full px-5 py-3 ${canSave && !saveProfile.isPending ? "bg-[#435730]" : "bg-[#91a180]"}`}
+            <PrimaryPill
+              className={canSave && !saveProfile.isPending ? "" : "opacity-50"}
               disabled={!canSave || saveProfile.isPending}
               onPress={handleSave}
             >
-              <Text className="text-sm font-semibold text-white">
-                {saveProfile.isPending ? "Saving..." : "Save changes"}
-              </Text>
-            </Pressable>
-            <Pressable
-              className="rounded-full border border-[#d7c2ab] bg-white px-5 py-3"
-              onPress={() => router.replace("/profile")}
-            >
-              <Text className="text-[#624330]">Back to profile</Text>
-            </Pressable>
+              {saveProfile.isPending ? "Saving..." : "Save changes"}
+            </PrimaryPill>
+            <SecondaryPill onPress={() => router.replace("/profile")}>Back to profile</SecondaryPill>
           </View>
 
-          {feedback ? <Text className="mt-4 text-sm leading-6 text-[#9a3412]">{feedback}</Text> : null}
+          {feedback ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{feedback}</Text> : null}
         </SoftCard>
       </FadeInSection>
     </PremiumScroll>

@@ -11,7 +11,16 @@ import {
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { FadeInSection, GlassCard, HeroChip, PremiumScroll, SectionTitle, SoftCard } from "../components/premium";
+import {
+  FadeInSection,
+  GlassCard,
+  HeroChip,
+  PremiumScroll,
+  PrimaryPill,
+  SectionTitle,
+  SoftCard
+} from "../components/premium";
+import { SectionBlock, SectionEyebrow } from "../components/sections";
 
 const campaignTypes: Array<{ label: string; value: CampaignType | null }> = [
   { label: "All", value: null },
@@ -51,11 +60,13 @@ export default function StoreScreen() {
               const active = activeType === type.value;
               return (
                 <Pressable
-                  className={`rounded-full px-4 py-2 ${active ? "bg-[#435730]" : "border border-[#d7c2ab] bg-[#fffaf4]"}`}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  className={`rounded-full px-4 py-2 ${active ? "bg-[#6b4c2e]" : "border border-white/10 bg-white/[0.04]"}`}
                   key={type.label}
                   onPress={() => setActiveType(type.value)}
                 >
-                  <Text className={`text-sm ${active ? "font-semibold text-white" : "text-[#624330]"}`}>{type.label}</Text>
+                  <Text className={`text-sm ${active ? "font-semibold text-[#fff8ec]" : "font-medium text-[#e8dccd]"}`}>{type.label}</Text>
                 </Pressable>
               );
             })}
@@ -68,12 +79,12 @@ export default function StoreScreen() {
           const applied = myApplications.isApplied(campaign.id);
 
           return (
-            <SoftCard key={campaign.id}>
-              <Text className="text-xs uppercase tracking-[2px] text-[#7a6656]">
+            <SectionBlock className="bg-[#11130f]" key={campaign.id}>
+              <SectionEyebrow>
                 {formatCampaignType(campaign.campaign_type)}
-              </Text>
-              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#221b14]">{campaign.title}</Text>
-              <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+              </SectionEyebrow>
+              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#fbf8f4]">{campaign.title}</Text>
+              <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
                 {campaign.short_description || campaign.description}
               </Text>
               <View className="mt-4 flex-row flex-wrap gap-2">
@@ -82,29 +93,27 @@ export default function StoreScreen() {
                 <HeroChip>{formatDeadline(campaign.application_deadline)}</HeroChip>
               </View>
               <View className="mt-5 flex-row items-center justify-between gap-3">
-                <Text className="text-sm leading-6 text-[#5e5448]">
+                <Text className="flex-1 text-sm leading-6 text-[#a59a86]">
                   {campaign.brand?.company_name ?? "Unknown brand"} • {campaign.slots_filled}/{campaign.slots_available} filled
                 </Text>
                 <View className="flex-row gap-3">
                   {applied ? (
-                    <View className="rounded-full border border-[#b9d0a5] bg-[#edf5e6] px-4 py-2">
-                      <Text className="text-sm font-medium text-[#435730]">Applied</Text>
+                    <View className="rounded-full border border-[#a98c5b]/30 bg-[#1a1b16] px-4 py-2">
+                      <Text className="text-sm font-medium text-[#d7c3a0]">Applied</Text>
                     </View>
                   ) : null}
                   <Link asChild href={`/campaigns/${campaign.id}`}>
-                    <Pressable className="rounded-full bg-[#435730] px-4 py-2">
-                      <Text className="text-sm font-semibold text-white">Details</Text>
-                    </Pressable>
+                    <PrimaryPill className="px-4 py-2">Details</PrimaryPill>
                   </Link>
                 </View>
               </View>
-            </SoftCard>
+            </SectionBlock>
           );
         })}
 
         {campaigns.isLoading ? (
           <SoftCard>
-            <Text className="text-base text-[#5e5448]">Loading campaigns...</Text>
+            <Text className="text-base text-[#d7cdbd]">Loading campaigns...</Text>
           </SoftCard>
         ) : null}
       </FadeInSection>

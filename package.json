@@ -9,6 +9,8 @@
   "scripts": {
     "dev:web": "npm run dev -w @budcast/web",
     "dev:native": "npm run dev -w @budcast/native",
+    "dev:native:web": "npm run dev:web -w @budcast/native",
+    "preview:native:web": "npm run preview:web -w @budcast/native",
     "typecheck": "npm run typecheck -w @budcast/shared && npm run typecheck -w @budcast/web && npm run typecheck -w @budcast/native",
     "build:web": "npm run build -w @budcast/web"
   }

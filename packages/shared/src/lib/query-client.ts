@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { focusManager, QueryClient } from "@tanstack/react-query";
 
 export function createBudCastQueryClient() {
   return new QueryClient({
@@ -10,4 +10,19 @@ export function createBudCastQueryClient() {
       }
     }
   });
+}
+
+export function bindNativeQueryFocus(
+  addEventListener: (
+    type: "change",
+    listener: (status: string) => void
+  ) => { remove: () => void }
+) {
+  const subscription = addEventListener("change", (status) => {
+    focusManager.setFocused(status === "active");
+  });
+
+  return () => {
+    subscription.remove();
+  };
 }

@@ -1,9 +1,18 @@
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import { Link, router } from "expo-router";
+import { useRef, useState } from "react";
+import { Text, TextInput, View } from "react-native";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import { hasCompletedOnboarding, useAuth } from "@budcast/shared";
 import { useEffect } from "react";
-import { FadeInSection, GlassCard, HeroChip, PremiumScroll, SectionTitle, SoftCard } from "../components/premium";
+import {
+  FadeInSection,
+  GlassCard,
+  HeroChip,
+  PremiumScroll,
+  PrimaryPill,
+  SecondaryPill,
+  SectionTitle,
+  SoftCard
+} from "../components/premium";
 
 const authSignals = [
   "Creator access",
@@ -13,16 +22,55 @@ const authSignals = [
 
 export default function SignInScreen() {
   const { signIn, loading, session, profile } = useAuth();
+  const params = useLocalSearchParams<{ seed?: string }>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const autoLoginAttempted = useRef(false);
 
   useEffect(() => {
     if (!loading && session) {
       router.replace(hasCompletedOnboarding(profile) ? "/profile" : "/onboarding");
     }
   }, [loading, profile, session]);
+
+  useEffect(() => {
+    if (!__DEV__ || autoLoginAttempted.current || loading || session) return;
+
+    const seed = params.seed;
+    if (seed !== "creator" && seed !== "brand") return;
+
+    const seedEmail =
+      seed === "creator"
+        ? process.env.EXPO_PUBLIC_QA_CREATOR_EMAIL
+        : process.env.EXPO_PUBLIC_QA_BRAND_EMAIL;
+    const seedPassword =
+      seed === "creator"
+        ? process.env.EXPO_PUBLIC_QA_CREATOR_PASSWORD
+        : process.env.EXPO_PUBLIC_QA_BRAND_PASSWORD;
+
+    if (!seedEmail || !seedPassword) {
+      setError(`Missing local QA credentials for ${seed}.`);
+      autoLoginAttempted.current = true;
+      return;
+    }
+
+    autoLoginAttempted.current = true;
+    setEmail(seedEmail);
+    setPassword(seedPassword);
+    setSubmitting(true);
+    setError(null);
+
+    signIn(seedEmail, seedPassword)
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Seed sign in failed.");
+        autoLoginAttempted.current = false;
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  }, [loading, params.seed, session, signIn]);
 
   async function handleSignIn() {
     setSubmitting(true);
@@ -47,8 +95,8 @@ export default function SignInScreen() {
             description="Shared Supabase auth is already mounted here. Native onboarding and creator flows sit on top of the same backend identity."
           />
           <View className="mt-6 flex-row flex-wrap gap-2">
-            {authSignals.map((signal, index) => (
-              <HeroChip key={signal}>{signal}{index === 1 ? "" : ""}</HeroChip>
+            {authSignals.map((signal) => (
+              <HeroChip key={signal}>{signal}</HeroChip>
             ))}
           </View>
         </GlassCard>
@@ -56,52 +104,48 @@ export default function SignInScreen() {
 
       <FadeInSection className="mt-6 gap-4 pb-8" delay={80}>
         <SoftCard>
-          <Text className="text-sm font-medium text-[#46392e]">Email</Text>
+          <Text className="text-sm font-medium text-surface-300">Email</Text>
           <TextInput
             autoCapitalize="none"
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={setEmail}
             placeholder="name@brand.com"
+            placeholderTextColor="#a59a86"
             value={email}
           />
-          <Text className="mt-4 text-sm font-medium text-[#46392e]">Password</Text>
+          <Text className="mt-4 text-sm font-medium text-surface-300">Password</Text>
           <TextInput
             autoCapitalize="none"
-            className="mt-3 rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+            className="mt-3 rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
             onChangeText={setPassword}
             placeholder="Password"
+            placeholderTextColor="#a59a86"
             secureTextEntry
             value={password}
           />
 
-          {error ? <Text className="mt-4 text-sm leading-6 text-[#9a3412]">{error}</Text> : null}
-          {profile ? <Text className="mt-4 text-sm text-[#435730]">{profile.email}</Text> : null}
+          {error ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{error}</Text> : null}
+          {profile ? <Text className="mt-4 text-sm text-herb-300">{profile.email}</Text> : null}
 
-          <Pressable
-            className="mt-5 rounded-full bg-[#435730] px-5 py-4"
+          <PrimaryPill
+            className={`mt-5 py-4 ${loading || submitting ? "opacity-60" : ""}`}
             disabled={loading || submitting}
             onPress={handleSignIn}
           >
-            <Text className="text-center text-sm font-semibold text-white">
-              {submitting ? "Signing in..." : "Sign in"}
-            </Text>
-          </Pressable>
+            {submitting ? "Signing in..." : "Sign in"}
+          </PrimaryPill>
         </SoftCard>
 
         <SoftCard>
-          <Text className="text-sm leading-7 text-[#5e5448]">
+          <Text className="text-sm leading-7 text-surface-300">
             Need an account or want the mobile preview first?
           </Text>
           <View className="mt-4 flex-row flex-wrap gap-3">
             <Link asChild href="/">
-              <Pressable className="rounded-full border border-[#d7c2ab] bg-white px-5 py-3">
-                <Text className="text-sm text-[#624330]">Back to mobile shell</Text>
-              </Pressable>
+              <SecondaryPill>Back to mobile shell</SecondaryPill>
             </Link>
             <Link asChild href="/sign-up">
-              <Pressable className="rounded-full border border-[#d7c2ab] bg-white px-5 py-3">
-                <Text className="text-sm text-[#624330]">Create account</Text>
-              </Pressable>
+              <SecondaryPill>Create account</SecondaryPill>
             </Link>
           </View>
         </SoftCard>

@@ -11,8 +11,18 @@ import {
 } from "@budcast/shared";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
-import { FadeInSection, GlassCard, HeroChip, PremiumScroll, SectionTitle, SoftCard } from "../../components/premium";
+import { Text, TextInput, View } from "react-native";
+import {
+  FadeInSection,
+  GlassCard,
+  HeroChip,
+  PremiumScroll,
+  PrimaryPill,
+  SecondaryPill,
+  SectionTitle,
+  SoftCard
+} from "../../components/premium";
+import { InfoTile, SectionBlock, SectionEyebrow } from "../../components/sections";
 
 function applyErrorCopy(key: ReturnType<typeof parseApplyError>) {
   switch (key) {
@@ -43,6 +53,7 @@ export default function CampaignDetailScreen() {
   const applyMutation = useApplyToCampaign();
   const [message, setMessage] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [feedbackTone, setFeedbackTone] = useState<"success" | "error" | null>(null);
 
   const row = campaign.data;
   const applied = row ? myApplications.isApplied(row.id) : false;
@@ -53,13 +64,16 @@ export default function CampaignDetailScreen() {
 
     try {
       setFeedback(null);
+      setFeedbackTone(null);
       await applyMutation.mutateAsync({
         opportunityId: row.id,
         message: requiresPitch ? message : null
       });
       setFeedback("Application submitted.");
+      setFeedbackTone("success");
     } catch (error) {
       setFeedback(applyErrorCopy(parseApplyError(error)));
+      setFeedbackTone("error");
     }
   }
 
@@ -67,7 +81,7 @@ export default function CampaignDetailScreen() {
     return (
       <PremiumScroll>
         <GlassCard>
-          <Text className="text-base text-[#5e5448]">
+          <Text className="text-base text-surface-300">
             {campaign.isLoading ? "Loading campaign..." : "Campaign not found."}
           </Text>
         </GlassCard>
@@ -82,7 +96,7 @@ export default function CampaignDetailScreen() {
           <SectionTitle
             eyebrow={formatCampaignType(row.campaign_type)}
             title={row.title}
-            description={row.description || row.short_description || "Campaign brief unavailable."}
+            description={row.short_description || row.description || "Campaign brief unavailable."}
           />
 
           <View className="mt-6 flex-row flex-wrap gap-2">
@@ -95,38 +109,39 @@ export default function CampaignDetailScreen() {
       </FadeInSection>
 
       <FadeInSection className="mt-6 gap-4" delay={80}>
-        <SoftCard>
-          <Text className="text-xs uppercase tracking-[2px] text-[#7a6656]">Brand</Text>
-          <Text className="mt-2 text-lg font-semibold text-[#221b14]">{row.brand?.company_name ?? "Unknown"}</Text>
-          <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+        <SectionBlock>
+          <SectionEyebrow>Brand</SectionEyebrow>
+          <Text className="mt-2 text-lg font-semibold text-[#fbf8f4]">{row.brand?.company_name ?? "Unknown"}</Text>
+          <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
             Review score {row.brand?.review_score ?? "—"} • Payment rate {row.brand?.payment_rate ?? "—"}
           </Text>
-        </SoftCard>
+        </SectionBlock>
 
-        <SoftCard>
-          <Text className="text-xs uppercase tracking-[2px] text-[#7a6656]">Required content</Text>
-          <Text className="mt-2 text-sm leading-6 text-[#5e5448]">
+        <SectionBlock>
+          <SectionEyebrow>Required content</SectionEyebrow>
+          <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
             {(row.content_types ?? []).map((item) => formatContentType(item)).join(", ") || "Not specified"}
           </Text>
-        </SoftCard>
+        </SectionBlock>
 
-        <SoftCard>
-          <Text className="text-xs uppercase tracking-[2px] text-[#7a6656]">Hashtags</Text>
+        <SectionBlock>
+          <SectionEyebrow>Hashtags</SectionEyebrow>
           <View className="mt-3 flex-row flex-wrap gap-2">
             {(row.required_hashtags ?? []).map((tag) => (
               <HeroChip key={tag}>{tag}</HeroChip>
             ))}
           </View>
-        </SoftCard>
+        </SectionBlock>
 
         {requiresPitch ? (
           <SoftCard>
-            <Text className="text-sm font-medium text-[#46392e]">Pitch message</Text>
+            <Text className="text-sm font-medium text-surface-300">Pitch message</Text>
             <TextInput
-              className="mt-3 min-h-[132px] rounded-[22px] border border-[#d9ccb9] bg-white px-4 py-4 text-base"
+              className="mt-3 min-h-[132px] rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
               multiline
               onChangeText={setMessage}
               placeholder="Tell the brand why you are a fit. Paid and hybrid campaigns require 50-500 characters."
+              placeholderTextColor="#a59a86"
               textAlignVertical="top"
               value={message}
             />
@@ -134,27 +149,25 @@ export default function CampaignDetailScreen() {
         ) : null}
 
         {feedback ? (
-          <SoftCard>
-            <Text className="text-sm leading-6 text-[#9a3412]">{feedback}</Text>
-          </SoftCard>
+          <InfoTile label={feedbackTone === "success" ? "Application sent" : "Application blocked"}>
+            <Text className={`text-sm leading-6 ${feedbackTone === "success" ? "text-herb-300" : "text-[#d7a07d]"}`}>
+              {feedback}
+            </Text>
+          </InfoTile>
         ) : null}
 
         <View className="mb-8 mt-2 flex-row flex-wrap gap-3">
           <HeroChip>{profile?.credits_balance ?? 0} credits available</HeroChip>
           <Link asChild href="/store">
-            <Pressable className="rounded-full border border-[#d7c2ab] bg-[#fffaf4] px-5 py-3">
-              <Text className="text-sm text-[#624330]">Back to store</Text>
-            </Pressable>
+            <SecondaryPill>Back to store</SecondaryPill>
           </Link>
-          <Pressable
-            className={`rounded-full px-5 py-3 ${applied ? "bg-[#91a180]" : "bg-[#435730]"}`}
+          <PrimaryPill
+            className={applied ? "opacity-50" : ""}
             disabled={applied || applyMutation.isPending}
             onPress={handleApply}
           >
-            <Text className="text-sm font-semibold text-white">
-              {applied ? "Already applied" : applyMutation.isPending ? "Applying..." : "Apply now"}
-            </Text>
-          </Pressable>
+            {applied ? "Already applied" : applyMutation.isPending ? "Applying..." : "Apply now"}
+          </PrimaryPill>
         </View>
       </FadeInSection>
     </PremiumScroll>
