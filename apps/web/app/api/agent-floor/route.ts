@@ -1,4 +1,4 @@
-import { getAgentFloorConfigRaw, saveAgentFloorConfig } from "../../../lib/agent-floor";
+import { getAgentFloorConfigRaw, saveAgentFloorConfig, validateAgentFloorConfig } from "../../../lib/agent-floor";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +28,17 @@ export async function POST(request: Request) {
     return Response.json({ error: message }, { status: 400 });
   }
 
+  const validationErrors = validateAgentFloorConfig(parsed);
+  if (validationErrors.length > 0) {
+    return Response.json(
+      {
+        error: "BudCast Operations JSON does not match the Agent Floor schema.",
+        details: validationErrors
+      },
+      { status: 400 }
+    );
+  }
+
   let result: ReturnType<typeof saveAgentFloorConfig>;
 
   try {
@@ -40,6 +51,7 @@ export async function POST(request: Request) {
   return Response.json({
     ok: true,
     updatedAt: result.updatedAt,
-    path: result.path
+    path: result.path,
+    raw: getAgentFloorConfigRaw()
   });
 }

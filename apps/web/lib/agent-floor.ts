@@ -100,6 +100,20 @@ export type AgentFloorSnapshot = AgentFloorConfig & {
 const runtimeCwd = process.cwd();
 const workspaceRoot = existsSync(join(runtimeCwd, "apps", "web")) ? runtimeCwd : join(runtimeCwd, "..", "..");
 const agentFloorConfigPath = join(workspaceRoot, "ops", "agent-floor.json");
+const missionStatuses: AgentMissionStatus[] = [
+  "queued",
+  "assigned",
+  "working",
+  "reviewing",
+  "needs_fix",
+  "verified",
+  "complete",
+  "blocked"
+];
+const missionCategories: AgentMissionCategory[] = ["build", "operations", "marketing", "business", "support"];
+const reasoningLevels: AgentReasoningLevel[] = ["low", "medium", "high", "xhigh"];
+const avatarTones: AgentAvatarTone[] = ["gold", "olive", "bronze", "moss", "charcoal"];
+const blockerSeverities: AgentBlocker["severity"][] = ["low", "medium", "high"];
 
 function asRecord(value: unknown) {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
@@ -130,16 +144,7 @@ function asStringArray(value: unknown, fallback: string[]) {
 }
 
 function isMissionStatus(value: unknown): value is AgentMissionStatus {
-  return (
-    value === "queued" ||
-    value === "assigned" ||
-    value === "working" ||
-    value === "reviewing" ||
-    value === "needs_fix" ||
-    value === "verified" ||
-    value === "complete" ||
-    value === "blocked"
-  );
+  return missionStatuses.includes(value as AgentMissionStatus);
 }
 
 function asMissionStatus(value: unknown, fallback: AgentMissionStatus) {
@@ -147,7 +152,7 @@ function asMissionStatus(value: unknown, fallback: AgentMissionStatus) {
 }
 
 function isMissionCategory(value: unknown): value is AgentMissionCategory {
-  return value === "build" || value === "operations" || value === "marketing" || value === "business" || value === "support";
+  return missionCategories.includes(value as AgentMissionCategory);
 }
 
 function asMissionCategory(value: unknown, fallback: AgentMissionCategory) {
@@ -155,7 +160,7 @@ function asMissionCategory(value: unknown, fallback: AgentMissionCategory) {
 }
 
 function isReasoningLevel(value: unknown): value is AgentReasoningLevel {
-  return value === "low" || value === "medium" || value === "high" || value === "xhigh";
+  return reasoningLevels.includes(value as AgentReasoningLevel);
 }
 
 function asReasoningLevel(value: unknown, fallback: AgentReasoningLevel) {
@@ -163,7 +168,7 @@ function asReasoningLevel(value: unknown, fallback: AgentReasoningLevel) {
 }
 
 function isAvatarTone(value: unknown): value is AgentAvatarTone {
-  return value === "gold" || value === "olive" || value === "bronze" || value === "moss" || value === "charcoal";
+  return avatarTones.includes(value as AgentAvatarTone);
 }
 
 function asAvatarTone(value: unknown, fallback: AgentAvatarTone) {
@@ -278,6 +283,143 @@ export function normalizeAgentFloorConfig(value: unknown): AgentFloorConfig {
     departments: normalizeList(source.departments, agentFloorDefaults.departments, normalizeDepartment),
     notes: asStringArray(source.notes, agentFloorDefaults.notes)
   };
+}
+
+function validateRecord(value: unknown, path: string, errors: string[]) {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) return value as Record<string, unknown>;
+  errors.push(`${path} must be an object.`);
+  return null;
+}
+
+function validateString(value: unknown, path: string, errors: string[]) {
+  if (typeof value === "string" && value.trim()) return;
+  errors.push(`${path} must be a non-empty string.`);
+}
+
+function validateBoolean(value: unknown, path: string, errors: string[]) {
+  if (typeof value === "boolean") return;
+  errors.push(`${path} must be a boolean.`);
+}
+
+function validateInteger(value: unknown, path: string, errors: string[], min: number, max?: number) {
+  if (typeof value !== "number" || !Number.isInteger(value) || value < min || (max !== undefined && value > max)) {
+    errors.push(`${path} must be an integer${max === undefined ? ` >= ${min}` : ` from ${min} to ${max}`}.`);
+  }
+}
+
+function validateEnum<T extends string>(value: unknown, path: string, allowed: readonly T[], errors: string[]) {
+  if (typeof value === "string" && allowed.includes(value as T)) return;
+  errors.push(`${path} must be one of: ${allowed.join(", ")}.`);
+}
+
+function validateArray(value: unknown, path: string, errors: string[]) {
+  if (Array.isArray(value)) return value;
+  errors.push(`${path} must be an array.`);
+  return [];
+}
+
+function validateManager(value: unknown, path: string, errors: string[]) {
+  const source = validateRecord(value, path, errors);
+  if (!source) return;
+  validateString(source.id, `${path}.id`, errors);
+  validateString(source.name, `${path}.name`, errors);
+  validateString(source.role, `${path}.role`, errors);
+  validateEnum(source.status, `${path}.status`, missionStatuses, errors);
+  validateString(source.currentAction, `${path}.currentAction`, errors);
+  validateEnum(source.avatarTone, `${path}.avatarTone`, avatarTones, errors);
+}
+
+function validateOperator(value: unknown, path: string, errors: string[]) {
+  const source = validateRecord(value, path, errors);
+  if (!source) return;
+  validateString(source.id, `${path}.id`, errors);
+  validateString(source.name, `${path}.name`, errors);
+  validateString(source.role, `${path}.role`, errors);
+  validateEnum(source.status, `${path}.status`, missionStatuses, errors);
+  validateString(source.currentTask, `${path}.currentTask`, errors);
+  validateString(source.missionId, `${path}.missionId`, errors);
+  validateString(source.modelLabel, `${path}.modelLabel`, errors);
+  validateEnum(source.reasoningLevel, `${path}.reasoningLevel`, reasoningLevels, errors);
+  validateEnum(source.avatarTone, `${path}.avatarTone`, avatarTones, errors);
+}
+
+function validateMission(value: unknown, path: string, errors: string[]) {
+  const source = validateRecord(value, path, errors);
+  if (!source) return;
+  validateString(source.id, `${path}.id`, errors);
+  validateString(source.title, `${path}.title`, errors);
+  validateEnum(source.category, `${path}.category`, missionCategories, errors);
+  validateEnum(source.status, `${path}.status`, missionStatuses, errors);
+  validateString(source.assignedTo, `${path}.assignedTo`, errors);
+  validateString(source.summary, `${path}.summary`, errors);
+  validateString(source.modelLabel, `${path}.modelLabel`, errors);
+  validateEnum(source.reasoningLevel, `${path}.reasoningLevel`, reasoningLevels, errors);
+  validateString(source.choiceRationale, `${path}.choiceRationale`, errors);
+  validateString(source.qualityGate, `${path}.qualityGate`, errors);
+  validateString(source.verification, `${path}.verification`, errors);
+  validateBoolean(source.fixRequired, `${path}.fixRequired`, errors);
+  validateString(source.updatedAt, `${path}.updatedAt`, errors);
+}
+
+function validateBlocker(value: unknown, path: string, errors: string[]) {
+  const source = validateRecord(value, path, errors);
+  if (!source) return;
+  validateString(source.id, `${path}.id`, errors);
+  validateString(source.title, `${path}.title`, errors);
+  validateEnum(source.severity, `${path}.severity`, blockerSeverities, errors);
+  validateString(source.detail, `${path}.detail`, errors);
+  validateString(source.owner, `${path}.owner`, errors);
+}
+
+function validateDepartment(value: unknown, path: string, errors: string[]) {
+  const source = validateRecord(value, path, errors);
+  if (!source) return;
+  validateString(source.id, `${path}.id`, errors);
+  validateString(source.name, `${path}.name`, errors);
+  validateEnum(source.category, `${path}.category`, missionCategories, errors);
+  validateEnum(source.status, `${path}.status`, missionStatuses, errors);
+  validateString(source.detail, `${path}.detail`, errors);
+}
+
+export function validateAgentFloorConfig(value: unknown) {
+  const errors: string[] = [];
+  const source = validateRecord(value, "Agent Floor config", errors);
+  if (!source) return errors;
+
+  validateString(source.title, "title", errors);
+  validateEnum(source.mode, "mode", ["agent_floor"], errors);
+  validateManager(source.manager, "manager", errors);
+
+  const metrics = validateRecord(source.metrics, "metrics", errors);
+  if (metrics) {
+    validateInteger(metrics.efficiencyScore, "metrics.efficiencyScore", errors, 0, 100);
+    validateInteger(metrics.qualityScore, "metrics.qualityScore", errors, 0, 100);
+    validateInteger(metrics.activeMissions, "metrics.activeMissions", errors, 0);
+    validateInteger(metrics.blockers, "metrics.blockers", errors, 0);
+  }
+
+  validateArray(source.operators, "operators", errors).forEach((item, index) => {
+    validateOperator(item, `operators[${index}]`, errors);
+  });
+
+  if (source.activeMission !== null) {
+    validateMission(source.activeMission, "activeMission", errors);
+  }
+
+  validateArray(source.missions, "missions", errors).forEach((item, index) => {
+    validateMission(item, `missions[${index}]`, errors);
+  });
+  validateArray(source.blockers, "blockers", errors).forEach((item, index) => {
+    validateBlocker(item, `blockers[${index}]`, errors);
+  });
+  validateArray(source.departments, "departments", errors).forEach((item, index) => {
+    validateDepartment(item, `departments[${index}]`, errors);
+  });
+  validateArray(source.notes, "notes", errors).forEach((item, index) => {
+    validateString(item, `notes[${index}]`, errors);
+  });
+
+  return errors;
 }
 
 export function getAgentFloorConfigPath() {

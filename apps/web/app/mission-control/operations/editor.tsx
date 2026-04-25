@@ -36,7 +36,7 @@ export function AgentFloorEditor({
     }
 
     let response: Response;
-    let payload: { error?: string; updatedAt?: string };
+    let payload: { error?: string; details?: string[]; raw?: string; updatedAt?: string };
 
     try {
       response = await fetch("/api/agent-floor", {
@@ -44,7 +44,7 @@ export function AgentFloorEditor({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ raw: draft })
       });
-      payload = (await response.json()) as { error?: string; updatedAt?: string };
+      payload = (await response.json()) as { error?: string; details?: string[]; raw?: string; updatedAt?: string };
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "BudCast Operations save failed.");
@@ -53,11 +53,14 @@ export function AgentFloorEditor({
 
     if (!response.ok) {
       setStatus("error");
-      setMessage(payload.error ?? "BudCast Operations save failed.");
+      const detailText = payload.details?.length ? ` ${payload.details.slice(0, 4).join(" ")}` : "";
+      setMessage(`${payload.error ?? "BudCast Operations save failed."}${detailText}`);
       return;
     }
 
-    setSavedBaseline(draft);
+    const savedRaw = payload.raw ?? draft;
+    setDraft(savedRaw);
+    setSavedBaseline(savedRaw);
     setStatus("saved");
     setMessage(`BudCast Operations saved locally at ${payload.updatedAt ?? "just now"}.`);
   }
