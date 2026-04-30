@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Signal Mark Refinement C</title>
+  <desc id="desc">A compact app-icon-ready BudCast symbol with restrained vector lighting, a central creator node, and two dominant broadcast arcs.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#090907"/>
+      <stop offset="0.62" stop-color="#10180d"/>
+      <stop offset="1" stop-color="#060705"/>
+    </linearGradient>
+    <radialGradient id="node" cx="34%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#f3ffd3"/>
+      <stop offset="0.38" stop-color="#c8f060"/>
+      <stop offset="0.72" stop-color="#6ac04f"/>
+      <stop offset="1" stop-color="#2b6234"/>
+    </radialGradient>
+    <linearGradient id="signal" x1="332" y1="318" x2="786" y2="708" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dfff7b"/>
+      <stop offset="0.5" stop-color="#c8f060"/>
+      <stop offset="1" stop-color="#6ed038"/>
+    </linearGradient>
+    <radialGradient id="terminal" cx="34%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#f1ffc4"/>
+      <stop offset="0.58" stop-color="#c8f060"/>
+      <stop offset="1" stop-color="#80dc3d"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <path d="M 363 472 C 446 370 592 318 744 322" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="50"/>
+  <path d="M 372 512 L 786 512" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="24"/>
+  <path d="M 363 552 C 446 650 590 692 738 706" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="50"/>
+  <path d="M 343 482 C 374 491 397 502 414 512 C 397 523 374 534 343 544" fill="#090907" opacity="0.86"/>
+  <circle cx="744" cy="322" r="24" fill="url(#terminal)"/>
+  <circle cx="786" cy="512" r="25" fill="url(#terminal)"/>
+  <circle cx="738" cy="706" r="23" fill="url(#terminal)"/>
+  <circle cx="278" cy="512" r="72" fill="url(#node)"/>
+  <circle cx="250" cy="474" r="23" fill="#f3ffd7" opacity="0.72"/>
+  <path d="M 357 512 L 384 512" fill="none" stroke="#efff9c" stroke-linecap="round" stroke-width="7"/>
+</svg>

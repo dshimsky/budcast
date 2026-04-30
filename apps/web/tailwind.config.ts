@@ -59,6 +59,9 @@ const config: Config = {
           900: "#303c25"
         }
       },
+      fontFamily: {
+        display: ["var(--font-display)", "system-ui", "sans-serif"]
+      },
       borderRadius: {
         xl: "1rem",
         "2xl": "1.5rem"

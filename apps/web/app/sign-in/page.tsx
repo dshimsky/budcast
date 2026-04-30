@@ -2,17 +2,17 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { hasCompletedOnboarding, useAuth } from "@budcast/shared";
+import { useAuth } from "@budcast/shared";
 import { useRouter } from "next/navigation";
-import { ArrowRight, ShieldCheck, Sparkles, Users2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { PublicMarketplaceHeader, PublicMarketplacePreview } from "../../components/public-marketplace-entry";
 import { Button } from "../../components/ui/button";
-import { Eyebrow } from "../../components/ui/eyebrow";
-import { LacquerSurface } from "../../components/ui/surface-tone";
+import { getWorkspaceHref } from "../../lib/workspace-routing";
 
 const signals = [
-  "Paid content opportunities",
-  "Cannabis brand campaigns",
-  "Submissions, approvals, and payments"
+  "Apply as a cannabis creator",
+  "Post campaigns and hire creators",
+  "Paid & product campaigns"
 ];
 
 export default function SignInPage() {
@@ -25,7 +25,7 @@ export default function SignInPage() {
 
   useEffect(() => {
     if (!loading && session) {
-      router.replace(hasCompletedOnboarding(profile) ? "/profile" : "/onboarding");
+      router.replace(getWorkspaceHref(profile));
     }
   }, [loading, profile, router, session]);
 
@@ -44,115 +44,106 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="grid-overlay min-h-screen bg-[#080a08] px-6 py-10 text-stone-100 md:px-10">
-      <div className="mx-auto w-full max-w-6xl">
-        <section className="hero-orbit animate-enter">
-          <LacquerSurface className="overflow-hidden px-7 py-8 md:px-10 md:py-10">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_400px] lg:items-start">
-              <div className="max-w-3xl">
-                <Eyebrow className="text-[#b59663]">BudCast access</Eyebrow>
-                <h1 className="mt-4 font-display text-5xl leading-[0.92] text-[#f5efe6] md:text-6xl">
-                  Cannabis brands and content creators, meet where paid content gets done.
-                </h1>
-                <p className="mt-5 max-w-2xl text-base leading-8 text-stone-300">
-                  Creators find paid opportunities from cannabis brands. Brands hire creators for product drops,
-                  launches, UGC, and social campaigns.
+    <main className="creator-obsidian min-h-screen bg-[#030303] px-4 pb-10 pt-3 text-[#fbfbf7] md:px-8 md:pt-5">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5">
+        <PublicMarketplaceHeader accountHref="/sign-up" accountLabel="Create account" />
+        <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-start">
+          {/* Left — hero panel, headline only, no nested form */}
+          <div className="rounded-[38px] border border-white/10 bg-[radial-gradient(circle_at_14%_8%,rgba(184,255,61,0.18),transparent_34%),linear-gradient(145deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.48),0_1px_0_rgba(255,255,255,0.08)_inset] md:p-8">
+            <div className="inline-flex rounded-full border border-[#b8ff3d]/20 bg-[#b8ff3d]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#e7ff9a]">
+              BudCast access
+            </div>
+            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[0.92] tracking-[-0.045em] text-[#fbfbf7] md:text-6xl">
+              Sign back into the cannabis creator network.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-[#d8ded1]">
+              Creators open the mobile app experience. Brands open campaign control on web or mobile.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {signals.map((signal) => (
+                <span
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#c7ccc2]"
+                  key={signal}
+                >
+                  {signal}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — standalone form card + marketplace preview stacked */}
+          <div className="grid gap-5">
+            <div className="rounded-[34px] border border-white/10 bg-[#101010]/88 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.42)] md:p-6">
+              <div className="mb-6">
+                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-[#e7ff9a]">Sign in</div>
+                <h2 className="mt-3 text-3xl font-black tracking-[-0.04em] text-[#fbfbf7]">Welcome back.</h2>
+                <p className="mt-3 text-sm leading-7 text-[#c7ccc2]">
+                  Creator accounts route to the mobile app. Brand accounts route to campaign control.
                 </p>
-
-                <div className="mt-8 flex flex-wrap gap-3">
-                  {signals.map((signal) => (
-                    <div className="premium-chip" key={signal}>
-                      {signal}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-10 grid gap-4 border-t border-white/10 pt-6 md:grid-cols-3">
-                  <div>
-                    <ShieldCheck className="h-5 w-5 text-stone-400" />
-                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">One account</div>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">Use BudCast as a creator or cannabis brand.</p>
-                  </div>
-                  <div>
-                    <Sparkles className="h-5 w-5 text-stone-400" />
-                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Paid content work</div>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">Find briefs, review applicants, and manage content.</p>
-                  </div>
-                  <div>
-                    <Users2 className="h-5 w-5 text-stone-400" />
-                    <div className="mt-4 text-lg font-semibold text-[#f5efe6]">Clear next steps</div>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">Creators go mobile-first. Brands manage campaigns on desktop.</p>
-                  </div>
-                </div>
               </div>
 
-              <div className="animate-enter animate-enter-delay-1 border-t border-white/10 pt-8 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-                <div className="mb-7 max-w-sm">
-                  <Eyebrow className="text-[#b59663]">Sign in</Eyebrow>
-                  <h2 className="mt-3 text-3xl font-semibold text-[#f5efe6]">Back into BudCast</h2>
-                  <p className="mt-3 text-sm leading-7 text-stone-400">
-                    Sign in to browse opportunities, manage campaigns, submit content, review approvals, and track payments.
-                  </p>
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <label className="block text-sm font-medium text-[#fbfbf7]">
+                  Email
+                  <input
+                    className="premium-input mt-2"
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder="creator@email.com or brand@company.com"
+                    type="email"
+                    value={email}
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-[#fbfbf7]">
+                  Password
+                  <input
+                    className="premium-input mt-2"
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Enter password"
+                    type="password"
+                    value={password}
+                  />
+                </label>
+
+                <div className="flex justify-end">
+                  <Link
+                    className="text-xs font-black text-[#c7ccc2] transition hover:text-[#e7ff9a]"
+                    href="/forgot-password"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
 
-                <form className="space-y-5" onSubmit={handleSubmit}>
-                  <label className="block text-sm font-medium text-stone-200">
-                    Email
-                    <input
-                      className="premium-input mt-2"
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="creator@email.com or brand@company.com"
-                      type="email"
-                      value={email}
-                    />
-                  </label>
-
-                  <label className="block text-sm font-medium text-stone-200">
-                    Password
-                    <input
-                      className="premium-input mt-2"
-                      onChange={(event) => setPassword(event.target.value)}
-                      placeholder="Enter password"
-                      type="password"
-                      value={password}
-                    />
-                  </label>
-
-                  {error ? (
-                    <div className="rounded-[20px] border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                      {error}
-                    </div>
-                  ) : null}
-
-                  {profile ? (
-                    <div className="rounded-[20px] border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
-                      Profile already loaded for {profile.email}.
-                    </div>
-                  ) : null}
-
-                  <Button className="w-full" disabled={loading || submitting} size="lg" type="submit">
-                    {submitting ? "Signing in..." : "Sign in to BudCast"}
-                    {!submitting ? <ArrowRight className="ml-2 h-4 w-4" /> : null}
-                  </Button>
-                </form>
-
-                <div className="mt-6 border-t border-white/8 pt-5 text-sm text-stone-400">
-                  <div className="flex flex-wrap gap-3">
-                    <span>Need an account?</span>
-                    <Link className="font-medium text-stone-100" href="/sign-up">
-                      Create one
-                    </Link>
+                {error ? (
+                  <div className="rounded-[20px] border border-[#b8ff3d]/20 bg-[#b8ff3d]/[0.08] px-4 py-3 text-sm text-[#d8ded1]">
+                    {error}
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-3">
-                    <span>Want the overview first?</span>
-                    <Link className="font-medium text-stone-100" href="/">
-                      Return to marketplace preview
-                    </Link>
-                  </div>
+                ) : null}
+
+                <Button className="w-full" disabled={loading || submitting} size="lg" type="submit">
+                  {submitting ? "Signing in..." : "Sign in to BudCast"}
+                  {!submitting ? <ArrowRight className="ml-2 h-4 w-4" /> : null}
+                </Button>
+              </form>
+
+              <div className="mt-6 border-t border-white/8 pt-5 text-sm text-[#aeb5aa]">
+                <div className="flex flex-wrap gap-3">
+                  <span>Need an account?</span>
+                  <Link className="font-black text-[#fbfbf7]" href="/sign-up">
+                    Create one
+                  </Link>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-3">
+                  <span>Want the overview first?</span>
+                  <Link className="font-black text-[#fbfbf7]" href="/">
+                    Return to marketplace preview
+                  </Link>
                 </div>
               </div>
             </div>
-          </LacquerSurface>
+
+            <PublicMarketplacePreview />
+          </div>
         </section>
       </div>
     </main>

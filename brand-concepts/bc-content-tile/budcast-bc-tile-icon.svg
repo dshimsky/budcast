@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast BC Content Tile Icon</title>
+  <desc id="desc">A geometric BC monogram inside a content tile shape.</desc>
+  <rect width="512" height="512" rx="116" fill="#0A0A0B"/>
+  <path d="M126 120H258C316 120 354 154 354 204C354 233 338 256 312 268C346 279 368 305 368 341C368 392 328 424 266 424H126V120Z" fill="#B8FF3D"/>
+  <path d="M190 176V246H252C279 246 295 232 295 211C295 189 279 176 252 176H190Z" fill="#0A0A0B"/>
+  <path d="M190 298V368H263C291 368 308 355 308 333C308 311 291 298 263 298H190Z" fill="#0A0A0B"/>
+  <path d="M318 156C357 168 384 198 394 239H338C330 219 313 207 291 202C296 184 306 168 318 156Z" fill="#0A0A0B"/>
+  <path d="M395 276C384 322 352 352 306 360V306C328 301 345 290 354 276H395Z" fill="#0A0A0B"/>
+  <rect x="123" y="120" width="246" height="304" rx="54" stroke="#B8FF3D" stroke-width="18"/>
+</svg>

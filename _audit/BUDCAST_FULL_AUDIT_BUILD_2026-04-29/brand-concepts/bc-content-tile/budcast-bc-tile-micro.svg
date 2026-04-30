@@ -1,0 +1,9 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast BC Tile Micro Icon</title>
+  <desc id="desc">Simplified BC content tile for favicon and small UI use.</desc>
+  <rect width="128" height="128" rx="30" fill="#0A0A0B"/>
+  <path d="M35 30H66C81 30 91 39 91 52C91 60 87 66 80 69C90 72 96 79 96 89C96 103 85 112 69 112H35V30Z" fill="#B8FF3D"/>
+  <path d="M51 45V63H66C73 63 77 60 77 54C77 48 73 45 66 45H51Z" fill="#0A0A0B"/>
+  <path d="M51 78V96H68C76 96 80 93 80 87C80 81 76 78 68 78H51Z" fill="#0A0A0B"/>
+  <path d="M90 39C99 43 106 51 109 62H94C92 57 87 53 82 52C84 47 86 42 90 39Z" fill="#0A0A0B"/>
+</svg>

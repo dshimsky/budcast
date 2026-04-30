@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>BudCast Signal Mark Refinements</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090907;
+        color: #f6efe3;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 28% 18%, rgba(200, 240, 96, 0.1), transparent 28%),
+          linear-gradient(135deg, #090907, #11170d 58%, #070806);
+      }
+      main {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 44px 28px 60px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: end;
+        margin-bottom: 28px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(36px, 5vw, 72px);
+        letter-spacing: -0.07em;
+        line-height: 0.92;
+      }
+      p {
+        margin: 12px 0 0;
+        max-width: 760px;
+        color: rgba(246, 239, 227, 0.68);
+        line-height: 1.65;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .card {
+        border: 1px solid rgba(246, 239, 227, 0.1);
+        border-radius: 30px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.035);
+        box-shadow: 0 26px 80px rgba(0, 0, 0, 0.3);
+      }
+      .card img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        background: #090907;
+      }
+      .body {
+        padding: 20px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: -0.04em;
+      }
+      .body p {
+        margin-top: 8px;
+        font-size: 14px;
+      }
+      .badge {
+        border: 1px solid rgba(200, 240, 96, 0.22);
+        border-radius: 999px;
+        padding: 9px 12px;
+        color: #c8f060;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      @media (max-width: 920px) {
+        header { display: block; }
+        .badge { display: inline-flex; margin-top: 18px; }
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>BudCast Signal Mark Refinements</h1>
+          <p>Three vector refinements of the original symbol. All keep the creator node, broadcast arcs, directional marketplace connection, rounded terminals, and neon-green gradient lighting without raster effects.</p>
+        </div>
+        <div class="badge">SVG only</div>
+      </header>
+
+      <section class="grid">
+        <article class="card">
+          <img src="./budcast-signal-refinement-a.svg" alt="BudCast refinement A"/>
+          <div class="body">
+            <h2>A. Precision Signal</h2>
+            <p>Tighter, cleaner, more premium. Best balance of recognizable shape and modern SaaS polish.</p>
+          </div>
+        </article>
+        <article class="card">
+          <img src="./budcast-signal-refinement-b.svg" alt="BudCast refinement B"/>
+          <div class="body">
+            <h2>B. Marketplace Reach</h2>
+            <p>Larger creator node and stronger directional movement. More expressive, slightly less restrained.</p>
+          </div>
+        </article>
+        <article class="card">
+          <img src="./budcast-signal-refinement-c.svg" alt="BudCast refinement C"/>
+          <div class="body">
+            <h2>C. Compact Icon</h2>
+            <p>Most app-icon friendly. Shorter arcs and tighter composition for small-size recognition.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

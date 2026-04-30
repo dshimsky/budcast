@@ -65,15 +65,33 @@ export default function ProfileScreen() {
     <PremiumScroll>
       <FadeInSection>
         <GlassCard>
-          <SectionTitle
-            eyebrow="Profile"
-            title={loading ? "Loading profile..." : profile?.name || profile?.company_name || "Your BudCast identity"}
-            description="This is the public-facing marketplace profile that anchors your trust, matching, and workflow routing across the platform."
-          />
-          <View className="mt-6 flex-row flex-wrap gap-2">
-            <HeroChip>{profile?.user_type ? `${profile.user_type} account` : "Profile in progress"}</HeroChip>
-            <HeroChip>{profile?.location || "Location pending"}</HeroChip>
-            <HeroChip>{profile?.email || "Session required"}</HeroChip>
+          <View className="flex-row items-start justify-between gap-4">
+            <View className="flex-1">
+              <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#a59a86]">Profile</Text>
+              <Text className="mt-2 text-[22px] font-black leading-tight tracking-tight text-[#fbf8f4]">
+                {loading ? "Loading..." : profile?.name || profile?.company_name || "Your BudCast identity"}
+              </Text>
+              {(profile?.location || profile?.email) ? (
+                <Text className="mt-1.5 text-xs text-[#a59a86]" numberOfLines={1}>
+                  {[profile?.location, profile?.email].filter(Boolean).join(" · ")}
+                </Text>
+              ) : null}
+            </View>
+            {profile?.user_type ? (
+              <View className="rounded-full border border-[#a98c5b]/30 bg-[#1a1b16] px-3 py-1.5">
+                <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#d7c3a0]">
+                  {profile.user_type}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+          <View className="mt-5 flex-row gap-3">
+            <Link asChild href="/profile-edit" className="flex-1">
+              <PrimaryPill>Edit profile</PrimaryPill>
+            </Link>
+            <Link asChild href="/onboarding">
+              <SecondaryPill>Setup</SecondaryPill>
+            </Link>
           </View>
         </GlassCard>
       </FadeInSection>
@@ -107,10 +125,19 @@ export default function ProfileScreen() {
                 <SecondaryPill>My submissions</SecondaryPill>
               </Link>
             </View>
-            <View className="mt-4 gap-3">
-              <InfoTile label="Workflow pulse">
-                {pendingApplications} pending applications, {acceptedApplications} accepted campaigns, {awaitingPayout} payment confirmations waiting on you.
-              </InfoTile>
+            <View className="mt-4 flex-row gap-2">
+              <View className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3">
+                <Text className="text-xl font-black text-[#fbf8f4]">{pendingApplications}</Text>
+                <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Pending</Text>
+              </View>
+              <View className="flex-1 rounded-xl border border-[#b8ff3d]/20 bg-[#b8ff3d]/[0.04] px-3 py-3">
+                <Text className="text-xl font-black text-[#b8ff3d]">{acceptedApplications}</Text>
+                <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Accepted</Text>
+              </View>
+              <View className="flex-1 rounded-xl border border-[#4f98a3]/20 bg-[#4f98a3]/[0.04] px-3 py-3">
+                <Text className="text-xl font-black text-[#4f98a3]">{awaitingPayout}</Text>
+                <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Pay out</Text>
+              </View>
             </View>
           </SoftCard>
         ) : null}
@@ -159,18 +186,7 @@ export default function ProfileScreen() {
         )}
 
         <SoftCard>
-          <Text className="text-sm leading-6 text-surface-300">
-            Keep this page crisp. It is the trust layer brands and creators evaluate before they spend time or credits.
-          </Text>
-          <View className="mt-5 flex-row flex-wrap gap-3">
-            <Link asChild href="/profile-edit">
-              <PrimaryPill>Edit profile</PrimaryPill>
-            </Link>
-            <Link asChild href="/onboarding">
-              <SecondaryPill>Open setup</SecondaryPill>
-            </Link>
-            <SecondaryPill onPress={() => void signOut()}>Sign out</SecondaryPill>
-          </View>
+          <SecondaryPill onPress={() => void signOut()}>Sign out</SecondaryPill>
         </SoftCard>
       </FadeInSection>
     </PremiumScroll>

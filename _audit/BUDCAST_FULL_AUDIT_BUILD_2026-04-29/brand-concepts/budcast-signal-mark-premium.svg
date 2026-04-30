@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Premium Signal Mark</title>
+  <desc id="desc">
+    A premium geometric BudCast symbol with a central creator node, asymmetric broadcast arcs, and marketplace connection terminals.
+  </desc>
+
+  <defs>
+    <radialGradient id="nodeGradient" cx="32%" cy="28%" r="78%">
+      <stop offset="0%" stop-color="#f2ffd7"/>
+      <stop offset="38%" stop-color="#c8f060"/>
+      <stop offset="72%" stop-color="#67bf4f"/>
+      <stop offset="100%" stop-color="#2b6536"/>
+    </radialGradient>
+
+    <linearGradient id="arcGradient" x1="328" y1="360" x2="804" y2="728" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#d9ff7a"/>
+      <stop offset="46%" stop-color="#b9f83c"/>
+      <stop offset="100%" stop-color="#65c92d"/>
+    </linearGradient>
+
+    <linearGradient id="thinSignalGradient" x1="330" y1="512" x2="806" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#dcff83"/>
+      <stop offset="52%" stop-color="#c8f060"/>
+      <stop offset="100%" stop-color="#9ee94b"/>
+    </linearGradient>
+
+    <radialGradient id="terminalGradient" cx="34%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#efffc8"/>
+      <stop offset="55%" stop-color="#c8f060"/>
+      <stop offset="100%" stop-color="#7edc3a"/>
+    </radialGradient>
+
+    <linearGradient id="surfaceGradient" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#090907"/>
+      <stop offset="58%" stop-color="#0f190d"/>
+      <stop offset="100%" stop-color="#070806"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="0" fill="url(#surfaceGradient)"/>
+
+  <!-- Directional signal arcs: intentionally asymmetrical spacing and length. -->
+  <path
+    d="M 354 475 C 432 354 582 282 760 271"
+    fill="none"
+    stroke="url(#arcGradient)"
+    stroke-linecap="round"
+    stroke-width="54"
+  />
+  <path
+    d="M 365 512 L 802 512"
+    fill="none"
+    stroke="url(#thinSignalGradient)"
+    stroke-linecap="round"
+    stroke-width="30"
+  />
+  <path
+    d="M 354 553 C 446 681 595 733 757 748"
+    fill="none"
+    stroke="url(#arcGradient)"
+    stroke-linecap="round"
+    stroke-width="54"
+  />
+
+  <!-- Signature separation notch at the broadcast origin. -->
+  <path
+    d="M 344 487 C 365 495 377 502 389 512 C 377 522 365 529 344 537"
+    fill="#090907"
+    opacity="0.82"
+  />
+
+  <!-- Marketplace terminals. -->
+  <circle cx="760" cy="271" r="27" fill="url(#terminalGradient)"/>
+  <circle cx="802" cy="512" r="28" fill="url(#terminalGradient)"/>
+  <circle cx="757" cy="748" r="24" fill="url(#terminalGradient)"/>
+
+  <!-- Creator node. -->
+  <circle cx="274" cy="512" r="82" fill="url(#nodeGradient)"/>
+  <circle cx="240" cy="470" r="31" fill="#f3ffd8" opacity="0.74"/>
+
+  <!-- Micro-detail brand signature: small directional seed at the split point. -->
+  <circle cx="356" cy="512" r="7" fill="#dfff7e"/>
+</svg>

@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>BudCast Readable Wordmark Concepts</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090907;
+        color: #f7f7f3;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 26% 18%, rgba(200, 240, 96, 0.12), transparent 28%),
+          radial-gradient(circle at 78% 78%, rgba(37, 80, 45, 0.34), transparent 40%),
+          linear-gradient(135deg, #090907 0%, #11170d 58%, #070806 100%);
+      }
+      main {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 46px 28px 64px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 5vw, 74px);
+        line-height: 0.92;
+        letter-spacing: -0.07em;
+      }
+      p {
+        max-width: 790px;
+        margin: 14px 0 0;
+        color: rgba(247, 247, 243, 0.68);
+        line-height: 1.65;
+      }
+      .badge {
+        border: 1px solid rgba(200, 240, 96, 0.24);
+        border-radius: 999px;
+        padding: 9px 12px;
+        color: #c8f060;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+      .concept {
+        overflow: hidden;
+        border-radius: 32px;
+        border: 1px solid rgba(247, 247, 243, 0.1);
+        background:
+          radial-gradient(circle at 32% 30%, rgba(200, 240, 96, 0.08), transparent 28%),
+          rgba(255, 255, 255, 0.035);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .stage {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 30px;
+        align-items: center;
+        padding: 42px;
+        min-height: 250px;
+      }
+      .symbol {
+        width: 180px;
+        height: 180px;
+        display: grid;
+        place-items: center;
+        border-radius: 34px;
+        background: #090907;
+        border: 1px solid rgba(247, 247, 243, 0.08);
+      }
+      .symbol img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .lockup {
+        min-width: 0;
+      }
+      .word {
+        color: #f7f7f3;
+        line-height: 0.86;
+        white-space: nowrap;
+      }
+      .word .cast {
+        color: #f7f7f3;
+      }
+      .descriptor {
+        margin-top: 18px;
+        color: #c8f060;
+        font-size: 13px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+      .concept-a .word {
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: clamp(72px, 9vw, 132px);
+        font-weight: 850;
+        letter-spacing: -0.075em;
+      }
+      .concept-a .custom-c {
+        position: relative;
+        display: inline-block;
+      }
+      .concept-a .custom-c::after {
+        content: "";
+        position: absolute;
+        right: -0.08em;
+        top: 0.48em;
+        width: 0.28em;
+        height: 0.075em;
+        border-radius: 999px;
+        background: #c8f060;
+      }
+      .concept-b .word {
+        font-family: "Arial Narrow", "Helvetica Neue Condensed Bold", "Avenir Next Condensed", Arial, sans-serif;
+        font-size: clamp(78px, 9.6vw, 140px);
+        font-weight: 900;
+        letter-spacing: -0.045em;
+        transform: scaleX(0.92);
+        transform-origin: left center;
+      }
+      .concept-b .custom-d {
+        position: relative;
+        display: inline-block;
+      }
+      .concept-b .custom-d::before {
+        content: "";
+        position: absolute;
+        right: 0.06em;
+        top: 0.08em;
+        width: 0.12em;
+        height: 0.12em;
+        border-radius: 999px;
+        background: #c8f060;
+      }
+      .concept-c .word {
+        font-family: "Trebuchet MS", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: clamp(72px, 8.8vw, 130px);
+        font-weight: 850;
+        letter-spacing: -0.065em;
+      }
+      .concept-c .bud {
+        color: #c8f060;
+      }
+      .concept-c .custom-b {
+        position: relative;
+        display: inline-block;
+      }
+      .concept-c .custom-b::after {
+        content: "";
+        position: absolute;
+        left: 0.14em;
+        top: 0.15em;
+        width: 0.12em;
+        height: 0.12em;
+        border-radius: 999px;
+        background: #090907;
+        box-shadow: 0 0 0 0.035em rgba(9, 9, 7, 0.1);
+      }
+      .body {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: start;
+        border-top: 1px solid rgba(247, 247, 243, 0.08);
+        padding: 22px 26px;
+      }
+      .body h2 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: -0.04em;
+      }
+      .body p {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .score {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: end;
+      }
+      .pill {
+        border-radius: 999px;
+        border: 1px solid rgba(247, 247, 243, 0.12);
+        padding: 7px 9px;
+        color: rgba(247, 247, 243, 0.66);
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+      .recommendation {
+        margin-top: 18px;
+        border-radius: 28px;
+        border: 1px solid rgba(200, 240, 96, 0.18);
+        background: rgba(200, 240, 96, 0.06);
+        padding: 22px;
+      }
+      .recommendation h2 {
+        margin: 0 0 8px;
+      }
+      .recommendation p {
+        margin: 0;
+      }
+      @media (max-width: 920px) {
+        header { display: block; }
+        .badge { display: inline-flex; margin-top: 18px; }
+        .stage {
+          grid-template-columns: 1fr;
+          padding: 28px;
+        }
+        .symbol {
+          width: 140px;
+          height: 140px;
+        }
+        .word {
+          white-space: normal;
+        }
+        .body {
+          grid-template-columns: 1fr;
+        }
+        .score {
+          justify-content: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Readable BudCast Wordmark Concepts</h1>
+          <p>
+            This round prioritizes instant readability. The custom detail is intentionally small: one letter gets a
+            signal-language modification, but the name stays clear at dashboard, app, and pitch-deck sizes.
+          </p>
+        </div>
+        <div class="badge">Legibility first</div>
+      </header>
+
+      <section class="grid">
+        <article class="concept concept-a">
+          <div class="stage">
+            <div class="symbol"><img src="./budcast-signal-refinement-a.svg" alt="BudCast signal mark"/></div>
+            <div class="lockup">
+              <div class="word">Bud<span class="custom-c">C</span>ast</div>
+              <div class="descriptor">Cannabis Creator Marketplace</div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>A. Clean Tech</h2>
+              <p>Most Stripe/Linear-adjacent. Very readable, tight, confident, and modern. The C carries a small signal bar.</p>
+            </div>
+            <div class="score">
+              <span class="pill">Best readability</span>
+              <span class="pill">SaaS</span>
+              <span class="pill">Safe</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept concept-b">
+          <div class="stage">
+            <div class="symbol"><img src="./budcast-signal-refinement-a.svg" alt="BudCast signal mark"/></div>
+            <div class="lockup">
+              <div class="word">Bu<span class="custom-d">d</span>Cast</div>
+              <div class="descriptor">Verified Creator Campaigns</div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>B. Premium Condensed</h2>
+              <p>Slightly more brand-like and compact. The modified d has a small node detail, echoing the creator node.</p>
+            </div>
+            <div class="score">
+              <span class="pill">Most premium</span>
+              <span class="pill">Compact</span>
+              <span class="pill">B2B</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept concept-c">
+          <div class="stage">
+            <div class="symbol"><img src="./budcast-signal-refinement-a.svg" alt="BudCast signal mark"/></div>
+            <div class="lockup">
+              <div class="word"><span class="bud"><span class="custom-b">B</span>ud</span>Cast</div>
+              <div class="descriptor">Brands Meet Creators</div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>C. Friendly Marketplace</h2>
+              <p>Warmer and more creator-facing. The Bud/Cast split is clearer, but it risks feeling less enterprise.</p>
+            </div>
+            <div class="score">
+              <span class="pill">Creator-friendly</span>
+              <span class="pill">Approachable</span>
+              <span class="pill">Less formal</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <div class="recommendation">
+        <h2>Recommendation</h2>
+        <p>
+          Start from A. It is the cleanest and easiest to trust. If you want more premium edge, borrow a small amount of
+          B’s condensed feel, but do not sacrifice readability again.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

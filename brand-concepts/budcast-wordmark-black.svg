@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="260" viewBox="0 0 1200 260" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Custom Wordmark - Black</title>
+  <desc id="desc">A custom bold, slightly condensed BudCast wordmark with a signal-cut C detail.</desc>
+  <g fill="none" stroke="#090907" stroke-width="36" stroke-linecap="round" stroke-linejoin="round">
+    <!-- B -->
+    <path d="M74 52 L74 208"/>
+    <path d="M74 56 H142 C178 56 197 75 197 103 C197 132 176 148 142 148 H74"/>
+    <path d="M74 148 H151 C188 148 209 166 209 196 C209 225 188 242 151 242"/>
+
+    <!-- u -->
+    <path d="M267 111 V184 C267 219 287 239 321 239 C356 239 376 219 376 184 V111"/>
+
+    <!-- d -->
+    <path d="M520 54 V238"/>
+    <path d="M520 136 C504 119 484 111 459 111 C420 111 394 138 394 176 C394 214 420 241 459 241 C484 241 505 232 520 214"/>
+
+    <!-- Custom C: open signal cut with small terminal detail -->
+    <path d="M680 78 C657 60 628 51 596 51 C546 51 509 86 509 130 C509 174 546 209 596 209 C628 209 657 200 680 182"/>
+    <path d="M660 130 H707"/>
+    <circle cx="720" cy="130" r="10" fill="#090907" stroke="none"/>
+
+    <!-- a -->
+    <path d="M817 239 V158 C817 130 797 111 765 111 C728 111 703 138 703 176 C703 214 728 241 765 241 C789 241 807 232 817 216"/>
+
+    <!-- s -->
+    <path d="M935 124 C919 114 899 109 877 109 C844 109 823 123 823 145 C823 166 841 174 877 178 C914 182 934 192 934 215 C934 239 909 251 875 251 C850 251 828 244 809 230"/>
+
+    <!-- t -->
+    <path d="M989 71 V207 C989 228 1002 240 1024 240"/>
+    <path d="M956 113 H1030"/>
+  </g>
+</svg>

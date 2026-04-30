@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Signal Symbol</title>
+  <desc id="desc">BudCast creator node and asymmetric broadcast signal symbol.</desc>
+  <defs>
+    <radialGradient id="node" cx="34%" cy="29%" r="76%">
+      <stop offset="0%" stop-color="#f5ffd8"/>
+      <stop offset="38%" stop-color="#c8f060"/>
+      <stop offset="74%" stop-color="#68bf4c"/>
+      <stop offset="100%" stop-color="#2c6134"/>
+    </radialGradient>
+    <linearGradient id="signal" x1="332" y1="310" x2="802" y2="722" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#dfff7b"/>
+      <stop offset="48%" stop-color="#c8f060"/>
+      <stop offset="100%" stop-color="#6bd234"/>
+    </linearGradient>
+    <radialGradient id="terminal" cx="34%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#f4ffc9"/>
+      <stop offset="60%" stop-color="#c8f060"/>
+      <stop offset="100%" stop-color="#82dc3d"/>
+    </radialGradient>
+  </defs>
+  <g>
+    <path d="M 358 472 C 431 361 584 305 764 293" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="44"/>
+    <path d="M 365 512 L 812 512" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="26"/>
+    <path d="M 354 553 C 445 664 596 708 746 737" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="48"/>
+    <path d="M 334 478 C 367 488 390 501 408 512 C 390 524 367 537 334 548" fill="#090907" opacity="0.86"/>
+    <circle cx="764" cy="293" r="23" fill="url(#terminal)"/>
+    <circle cx="812" cy="512" r="25" fill="url(#terminal)"/>
+    <circle cx="746" cy="737" r="22" fill="url(#terminal)"/>
+    <circle cx="270" cy="512" r="76" fill="url(#node)"/>
+    <circle cx="241" cy="471" r="25" fill="#f4ffd7" opacity="0.72"/>
+    <circle cx="359" cy="512" r="6" fill="#efff9c"/>
+  </g>
+</svg>

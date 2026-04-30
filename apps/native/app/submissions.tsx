@@ -129,14 +129,23 @@ export default function SubmissionPipelineScreen() {
     <PremiumScroll>
       <FadeInSection>
         <GlassCard>
-          <SectionTitle
-            eyebrow="Creator submissions"
-            title="Submit content, track approval, and confirm payment."
-            description="Accepted campaigns appear here so you can send content links, see brand feedback, and confirm when payment is complete."
-          />
-          <View className="mt-6 flex-row flex-wrap gap-2">
-            <HeroChip>{rows.length} accepted campaigns</HeroChip>
-            <HeroChip>{verifiedCount} approved submissions</HeroChip>
+          <View className="flex-row items-start justify-between">
+            <View className="flex-1">
+              <Text className="text-sm font-medium text-[#e8dccd]">Submissions</Text>
+              <Text className="mt-1 text-[10px] uppercase tracking-[2px] text-[#a59a86]">
+                Content &amp; payment pipeline
+              </Text>
+            </View>
+            <View className="items-end gap-4 flex-row">
+              <View className="items-end">
+                <Text className="text-3xl font-black text-[#fbf8f4]">{rows.length}</Text>
+                <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">active</Text>
+              </View>
+              <View className="items-end">
+                <Text className="text-3xl font-black text-[#b8ff3d]">{verifiedCount}</Text>
+                <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">verified</Text>
+              </View>
+            </View>
           </View>
           {actionError ? <Text className="mt-4 text-sm leading-6 text-[#d7a07d]">{actionError}</Text> : null}
         </GlassCard>
@@ -153,24 +162,34 @@ export default function SubmissionPipelineScreen() {
               <SectionEyebrow>
                 {row.opportunity?.brand?.company_name ?? "Brand"} • {formatStatus(row.status)}
               </SectionEyebrow>
-              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#fbf8f4]">
+              <Text className="mt-2 text-[17px] font-extrabold leading-snug text-[#fbf8f4] tracking-tight">
                 {row.opportunity?.title ?? "Accepted campaign"}
               </Text>
 
               {submission ? (
-                <View className="mt-4 rounded-[22px] border border-[#a98c5b]/25 bg-[#1a1710] px-4 py-4">
+                <View className={`mt-4 rounded-2xl px-4 py-4 ${
+                  submission.verification_status === "verified"
+                    ? "border border-[#b8ff3d]/25 bg-[#b8ff3d]/[0.04]"
+                    : submission.verification_status === "needs_revision"
+                    ? "border border-red-500/20 bg-red-500/[0.04]"
+                    : "border border-[#a98c5b]/25 bg-[#1a1710]"
+                }`}>
                   <SectionEyebrow>Submission state</SectionEyebrow>
-                  <Text className="mt-3 text-2xl font-semibold leading-8 text-[#fbf8f4]">
-                    {formatPostType(submission.post_type)} • {formatStatus(submission.verification_status)}
+                  <Text className={`mt-2 text-[15px] font-extrabold tracking-tight ${
+                    submission.verification_status === "verified" ? "text-[#b8ff3d]" :
+                    submission.verification_status === "needs_revision" ? "text-red-400" :
+                    "text-[#fbf8f4]"
+                  }`}>
+                    {formatPostType(submission.post_type)} · {formatStatus(submission.verification_status)}
                   </Text>
-                  <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
-                    Payment method: {formatPaymentMethod(submission.payment_method)}
+                  <Text className="mt-2 text-xs leading-relaxed text-[#a59a86]">
+                    Payment: {formatPaymentMethod(submission.payment_method)}
                   </Text>
                   {submission.verification_feedback ? (
-                    <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">{submission.verification_feedback}</Text>
+                    <Text className="mt-2 text-xs leading-relaxed text-[#d7cdbd]">{submission.verification_feedback}</Text>
                   ) : null}
-                  <Text className="mt-2 text-sm leading-6 text-[#a59a86]">
-                    Brand confirmed: {submission.payment_confirmed_by_brand ? "Yes" : "No"} • You confirmed:{" "}
+                  <Text className="mt-2 text-[10px] font-medium uppercase tracking-wide text-[#a59a86]">
+                    Brand confirmed: {submission.payment_confirmed_by_brand ? "Yes" : "No"} · You confirmed:{" "}
                     {submission.payment_confirmed_by_creator ? "Yes" : "No"}
                   </Text>
                 </View>
@@ -210,7 +229,7 @@ export default function SubmissionPipelineScreen() {
                   />
 
                   <View className="gap-2">
-                    <Text className="text-sm font-medium text-surface-300">Post type</Text>
+                    <Text className="text-xs font-semibold uppercase tracking-wide text-[#a59a86]">Post type</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {postTypes.map((postType) => {
                         const active = draft.postType === postType;

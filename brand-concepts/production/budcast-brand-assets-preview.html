@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>BudCast Brand Asset Set</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090907;
+        color: #f7f7f3;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 28% 16%, rgba(200, 240, 96, 0.1), transparent 30%),
+          radial-gradient(circle at 78% 76%, rgba(36, 82, 45, 0.34), transparent 42%),
+          linear-gradient(135deg, #090907, #11170d 58%, #070806);
+      }
+      main {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 46px 28px 64px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 5vw, 72px);
+        line-height: 0.92;
+        letter-spacing: -0.07em;
+      }
+      p {
+        max-width: 820px;
+        margin: 14px 0 0;
+        color: rgba(247, 247, 243, 0.68);
+        line-height: 1.65;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+        margin-top: 30px;
+      }
+      .panel {
+        overflow: hidden;
+        border-radius: 30px;
+        border: 1px solid rgba(247, 247, 243, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .panel.light {
+        background: #f7f7f3;
+      }
+      .label {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        border-bottom: 1px solid rgba(127, 127, 127, 0.18);
+        padding: 14px 18px;
+        color: rgba(247, 247, 243, 0.62);
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .light .label {
+        color: rgba(9, 9, 7, 0.56);
+      }
+      .art {
+        padding: 34px;
+        display: grid;
+        place-items: center;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .icon {
+        max-width: 340px;
+      }
+      .note {
+        margin-top: 18px;
+        border-radius: 24px;
+        border: 1px solid rgba(200, 240, 96, 0.18);
+        background: rgba(200, 240, 96, 0.06);
+        padding: 18px;
+      }
+      .note p {
+        margin: 0;
+      }
+      @media (max-width: 900px) {
+        .split {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>BudCast Brand Asset Set</h1>
+      <p>
+        Approved direction translated into actual SVG assets: Refinement A signal symbol plus Pure Clean Tech wordmark.
+        This review set includes horizontal, light, dark, stacked, and icon usage.
+      </p>
+      <div class="note">
+        <p>Note: wordmark text is live SVG text for review. After final approval, outline the wordmark in Figma or Illustrator for font-independent production delivery.</p>
+      </div>
+
+      <section class="grid">
+        <article class="panel">
+          <div class="label"><span>Horizontal lockup</span><span>Dark surfaces</span></div>
+          <div class="art">
+            <img src="./budcast-lockup-dark.svg" alt="BudCast dark horizontal lockup"/>
+          </div>
+        </article>
+
+        <article class="panel light">
+          <div class="label"><span>Horizontal lockup</span><span>Light surfaces</span></div>
+          <div class="art">
+            <img src="./budcast-lockup-light.svg" alt="BudCast light horizontal lockup"/>
+          </div>
+        </article>
+
+        <div class="split">
+          <article class="panel">
+            <div class="label"><span>Stacked lockup</span><span>Compact</span></div>
+            <div class="art">
+              <img src="./budcast-lockup-stacked-dark.svg" alt="BudCast stacked lockup"/>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="label"><span>Symbol icon</span><span>App / favicon</span></div>
+            <div class="art">
+              <img class="icon" src="./budcast-app-icon-dark.svg" alt="BudCast dark app icon"/>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

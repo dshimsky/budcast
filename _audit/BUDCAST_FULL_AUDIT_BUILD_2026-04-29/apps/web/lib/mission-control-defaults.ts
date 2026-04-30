@@ -1,0 +1,239 @@
+import type { MissionControlConfig } from "./mission-control";
+
+export const missionControlDefaults: MissionControlConfig = {
+  phases: [
+    {
+      id: "concept",
+      title: "Concept And Product Direction",
+      status: "done",
+      progress: 100,
+      summary: "Stack, migration direction, business constraints, and platform posture are locked.",
+      milestones: [
+        "Read handoff and business context",
+        "Approved Next.js + Expo split",
+        "Approved migration plan into BUDCASTAPP"
+      ]
+    },
+    {
+      id: "foundation",
+      title: "Foundation And Shared Runtime",
+      status: "done",
+      progress: 100,
+      summary: "Monorepo, shared package, Supabase client wiring, strict TypeScript, and platform shells are in place.",
+      milestones: [
+        "Monorepo created in BUDCASTAPP",
+        "Shared data layer ported",
+        "Web and native compile successfully"
+      ]
+    },
+    {
+      id: "identity",
+      title: "Auth, Profiles, And Onboarding",
+      status: "done",
+      progress: 100,
+      summary: "Auth, onboarding, profile hydration, and profile editing are wired across web and native.",
+      milestones: [
+        "Sign-in and sign-up wired",
+        "Onboarding writes into locked users row",
+        "Profile and edit flows live on both platforms"
+      ]
+    },
+    {
+      id: "marketplace-core",
+      title: "Marketplace Core",
+      status: "in_progress",
+      progress: 84,
+      summary:
+        "Brand publish/review flows and creator browse/apply flows exist across web and native; the next gap is end-to-end QA against real sessions.",
+      milestones: [
+        "Brand dashboard and campaign builder exist",
+        "Applicant review queue exists",
+        "Creator catalog, details, and applications exist"
+      ]
+    },
+    {
+      id: "submission-loop",
+      title: "Submission And Payout Loop",
+      status: "in_progress",
+      progress: 80,
+      summary:
+        "Submission, verification, and payout confirmation are wired on brand web and creator native; the next gap is full happy-path and failure-path QA.",
+      milestones: [
+        "Creator proof submission flow exists",
+        "Brand verification queue exists",
+        "Two-sided payment confirmation exists"
+      ]
+    },
+    {
+      id: "polish",
+      title: "Premium Design And Product Cohesion",
+      status: "in_progress",
+      progress: 86,
+      summary:
+        "Dark Premium Moody is now the default across the major web and native product surfaces; formal owner review is next before final polish locks it.",
+      milestones: [
+        "Landing, auth, onboarding, and dashboard upgraded",
+        "Operational brand surfaces upgraded",
+        "Native creator surfaces upgraded",
+        "Structured color, typography, motion, and density review still needs approval"
+      ]
+    },
+    {
+      id: "release",
+      title: "QA, Store Prep, And Launch",
+      status: "not_started",
+      progress: 14,
+      summary: "Release operations, compliance copy, full QA, and store submission prep still need dedicated execution.",
+      milestones: [
+        "App Store and Play Store packaging not started",
+        "Full device QA not started",
+        "Compliance review pass not started"
+      ]
+    }
+  ],
+  workstreams: [
+    {
+      name: "Web Brand Workspace",
+      status: "in_progress",
+      progress: 86,
+      detail:
+        "Operator-facing dashboard, campaign builder, applicant review, submissions, and local mission-control support are dark-system aligned and build cleanly."
+    },
+    {
+      name: "Native Creator App",
+      status: "in_progress",
+      progress: 84,
+      detail:
+        "Creator home, catalog, detail, submissions, applications, onboarding, and profile surfaces are converted to the dark premium system and bundle on iOS."
+    },
+    {
+      name: "Shared Data Layer",
+      status: "done",
+      progress: 92,
+      detail: "Supabase client, shared hooks, query logic, and stores are ported and driving both platforms."
+    },
+    {
+      name: "Design System",
+      status: "in_progress",
+      progress: 88,
+      detail:
+        "Dark Premium Moody exists on web and native; color, typography, motion, and layout density need owner approval before final polish hardens."
+    },
+    {
+      name: "Design Review And Approval",
+      status: "in_progress",
+      progress: 32,
+      detail:
+        "Core surfaces are strong enough to review now, but the visual direction is still intentionally adjustable before deeper polish locks it in."
+    },
+    {
+      name: "Runtime Stability",
+      status: "in_progress",
+      progress: 68,
+      detail:
+        "The customer product typechecks and builds cleanly; Expo iOS bundles, but simulator tooling still needs steady screenshot/device-inspection reliability."
+    },
+    {
+      name: "Release Readiness",
+      status: "not_started",
+      progress: 12,
+      detail: "Store packaging, submission assets, compliance copy, and final launch checklists still need to be built."
+    }
+  ],
+  recentUpdates: [
+    {
+      date: "2026-04-23",
+      title: "Split-stack platform foundation established",
+      detail:
+        "Monorepo, shared package, web shell, native shell, and locked-backend data layer were stood up inside BUDCASTAPP."
+    },
+    {
+      date: "2026-04-23",
+      title: "Auth, onboarding, and profile flows shipped",
+      detail: "Shared auth hydration, onboarding persistence, and profile editing now work across web and native."
+    },
+    {
+      date: "2026-04-23",
+      title: "Core marketplace loops shipped",
+      detail:
+        "Brand campaign creation, applicant review, creator discovery, applications, submission proof, and payout confirmation are in place."
+    },
+    {
+      date: "2026-04-25",
+      title: "Dark Premium Moody system applied across web and native",
+      detail:
+        "Brand web routes, creator native routes, auth, onboarding, profile, marketplace, submissions, and campaign detail screens now share the approved dark premium language."
+    },
+    {
+      date: "2026-04-24",
+      title: "Design checkpoint added to the build process",
+      detail:
+        "Mission control now treats visual review as a first-class step so color, typography, motion, and density can be approved or pivoted before final polish."
+    },
+    {
+      date: "2026-04-23",
+      title: "Owner-facing mission control started",
+      detail:
+        "A local-only command center is being added to track progress, blockers, and build health while the product is under construction."
+    }
+  ],
+  blockers: [
+    "Simulator screenshot/device-inspection tooling is intermittently failing through CoreSimulatorService even though Expo iOS bundles successfully.",
+    "The design system is intentionally not visually locked yet; a formal review pass is still needed before final polish.",
+    "Store-prep work has not started yet, so launch readiness is still operationally early."
+  ],
+  nextMoves: [
+    "Review the current visual direction across landing, dashboard, onboarding, creator home, marketplace, submissions, and campaign builder before locking colors and polish.",
+    "Decide whether the current color system, typography, motion, and density should stay or pivot while the UI system is still flexible.",
+    "Run end-to-end creator and brand QA with real seeded accounts across apply, accept, submit proof, verify, and confirm payout.",
+    "Tighten empty, loading, error, and success states after the design checkpoint.",
+    "Move into QA and release-prep planning once the local product loop is visually and functionally stable."
+  ],
+  launchChecklist: [
+    {
+      name: "Design approval checkpoint",
+      status: "in_progress",
+      detail:
+        "Visual direction is reviewable now, but colors, typography, motion, and overall premium tone are not locked yet."
+    },
+    {
+      name: "Brand web workflow",
+      status: "in_progress",
+      detail: "Publish, review, and submissions exist, but need QA and finish work."
+    },
+    {
+      name: "Creator native workflow",
+      status: "in_progress",
+      detail:
+        "Discovery, applications, profile, campaign detail, and submissions are visually converted and bundle on iOS; full real-session QA remains."
+    },
+    {
+      name: "Environment readiness",
+      status: "in_progress",
+      detail:
+        "Supabase public env vars load locally; remaining readiness work is seeded real-session QA and launch environment discipline."
+    },
+    {
+      name: "App Store prep",
+      status: "not_started",
+      detail: "Store packaging, listing assets, and submission workflow not started."
+    },
+    {
+      name: "Play Store prep",
+      status: "not_started",
+      detail: "Android packaging and listing assets not started."
+    },
+    {
+      name: "Compliance and copy review",
+      status: "not_started",
+      detail: "Cannabis-adjacent positioning and store-facing copy still need a launch pass."
+    }
+  ],
+  previewLinks: [
+    { label: "Marketplace home", href: "/" },
+    { label: "Brand dashboard", href: "/dashboard" },
+    { label: "Mission control", href: "/mission-control" },
+    { label: "BudCast Operations", href: "/mission-control/operations" },
+    { label: "Creator visual preview", href: "/creator-preview" }
+  ]
+};

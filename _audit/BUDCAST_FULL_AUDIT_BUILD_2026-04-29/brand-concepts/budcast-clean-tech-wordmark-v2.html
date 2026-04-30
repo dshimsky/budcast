@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>BudCast Clean Tech Wordmark V2</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090907;
+        color: #f7f7f3;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 28% 18%, rgba(200, 240, 96, 0.1), transparent 28%),
+          radial-gradient(circle at 74% 76%, rgba(37, 80, 45, 0.34), transparent 42%),
+          linear-gradient(135deg, #090907 0%, #11170d 58%, #070806 100%);
+      }
+      main {
+        max-width: 1260px;
+        margin: 0 auto;
+        padding: 46px 28px 64px;
+      }
+      header {
+        text-align: center;
+        margin: 0 auto 28px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 5vw, 72px);
+        line-height: 0.92;
+        letter-spacing: -0.07em;
+      }
+      p {
+        max-width: 790px;
+        margin: 14px auto 0;
+        color: rgba(247, 247, 243, 0.68);
+        line-height: 1.65;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+      .concept {
+        overflow: hidden;
+        border-radius: 32px;
+        border: 1px solid rgba(247, 247, 243, 0.1);
+        background:
+          radial-gradient(circle at 50% 28%, rgba(200, 240, 96, 0.08), transparent 30%),
+          rgba(255, 255, 255, 0.035);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .stage {
+        min-height: 220px;
+        display: grid;
+        place-items: center;
+        padding: 42px 28px 34px;
+        text-align: center;
+      }
+      .word {
+        display: inline-block;
+        color: #f7f7f3;
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: clamp(76px, 10vw, 138px);
+        font-weight: 850;
+        line-height: 0.86;
+        letter-spacing: -0.078em;
+        white-space: nowrap;
+      }
+      .descriptor {
+        margin-top: 18px;
+        color: #c8f060;
+        font-size: 12px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+      .body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: start;
+        border-top: 1px solid rgba(247, 247, 243, 0.08);
+        padding: 22px 26px;
+      }
+      .body h2 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: -0.04em;
+      }
+      .body p {
+        margin: 8px 0 0;
+        max-width: 720px;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .tags {
+        display: flex;
+        justify-content: end;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .tag {
+        border-radius: 999px;
+        border: 1px solid rgba(247, 247, 243, 0.12);
+        color: rgba(247, 247, 243, 0.66);
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        padding: 7px 9px;
+        text-transform: uppercase;
+      }
+      .v1 .word {
+        letter-spacing: -0.075em;
+      }
+      .v2 .word {
+        letter-spacing: -0.083em;
+      }
+      .v2 .c {
+        display: inline-block;
+        transform: translateY(-0.005em);
+      }
+      .v2 .c::after {
+        content: "";
+        display: inline-block;
+        width: 0.11em;
+        height: 0.11em;
+        margin-left: -0.08em;
+        margin-bottom: 0.34em;
+        border-radius: 999px;
+        background: #c8f060;
+        vertical-align: baseline;
+      }
+      .v3 .word {
+        letter-spacing: -0.08em;
+      }
+      .v3 .d {
+        position: relative;
+        display: inline-block;
+      }
+      .v3 .d::after {
+        content: "";
+        position: absolute;
+        right: 0.08em;
+        top: 0.11em;
+        width: 0.09em;
+        height: 0.09em;
+        border-radius: 999px;
+        background: #c8f060;
+      }
+      .v4 .word {
+        letter-spacing: -0.072em;
+      }
+      .v4 .cast {
+        color: #e8eadf;
+      }
+      .v4 .bud {
+        color: #f7f7f3;
+      }
+      .v5 .word {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-weight: 900;
+        letter-spacing: -0.09em;
+        transform: scaleX(0.94);
+        transform-origin: center;
+      }
+      .v5 .t {
+        position: relative;
+        display: inline-block;
+      }
+      .v5 .t::after {
+        content: "";
+        position: absolute;
+        right: -0.045em;
+        top: 0.18em;
+        width: 0.18em;
+        height: 0.055em;
+        border-radius: 999px;
+        background: #c8f060;
+      }
+      .scale {
+        margin-top: 14px;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        align-items: center;
+        color: rgba(247, 247, 243, 0.5);
+      }
+      .scale .small {
+        font-size: 32px;
+        letter-spacing: -0.07em;
+        font-weight: 850;
+      }
+      .scale .tiny {
+        font-size: 20px;
+        letter-spacing: -0.06em;
+        font-weight: 850;
+      }
+      .recommendation {
+        margin-top: 18px;
+        border-radius: 28px;
+        border: 1px solid rgba(200, 240, 96, 0.18);
+        background: rgba(200, 240, 96, 0.06);
+        padding: 22px;
+        text-align: center;
+      }
+      .recommendation h2 {
+        margin: 0 0 8px;
+      }
+      .recommendation p {
+        margin: 0 auto;
+      }
+      @media (max-width: 860px) {
+        .word {
+          font-size: clamp(52px, 15vw, 86px);
+          white-space: normal;
+        }
+        .body {
+          grid-template-columns: 1fr;
+        }
+        .tags {
+          justify-content: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Clean Tech Wordmark V2</h1>
+        <p>
+          Centered, legibility-first concepts. No random C line. Each version changes only one small detail so the name
+          stays readable and the mark feels premium instead of forced.
+        </p>
+      </header>
+
+      <section class="grid">
+        <article class="concept v1">
+          <div class="stage">
+            <div>
+              <div class="word">BudCast</div>
+              <div class="descriptor">Cannabis Creator Marketplace</div>
+              <div class="scale">
+                <span class="small">BudCast</span>
+                <span class="tiny">BudCast</span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>A. Pure Clean Tech</h2>
+              <p>No gimmick. This is the control: clear, bold, tight, and probably the most trustworthy starting point.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Most readable</span>
+              <span class="tag">Safest</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept v2">
+          <div class="stage">
+            <div>
+              <div class="word">Bud<span class="c">C</span>ast</div>
+              <div class="descriptor">Verified Creator Campaigns</div>
+              <div class="scale">
+                <span class="small">BudCast</span>
+                <span class="tiny">BudCast</span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>B. C Terminal</h2>
+              <p>The C gets a small endpoint dot, integrated into the curve language instead of floating as a random line.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Symbol tie-in</span>
+              <span class="tag">Subtle</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept v3">
+          <div class="stage">
+            <div>
+              <div class="word">Bu<span class="d">d</span>Cast</div>
+              <div class="descriptor">Brands Meet Creators</div>
+              <div class="scale">
+                <span class="small">BudCast</span>
+                <span class="tiny">BudCast</span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>C. Creator Node d</h2>
+              <p>A tiny node on the d references the creator node without touching the more important C readability.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Ownable</span>
+              <span class="tag">Readable</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept v4">
+          <div class="stage">
+            <div>
+              <div class="word"><span class="bud">Bud</span><span class="cast">Cast</span></div>
+              <div class="descriptor">Paid Creator Campaigns</div>
+              <div class="scale">
+                <span class="small">BudCast</span>
+                <span class="tiny">BudCast</span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>D. Soft Split</h2>
+              <p>No letter modification. A slight tone split between Bud and Cast makes the name easier to parse.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Clear</span>
+              <span class="tag">Low risk</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept v5">
+          <div class="stage">
+            <div>
+              <div class="word">BudCas<span class="t">t</span></div>
+              <div class="descriptor">Creator Campaign Network</div>
+              <div class="scale">
+                <span class="small">BudCast</span>
+                <span class="tiny">BudCast</span>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div>
+              <h2>E. Signal t Cross</h2>
+              <p>The t crossbar becomes the signature. It is more natural than modifying the C, but still visible.</p>
+            </div>
+            <div class="tags">
+              <span class="tag">Distinctive</span>
+              <span class="tag">Tech</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <div class="recommendation">
+        <h2>My recommendation</h2>
+        <p>
+          Start with A or D. They are the clearest. If we add a custom detail, C is the best candidate because it keeps
+          BudCast readable and ties back to the creator node without making the wordmark feel awkward.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

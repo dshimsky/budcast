@@ -1,0 +1,25 @@
+<svg width="1280" height="360" viewBox="0 0 1280 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Pulse Broadcast Primary Logo</title>
+  <desc id="desc">BudCast wordmark paired with a pulse broadcast symbol.</desc>
+  <rect width="1280" height="360" rx="56" fill="#0A0A0B"/>
+  <g transform="translate(114 69)">
+    <g stroke="#B8FF3D" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M84 111C116 84 152 74 197 82" stroke-width="24"/>
+      <path d="M84 111C121 127 156 126 190 109" stroke-width="17"/>
+      <path d="M84 111C120 161 165 181 225 172" stroke-width="24"/>
+      <path d="M101 94C126 58 160 38 207 34" stroke-width="13"/>
+      <path d="M108 133C135 156 167 165 203 161" stroke-width="13"/>
+    </g>
+    <circle cx="64" cy="111" r="40" fill="#B8FF3D"/>
+    <circle cx="64" cy="111" r="13.5" fill="#0A0A0B"/>
+    <circle cx="197" cy="82" r="14" fill="#B8FF3D"/>
+    <circle cx="190" cy="109" r="11" fill="#B8FF3D"/>
+    <circle cx="225" cy="172" r="15" fill="#B8FF3D"/>
+    <circle cx="207" cy="34" r="9.5" fill="#B8FF3D"/>
+  </g>
+  <g fill="#F7F7F2">
+    <text x="408" y="188" font-family="Barlow Condensed, Avenir Next Condensed, Helvetica Neue, Arial, sans-serif" font-size="116" font-weight="700" letter-spacing="-3.5">BudCast</text>
+    <rect x="796" y="106" width="12" height="28" rx="6" fill="#B8FF3D"/>
+  </g>
+  <text x="414" y="236" fill="#B8FF3D" font-family="Barlow Condensed, Avenir Next Condensed, Helvetica Neue, Arial, sans-serif" font-size="26" font-weight="600" letter-spacing="8">CREATOR CAMPAIGN NETWORK</text>
+</svg>

@@ -50,11 +50,18 @@ export default function StoreScreen() {
     <PremiumScroll>
       <FadeInSection>
         <GlassCard>
-          <SectionTitle
-            eyebrow="Creator Opportunities"
-            title="Browse paid content opportunities from cannabis brands."
-            description="Find product drops, launches, UGC briefs, and social campaigns that match your niche and audience."
-          />
+          <View className="flex-row items-start justify-between gap-4">
+            <View className="flex-1">
+              <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#a59a86]">Free Store</Text>
+              <Text className="mt-2 text-[22px] font-black leading-tight tracking-tight text-[#fbf8f4]">Creator Opportunities</Text>
+            </View>
+            <View className="items-end">
+              <Text className="text-[28px] font-black leading-none text-[#fbf8f4]">
+                {campaigns.data?.length ?? —}
+              </Text>
+              <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Open</Text>
+            </View>
+          </View>
           <View className="mt-6 flex-row flex-wrap gap-2">
             {campaignTypes.map((type) => {
               const active = activeType === type.value;
@@ -62,11 +69,11 @@ export default function StoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: active }}
-                  className={`rounded-full px-4 py-2 ${active ? "bg-[#6b4c2e]" : "border border-white/10 bg-white/[0.04]"}`}
+                  className={`rounded-full px-4 py-2 ${active ? "bg-[#b8ff3d]" : "border border-white/[0.15] bg-white/[0.07]"}`}
                   key={type.label}
                   onPress={() => setActiveType(type.value)}
                 >
-                  <Text className={`text-sm ${active ? "font-semibold text-[#fff8ec]" : "font-medium text-[#e8dccd]"}`}>{type.label}</Text>
+                  <Text className={`text-sm ${active ? "font-semibold text-[#070806]" : "font-medium text-[#e8dccd]"}`}>{type.label}</Text>
                 </Pressable>
               );
             })}
@@ -79,18 +86,24 @@ export default function StoreScreen() {
           const applied = myApplications.isApplied(campaign.id);
 
           return (
-            <SectionBlock className="bg-[#11130f]" key={campaign.id}>
+            <SectionBlock key={campaign.id}>
               <SectionEyebrow>
                 {formatCampaignType(campaign.campaign_type)}
               </SectionEyebrow>
-              <Text className="mt-2 text-[28px] font-semibold leading-[34px] text-[#fbf8f4]">{campaign.title}</Text>
-              <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
+              <Text className="mt-2 text-[17px] font-extrabold leading-snug tracking-tight text-[#fbf8f4]">{campaign.title}</Text>
+              <Text className="mt-2 text-sm leading-6 text-[#a59a86]">
                 {campaign.short_description || campaign.description}
               </Text>
-              <View className="mt-4 flex-row flex-wrap gap-2">
-                <HeroChip>{campaign.cash_amount ? formatCurrency(campaign.cash_amount) : "Product only"}</HeroChip>
-                <HeroChip>{campaign.credit_cost_per_slot ?? campaign.credit_cost} credits</HeroChip>
-                <HeroChip>{formatDeadline(campaign.application_deadline)}</HeroChip>
+              <View className="mt-3 flex-row items-center gap-4">
+                <Text className="text-[15px] font-extrabold text-[#b8ff3d]">
+                  {campaign.cash_amount ? formatCurrency(campaign.cash_amount) : "Product only"}
+                </Text>
+                <Text className="text-xs text-[#a59a86]">
+                  {campaign.credit_cost_per_slot ?? campaign.credit_cost} credits
+                </Text>
+                <Text className="text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">
+                  {formatDeadline(campaign.application_deadline)}
+                </Text>
               </View>
               <View className="mt-5 flex-row items-center justify-between gap-3">
                 <Text className="flex-1 text-sm leading-6 text-[#a59a86]">

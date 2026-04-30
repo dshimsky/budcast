@@ -50,15 +50,24 @@ export default function ApplicationsScreen() {
     <PremiumScroll>
       <FadeInSection>
         <GlassCard>
-          <SectionTitle
-            eyebrow="Applications"
-            title="Track your applications to cannabis brand campaigns."
-            description="See which content opportunities are pending, accepted, or complete, and jump into submissions when a brand accepts you."
-          />
-          <View className="mt-6 flex-row flex-wrap gap-2">
-            <HeroChip>Application status</HeroChip>
-            <HeroChip>Brand deadlines</HeroChip>
-            <HeroChip>Submission-ready</HeroChip>
+          <View className="flex-row items-start justify-between">
+            <View className="flex-1">
+              <Text className="text-sm font-medium text-[#e8dccd]">My Work</Text>
+              <Text className="mt-1 text-[10px] uppercase tracking-[2px] text-[#a59a86]">
+                Applications & submissions
+              </Text>
+            </View>
+            <View className="items-end">
+              <Text className="text-3xl font-black text-[#fbf8f4]">
+                {applications.data?.length ?? 0}
+              </Text>
+              <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">total</Text>
+            </View>
+          </View>
+          <View className="mt-5 flex-row gap-3">
+            <Link asChild href="/store" className="flex-1">
+              <PrimaryPill>Browse campaigns</PrimaryPill>
+            </Link>
           </View>
         </GlassCard>
       </FadeInSection>
@@ -77,12 +86,22 @@ export default function ApplicationsScreen() {
                 <SectionEyebrow>
                   {application.opportunity ? formatCampaignType(application.opportunity.campaign_type) : "Campaign"}
                 </SectionEyebrow>
-                <Text className="mt-2 text-2xl font-semibold text-[#fbf8f4]">
+                <Text className="mt-2 text-[17px] font-extrabold leading-snug text-[#fbf8f4] tracking-tight">
                   {application.opportunity?.title || "Untitled opportunity"}
                 </Text>
               </View>
-              <View className="rounded-full border border-[#a98c5b]/30 bg-[#1a1b16] px-3 py-2">
-                <Text className="text-xs uppercase tracking-[2px] text-[#d7c3a0]">
+              <View className={`rounded-full px-3 py-2 ${
+                application.status === "accepted" ? "border border-[#b8ff3d]/30 bg-[#b8ff3d]/10" :
+                application.status === "completed" ? "border border-[#4f98a3]/30 bg-[#4f98a3]/10" :
+                application.status === "rejected" ? "border border-red-500/20 bg-red-500/10" :
+                "border border-[#a98c5b]/30 bg-[#1a1b16]"
+              }`}>
+                <Text className={`text-xs uppercase tracking-[2px] ${
+                  application.status === "accepted" ? "text-[#b8ff3d]" :
+                  application.status === "completed" ? "text-[#4f98a3]" :
+                  application.status === "rejected" ? "text-red-400" :
+                  "text-[#d7c3a0]"
+                }`}>
                   {formatStatus(application.status)}
                 </Text>
               </View>

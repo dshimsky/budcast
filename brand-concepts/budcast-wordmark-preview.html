@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>BudCast Custom Wordmark Preview</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090907;
+        color: #f7f7f3;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 28% 18%, rgba(200, 240, 96, 0.1), transparent 30%),
+          linear-gradient(135deg, #090907, #11170d 58%, #070806);
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 46px 28px 64px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(36px, 5vw, 72px);
+        letter-spacing: -0.07em;
+        line-height: 0.92;
+      }
+      p {
+        max-width: 780px;
+        margin: 14px 0 0;
+        color: rgba(247, 247, 243, 0.68);
+        line-height: 1.65;
+      }
+      .grid {
+        display: grid;
+        gap: 18px;
+        margin-top: 30px;
+      }
+      .panel {
+        border: 1px solid rgba(247, 247, 243, 0.1);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .panel.dark {
+        background:
+          radial-gradient(circle at 34% 34%, rgba(200, 240, 96, 0.12), transparent 32%),
+          #090907;
+      }
+      .panel.light {
+        background: #f7f7f3;
+      }
+      .label {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(127, 127, 127, 0.18);
+        padding: 14px 18px;
+        color: rgba(247, 247, 243, 0.64);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .light .label {
+        color: rgba(9, 9, 7, 0.56);
+      }
+      .art {
+        padding: 54px 48px;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .notes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .note {
+        border: 1px solid rgba(247, 247, 243, 0.1);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.035);
+        padding: 16px;
+      }
+      .note h2 {
+        margin: 0 0 6px;
+        font-size: 17px;
+      }
+      .note p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      @media (max-width: 840px) {
+        .notes { grid-template-columns: 1fr; }
+        .art { padding: 34px 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>BudCast Custom Wordmark</h1>
+      <p>
+        Bold, slightly condensed vector lettering with one custom signal-language detail in the C. The goal is a
+        confident modern tech mark that pairs cleanly with the signal symbol without becoming gimmicky.
+      </p>
+
+      <section class="grid">
+        <article class="panel dark">
+          <div class="label"><span>White version</span><span>Dark surfaces</span></div>
+          <div class="art">
+            <img src="./budcast-wordmark-white.svg" alt="BudCast white custom wordmark"/>
+          </div>
+        </article>
+
+        <article class="panel light">
+          <div class="label"><span>Black version</span><span>Light surfaces</span></div>
+          <div class="art">
+            <img src="./budcast-wordmark-black.svg" alt="BudCast black custom wordmark"/>
+          </div>
+        </article>
+      </section>
+
+      <section class="notes">
+        <div class="note">
+          <h2>Custom C</h2>
+          <p>The C carries a signal cut and terminal dot, tying the wordmark to the broadcast symbol.</p>
+        </div>
+        <div class="note">
+          <h2>Premium Kerning</h2>
+          <p>Letters are compressed and tightly spaced to feel more like a designed SaaS wordmark.</p>
+        </div>
+        <div class="note">
+          <h2>Scalable Vector</h2>
+          <p>No fonts, no raster effects. The wordmark is constructed from SVG paths and strokes.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

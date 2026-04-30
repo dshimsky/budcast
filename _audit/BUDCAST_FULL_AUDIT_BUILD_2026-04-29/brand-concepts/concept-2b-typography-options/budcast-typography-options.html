@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BudCast Typography Options</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 18% 0%, rgba(184, 255, 61, 0.12), transparent 28%),
+          linear-gradient(180deg, #030303, #080908 50%, #030303);
+        color: #fbfbf7;
+        font-family: Avenir Next, Helvetica Neue, Arial, sans-serif;
+      }
+
+      main {
+        width: min(1500px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 28px 0 72px;
+      }
+
+      .top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: end;
+        margin-bottom: 20px;
+      }
+
+      .logo {
+        width: min(360px, 44vw);
+        height: auto;
+      }
+
+      .kicker {
+        color: #b8ff3d;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .top h1 {
+        max-width: 980px;
+        margin-top: 12px;
+        font-family: Avenir Next Condensed, Avenir Next, Arial Narrow, Arial, sans-serif;
+        font-size: clamp(48px, 7vw, 104px);
+        font-weight: 900;
+        line-height: 0.86;
+        letter-spacing: -0.055em;
+      }
+
+      .options {
+        display: grid;
+        gap: 18px;
+      }
+
+      .option {
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 38px;
+        background:
+          radial-gradient(circle at 88% 4%, rgba(184, 255, 61, 0.13), transparent 28%),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.026)),
+          #030303;
+        box-shadow: 0 30px 100px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .option.a {
+        --display: Avenir Next Condensed, Arial Narrow, Helvetica Neue, Arial, sans-serif;
+        --body: Avenir Next, Helvetica Neue, Arial, sans-serif;
+        --heading-tracking: -0.055em;
+        --heading-weight: 900;
+        --label-tracking: 0.18em;
+      }
+
+      .option.b {
+        --display: -apple-system, BlinkMacSystemFont, SF Pro Display, Avenir Next, Helvetica Neue, Arial, sans-serif;
+        --body: -apple-system, BlinkMacSystemFont, SF Pro Text, Avenir Next, Helvetica Neue, Arial, sans-serif;
+        --heading-tracking: -0.065em;
+        --heading-weight: 850;
+        --label-tracking: 0.12em;
+      }
+
+      .option.c {
+        --display: Avenir Next, Arial Rounded MT Bold, Helvetica Neue, Arial, sans-serif;
+        --body: Avenir Next, Helvetica Neue, Arial, sans-serif;
+        --heading-tracking: -0.075em;
+        --heading-weight: 950;
+        --label-tracking: 0.1em;
+      }
+
+      .option-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: start;
+        padding: 28px 30px 0;
+      }
+
+      .badge {
+        display: inline-flex;
+        border: 1px solid rgba(184, 255, 61, 0.26);
+        border-radius: 999px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035)),
+          rgba(184, 255, 61, 0.12);
+        color: #e7ff9a;
+        padding: 7px 11px;
+        font-family: var(--body);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: var(--label-tracking);
+        text-transform: uppercase;
+      }
+
+      .option h2 {
+        margin-top: 12px;
+        font-family: var(--display);
+        font-size: clamp(40px, 5vw, 74px);
+        font-weight: var(--heading-weight);
+        line-height: 0.9;
+        letter-spacing: var(--heading-tracking);
+      }
+
+      .option-copy {
+        max-width: 760px;
+        margin-top: 12px;
+        color: #c7ccc2;
+        font-family: var(--body);
+        font-size: 15px;
+        line-height: 1.64;
+      }
+
+      .type-sample {
+        min-width: min(420px, 100%);
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 18px;
+      }
+
+      .type-sample div {
+        font-family: var(--display);
+        font-size: 36px;
+        font-weight: var(--heading-weight);
+        line-height: 0.92;
+        letter-spacing: var(--heading-tracking);
+      }
+
+      .type-sample p {
+        margin-top: 10px;
+        color: #c7ccc2;
+        font-family: var(--body);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .surfaces {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 350px;
+        gap: 18px;
+        padding: 22px 30px 30px;
+      }
+
+      .desktop,
+      .phone {
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035)),
+          rgba(255, 255, 255, 0.035);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 18px 44px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(16px) saturate(138%);
+      }
+
+      .desktop {
+        overflow: hidden;
+        min-height: 520px;
+        border-radius: 32px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px 22px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.22);
+      }
+
+      .nav img {
+        width: 235px;
+        height: auto;
+      }
+
+      .nav-actions {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+      }
+
+      .button {
+        border-radius: 999px;
+        padding: 11px 15px;
+        font-family: var(--body);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .button.primary {
+        border: 1px solid rgba(184, 255, 61, 0.42);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.045)),
+          linear-gradient(180deg, rgba(184, 255, 61, 0.92), rgba(184, 255, 61, 0.72));
+        color: #071007;
+        box-shadow: 0 18px 42px rgba(184, 255, 61, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+      }
+
+      .button.ghost {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045));
+        color: #f4f6ef;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
+        padding: 28px;
+      }
+
+      .hero h3 {
+        font-family: var(--display);
+        font-size: clamp(40px, 5vw, 72px);
+        font-weight: var(--heading-weight);
+        line-height: 0.9;
+        letter-spacing: var(--heading-tracking);
+      }
+
+      .hero p,
+      .campaign p,
+      .mobile-card p,
+      .stat span {
+        color: #c7ccc2;
+        font-family: var(--body);
+      }
+
+      .hero p {
+        max-width: 650px;
+        margin-top: 14px;
+        font-size: 15px;
+        line-height: 1.64;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .stat-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .stat {
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.055);
+        padding: 16px;
+      }
+
+      .stat strong {
+        display: block;
+        font-family: var(--display);
+        font-size: 32px;
+        font-weight: var(--heading-weight);
+        letter-spacing: var(--heading-tracking);
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: var(--label-tracking);
+        text-transform: uppercase;
+      }
+
+      .feed-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        padding: 0 28px 28px;
+      }
+
+      .campaign {
+        min-height: 178px;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 15px;
+      }
+
+      .campaign-top {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .avatar {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 15px;
+        background: rgba(184, 255, 61, 0.12);
+        color: #fbfbf7;
+        font-family: var(--body);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .campaign h3 {
+        font-family: var(--display);
+        font-size: 20px;
+        font-weight: var(--heading-weight);
+        line-height: 1;
+        letter-spacing: var(--heading-tracking);
+      }
+
+      .campaign-title {
+        margin-top: 14px;
+      }
+
+      .campaign p {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 12px;
+      }
+
+      .tag {
+        border-radius: 999px;
+        background: rgba(184, 255, 61, 0.14);
+        color: #e7ff9a;
+        padding: 6px 8px;
+        font-family: var(--body);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: var(--label-tracking);
+        text-transform: uppercase;
+      }
+
+      .phone {
+        min-height: 520px;
+        border-radius: 38px;
+        padding: 12px;
+      }
+
+      .phone-screen {
+        overflow: hidden;
+        min-height: 496px;
+        border-radius: 30px;
+        background: rgba(0, 0, 0, 0.28);
+      }
+
+      .phone-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+      }
+
+      .phone-top img {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        object-fit: cover;
+      }
+
+      .phone-feed {
+        display: grid;
+        gap: 11px;
+        padding: 0 14px 14px;
+      }
+
+      .mobile-card {
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.075);
+        padding: 14px;
+      }
+
+      .mobile-card h3 {
+        font-family: var(--display);
+        font-size: 23px;
+        font-weight: var(--heading-weight);
+        line-height: 0.98;
+        letter-spacing: var(--heading-tracking);
+      }
+
+      .mobile-card p {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .bottom-nav {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        margin: 0 12px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 26px;
+        background: rgba(0, 0, 0, 0.42);
+        padding: 6px;
+      }
+
+      .bottom-nav span {
+        border-radius: 18px;
+        padding: 9px 4px;
+        color: #c7ccc2;
+        text-align: center;
+        font-family: var(--body);
+        font-size: 9px;
+        font-weight: 900;
+      }
+
+      .bottom-nav span:first-child {
+        color: #071007;
+        background: #b8ff3d;
+      }
+
+      @media (max-width: 1050px) {
+        .top,
+        .option-head,
+        .surfaces,
+        .hero,
+        .feed-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .logo {
+          width: 280px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="top">
+        <div>
+          <div class="kicker">BudCast typography direction</div>
+          <h1>Pick the type system that fits the new logo.</h1>
+        </div>
+        <img class="logo" src="../../apps/web/public/brand/concept-2b/budcast-logo-main-transparent.png" alt="BudCast logo" />
+      </section>
+
+      <section class="options">
+        <article class="option a">
+          <div class="option-head">
+            <div>
+              <span class="badge">Option A · Recommended</span>
+              <h2>Condensed Social Tech</h2>
+              <p class="option-copy">
+                Tight, bold, and platform-native. This direction best matches the BC logo and makes BudCast feel like a cannabis UGC network instead of a SaaS dashboard.
+              </p>
+            </div>
+            <div class="type-sample">
+              <div>Campaigns. Creators. Culture.</div>
+              <p>Avenir Next Condensed headlines with clean Avenir body text.</p>
+            </div>
+          </div>
+          <div class="surfaces">
+            <div class="desktop">
+              <div class="nav">
+                <img src="../../apps/web/public/brand/concept-2b/budcast-logo-main-transparent.png" alt="BudCast logo" />
+                <div class="nav-actions"><div class="button ghost">Sign In</div><div class="button primary">Create Account</div></div>
+              </div>
+              <div class="hero">
+                <div>
+                  <span class="badge">Live cannabis feed</span>
+                  <h3 style="margin-top:14px;">Campaigns and creator proof moving in real time.</h3>
+                  <p>Creators discover paid drops. Brands post campaigns, review applicants, approve content, and keep coordination inside BudCast.</p>
+                  <div class="hero-actions"><div class="button primary">Open feed</div><div class="button ghost">Browse campaigns</div></div>
+                </div>
+                <div class="stat-grid"><div class="stat"><strong>18</strong><span>Active campaigns</span></div><div class="stat"><strong>126</strong><span>Applications</span></div><div class="stat"><strong>4h</strong><span>Response time</span></div></div>
+              </div>
+              <div class="feed-grid">
+                <div class="campaign"><div class="campaign-top"><div class="avatar">SC</div><h3>Shiminsky Cannabis</h3></div><h3 class="campaign-title">UGC flower drop</h3><p>30–90 sec reel with pickup coordination.</p><div class="tag-row"><span class="tag">Paid + Product</span><span class="tag">Filling fast</span></div></div>
+                <div class="campaign"><div class="campaign-top"><div class="avatar">NC</div><h3>North Coast</h3></div><h3 class="campaign-title">Weekend launch video</h3><p>Creator-shot lifestyle footage for launch week.</p><div class="tag-row"><span class="tag">Paid</span><span class="tag">Remote</span></div></div>
+                <div class="campaign"><div class="campaign-top"><div class="avatar">DR</div><h3>@detroitreels</h3></div><h3 class="campaign-title">Approved creator work</h3><p>Fresh UGC reel approved for brand launch.</p><div class="tag-row"><span class="tag">Creator proof</span><span class="tag">Reel</span></div></div>
+              </div>
+            </div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-top"><img src="../../apps/web/public/brand/concept-2b/budcast-icon-square.png" alt="BudCast app icon" /><div class="button primary">Campaigns</div></div>
+                <div class="phone-feed">
+                  <div class="mobile-card"><span class="badge">Welcome back</span><h3 style="margin-top:10px;">Your creator profile is live.</h3><p>3 campaign matches ready.</p></div>
+                  <div class="mobile-card"><h3>Live creator opportunity</h3><p>Paid + Product · Reel · Closing soon</p></div>
+                  <div class="mobile-card"><h3>Brand post</h3><p>New product drop looking for UGC creators.</p></div>
+                </div>
+                <div class="bottom-nav"><span>Campaigns</span><span>Feed</span><span>DMs</span><span>Work</span><span>Me</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="option b">
+          <div class="option-head">
+            <div>
+              <span class="badge">Option B</span>
+              <h2>Apple-Like Product</h2>
+              <p class="option-copy">
+                Cleaner and safer. This feels the most polished and readable, but it has less distinctive marketplace energy than Option A.
+              </p>
+            </div>
+            <div class="type-sample">
+              <div>Campaigns. Creators. Culture.</div>
+              <p>System-style product typography with strong readability.</p>
+            </div>
+          </div>
+          <div class="surfaces">
+            <div class="desktop">
+              <div class="nav">
+                <img src="../../apps/web/public/brand/concept-2b/budcast-logo-main-transparent.png" alt="BudCast logo" />
+                <div class="nav-actions"><div class="button ghost">Sign In</div><div class="button primary">Create Account</div></div>
+              </div>
+              <div class="hero">
+                <div>
+                  <span class="badge">Live cannabis feed</span>
+                  <h3 style="margin-top:14px;">Campaigns and creator proof moving in real time.</h3>
+                  <p>Creators discover paid drops. Brands post campaigns, review applicants, approve content, and keep coordination inside BudCast.</p>
+                  <div class="hero-actions"><div class="button primary">Open feed</div><div class="button ghost">Browse campaigns</div></div>
+                </div>
+                <div class="stat-grid"><div class="stat"><strong>18</strong><span>Active campaigns</span></div><div class="stat"><strong>126</strong><span>Applications</span></div><div class="stat"><strong>4h</strong><span>Response time</span></div></div>
+              </div>
+              <div class="feed-grid">
+                <div class="campaign"><div class="campaign-top"><div class="avatar">SC</div><h3>Shiminsky Cannabis</h3></div><h3 class="campaign-title">UGC flower drop</h3><p>30–90 sec reel with pickup coordination.</p><div class="tag-row"><span class="tag">Paid + Product</span><span class="tag">Filling fast</span></div></div>
+                <div class="campaign"><div class="campaign-top"><div class="avatar">NC</div><h3>North Coast</h3></div><h3 class="campaign-title">Weekend launch video</h3><p>Creator-shot lifestyle footage for launch week.</p><div class="tag-row"><span class="tag">Paid</span><span class="tag">Remote</span></div></div>
+                <div class="campaign"><div class="campaign-top"><div class="avatar">DR</div><h3>@detroitreels</h3></div><h3 class="campaign-title">Approved creator work</h3><p>Fresh UGC reel approved for brand launch.</p><div class="tag-row"><span class="tag">Creator proof</span><span class="tag">Reel</span></div></div>
+              </div>
+            </div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-top"><img src="../../apps/web/public/brand/concept-2b/budcast-icon-square.png" alt="BudCast app icon" /><div class="button primary">Campaigns</div></div>
+                <div class="phone-feed">
+                  <div class="mobile-card"><span class="badge">Welcome back</span><h3 style="margin-top:10px;">Your creator profile is live.</h3><p>3 campaign matches ready.</p></div>
+                  <div class="mobile-card"><h3>Live creator opportunity</h3><p>Paid + Product · Reel · Closing soon</p></div>
+                  <div class="mobile-card"><h3>Brand post</h3><p>New product drop looking for UGC creators.</p></div>
+                </div>
+                <div class="bottom-nav"><span>Campaigns</span><span>Feed</span><span>DMs</span><span>Work</span><span>Me</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="option c">
+          <div class="option-head">
+            <div>
+              <span class="badge">Option C</span>
+              <h2>Creator Network Bold</h2>
+              <p class="option-copy">
+                Bigger, rounder, and more creator-facing. This feels energetic and social, but it risks feeling less refined if used everywhere.
+              </p>
+            </div>
+            <div class="type-sample">
+              <div>Campaigns. Creators. Culture.</div>
+              <p>Wide bold sans headlines with a more creator-platform attitude.</p>
+            </div>
+          </div>
+          <div class="surfaces">
+            <div class="desktop">
+              <div class="nav">
+                <img src="../../apps/web/public/brand/concept-2b/budcast-logo-main-transparent.png" alt="BudCast logo" />
+                <div class="nav-actions"><div class="button ghost">Sign In</div><div class="button primary">Create Account</div></div>
+              </div>
+              <div class="hero">
+                <div>
+                  <span class="badge">Live cannabis feed</span>
+                  <h3 style="margin-top:14px;">Campaigns and creator proof moving in real time.</h3>
+                  <p>Creators discover paid drops. Brands post campaigns, review applicants, approve content, and keep coordination inside BudCast.</p>
+                  <div class="hero-actions"><div class="button primary">Open feed</div><div class="button ghost">Browse campaigns</div></div>
+                </div>
+                <div class="stat-grid"><div class="stat"><strong>18</strong><span>Active campaigns</span></div><div class="stat"><strong>126</strong><span>Applications</span></div><div class="stat"><strong>4h</strong><span>Response time</span></div></div>
+              </div>
+              <div class="feed-grid">
+                <div class="campaign"><div class="campaign-top"><div class="avatar">SC</div><h3>Shiminsky Cannabis</h3></div><h3 class="campaign-title">UGC flower drop</h3><p>30–90 sec reel with pickup coordination.</p><div class="tag-row"><span class="tag">Paid + Product</span><span class="tag">Filling fast</span></div></div>
+                <div class="campaign"><div class="campaign-top"><div class="avatar">NC</div><h3>North Coast</h3></div><h3 class="campaign-title">Weekend launch video</h3><p>Creator-shot lifestyle footage for launch week.</p><div class="tag-row"><span class="tag">Paid</span><span class="tag">Remote</span></div></div>
+                <div class="campaign"><div class="campaign-top"><div class="avatar">DR</div><h3>@detroitreels</h3></div><h3 class="campaign-title">Approved creator work</h3><p>Fresh UGC reel approved for brand launch.</p><div class="tag-row"><span class="tag">Creator proof</span><span class="tag">Reel</span></div></div>
+              </div>
+            </div>
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-top"><img src="../../apps/web/public/brand/concept-2b/budcast-icon-square.png" alt="BudCast app icon" /><div class="button primary">Campaigns</div></div>
+                <div class="phone-feed">
+                  <div class="mobile-card"><span class="badge">Welcome back</span><h3 style="margin-top:10px;">Your creator profile is live.</h3><p>3 campaign matches ready.</p></div>
+                  <div class="mobile-card"><h3>Live creator opportunity</h3><p>Paid + Product · Reel · Closing soon</p></div>
+                  <div class="mobile-card"><h3>Brand post</h3><p>New product drop looking for UGC creators.</p></div>
+                </div>
+                <div class="bottom-nav"><span>Campaigns</span><span>Feed</span><span>DMs</span><span>Work</span><span>Me</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

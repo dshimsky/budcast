@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>BudCast Lockup Proportion B</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        background: #090907;
+        color: #f7f7f3;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 30% 18%, rgba(200, 240, 96, 0.1), transparent 30%),
+          linear-gradient(135deg, #090907, #11170d 58%, #070806);
+      }
+      main {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 46px 28px 64px;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 5vw, 72px);
+        line-height: 0.92;
+        letter-spacing: -0.07em;
+      }
+      p {
+        max-width: 820px;
+        margin: 14px 0 0;
+        color: rgba(247, 247, 243, 0.68);
+        line-height: 1.65;
+      }
+      .panel {
+        margin-top: 24px;
+        border-radius: 30px;
+        border: 1px solid rgba(247, 247, 243, 0.1);
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.035);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .panel.light {
+        background: #f7f7f3;
+      }
+      .label {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(127,127,127,0.18);
+        padding: 14px 18px;
+        color: rgba(247,247,243,0.62);
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .light .label {
+        color: rgba(9,9,7,0.56);
+      }
+      .art {
+        padding: 42px;
+      }
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .note {
+        margin-top: 18px;
+        border-radius: 24px;
+        border: 1px solid rgba(200,240,96,0.18);
+        background: rgba(200,240,96,0.06);
+        padding: 18px;
+      }
+      .note p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Lockup Proportion B</h1>
+      <p>
+        Premium ratio: the symbol is slightly larger than cap height, but no longer dominates the wordmark. Spacing is
+        tighter and the mark is optically centered against the wordmark.
+      </p>
+      <div class="note">
+        <p>This updates the production dark and light lockup SVGs. Symbol-only and stacked assets are unchanged.</p>
+      </div>
+      <section class="panel">
+        <div class="label"><span>Dark lockup</span><span>B. Premium proportion</span></div>
+        <div class="art">
+          <img src="./budcast-lockup-dark.svg" alt="BudCast dark lockup proportion B"/>
+        </div>
+      </section>
+      <section class="panel light">
+        <div class="label"><span>Light lockup</span><span>B. Premium proportion</span></div>
+        <div class="art">
+          <img src="./budcast-lockup-light.svg" alt="BudCast light lockup proportion B"/>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

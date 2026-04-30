@@ -1,17 +1,23 @@
 import type { Session, User as AuthUser } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "../lib/supabase";
-import type { User } from "../types/database";
+import { buildBrandContext, useBrandTeam, type BrandContext } from "../hooks/useBrandTeam";
+import type { BrandTeamMember, User } from "../types/database";
 
 interface AuthContextValue {
   session: Session | null;
   authUser: AuthUser | null;
   profile: User | null;
+  brandContext: BrandContext | null;
+  brandTeamMembership: BrandTeamMember | null;
+  brandTeamBrand: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -22,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<User | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const brandTeam = useBrandTeam(profile);
 
   async function loadProfile(userId: string) {
     setProfileLoading(true);
@@ -62,6 +69,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   }
 
+  async function resetPasswordForEmail(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+    if (error) throw error;
+  }
+
+  async function updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setSessionLoading((current) => (current ? false : current));
@@ -92,10 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAuthUser(session?.user ?? null);
       if (session?.user) {
         setProfileLoading(true);
-        loadProfile(session.user.id);
+        loadProfile(session.user.id).finally(() => setSessionLoading(false));
       } else {
         setProfile(null);
         setProfileLoading(false);
+        setSessionLoading(false);
       }
     });
 
@@ -105,11 +125,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const loading = sessionLoading || profileLoading;
+  const brandContext =
+    profile?.user_type === "brand"
+      ? buildBrandContext(profile)
+      : brandTeam.brandContext;
+  const loading = sessionLoading || profileLoading || brandTeam.loading;
 
   return (
     <AuthContext.Provider
-      value={{ session, authUser, profile, loading, signIn, signUp, signOut, refreshProfile }}
+      value={{
+        session,
+        authUser,
+        profile,
+        brandContext,
+        brandTeamMembership: brandTeam.membership,
+        brandTeamBrand: brandTeam.brand,
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        refreshProfile,
+        resetPasswordForEmail,
+        updatePassword
+      }}
     >
       {children}
     </AuthContext.Provider>

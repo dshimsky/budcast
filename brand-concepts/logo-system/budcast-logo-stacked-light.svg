@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="760" viewBox="0 0 900 760" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Stacked Logo - Light</title>
+  <desc id="desc">Stacked BudCast logo for compact light product UI surfaces.</desc>
+  <defs>
+    <radialGradient id="node" cx="34%" cy="29%" r="76%">
+      <stop offset="0%" stop-color="#f5ffd8"/>
+      <stop offset="38%" stop-color="#c8f060"/>
+      <stop offset="74%" stop-color="#68bf4c"/>
+      <stop offset="100%" stop-color="#2c6134"/>
+    </radialGradient>
+    <linearGradient id="signal" x1="332" y1="310" x2="802" y2="722" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#dfff7b"/>
+      <stop offset="48%" stop-color="#c8f060"/>
+      <stop offset="100%" stop-color="#6bd234"/>
+    </linearGradient>
+    <radialGradient id="terminal" cx="34%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#f4ffc9"/>
+      <stop offset="60%" stop-color="#c8f060"/>
+      <stop offset="100%" stop-color="#82dc3d"/>
+    </radialGradient>
+  </defs>
+  <g id="symbol" transform="translate(176 -80) scale(0.66)">
+    <path d="M358 472 C431 361 584 305 764 293" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="44"/>
+    <path d="M365 512 L812 512" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="26"/>
+    <path d="M354 553 C445 664 596 708 746 737" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="48"/>
+    <path d="M334 478 C367 488 390 501 408 512 C390 524 367 537 334 548" fill="#f7f7f3" opacity="0.92"/>
+    <circle cx="764" cy="293" r="23" fill="url(#terminal)"/>
+    <circle cx="812" cy="512" r="25" fill="url(#terminal)"/>
+    <circle cx="746" cy="737" r="22" fill="url(#terminal)"/>
+    <circle cx="270" cy="512" r="76" fill="url(#node)"/>
+    <circle cx="241" cy="471" r="25" fill="#f4ffd7" opacity="0.72"/>
+    <circle cx="359" cy="512" r="6" fill="#efff9c"/>
+  </g>
+  <text x="450" y="548" text-anchor="middle" fill="#090907" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="144" font-weight="850" letter-spacing="-12">BudCast</text>
+  <text x="450" y="620" text-anchor="middle" fill="#497d2c" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="8">CANNABIS CREATOR MARKETPLACE</text>
+</svg>

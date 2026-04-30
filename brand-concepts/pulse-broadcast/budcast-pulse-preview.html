@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BudCast Pulse Broadcast Logo</title>
+    <style>
+      :root {
+        --bg: #0a0a0b;
+        --panel: rgba(255, 255, 255, 0.04);
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f7f7f2;
+        --muted: #a8a49c;
+        --lime: #b8ff3d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 14% 0%, rgba(184, 255, 61, 0.11), transparent 28%),
+          radial-gradient(circle at 88% 4%, rgba(184, 255, 61, 0.055), transparent 26%),
+          linear-gradient(180deg, #0a0a0b, #050505 68%);
+        color: var(--text);
+        font-family: "Barlow Condensed", "Avenir Next Condensed", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      main {
+        width: min(1300px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 42px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+        gap: 22px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 36px;
+        background: var(--panel);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .intro {
+        padding: 38px;
+      }
+
+      .eyebrow {
+        color: var(--lime);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 18px 0 0;
+        max-width: 680px;
+        font-size: clamp(54px, 8vw, 108px);
+        font-weight: 700;
+        line-height: 0.84;
+        letter-spacing: -0.075em;
+      }
+
+      p {
+        color: var(--muted);
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .logo-stage {
+        display: grid;
+        place-items: center;
+        min-height: 420px;
+        padding: 26px;
+      }
+
+      .primary {
+        width: min(100%, 860px);
+        height: auto;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .spec {
+        min-height: 310px;
+        padding: 24px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 32px;
+        line-height: 0.95;
+        letter-spacing: -0.045em;
+      }
+
+      .spec img {
+        display: block;
+        margin: 24px auto 18px;
+      }
+
+      .icon {
+        width: 152px;
+        height: 152px;
+      }
+
+      .micro {
+        width: 96px;
+        height: 96px;
+      }
+
+      .mono {
+        width: 152px;
+        height: 152px;
+      }
+
+      .sizes {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        min-height: 170px;
+      }
+
+      .usage {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .phone {
+        min-height: 590px;
+        border: 1px solid var(--line);
+        border-radius: 44px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .screen {
+        min-height: 560px;
+        overflow: hidden;
+        border-radius: 32px;
+        background: #0a0a0b;
+      }
+
+      .app-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .app-top img {
+        width: 48px;
+        height: 48px;
+      }
+
+      .feed {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .post {
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .desktop {
+        min-height: 590px;
+        overflow: hidden;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 26px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav img {
+        width: 188px;
+        height: auto;
+      }
+
+      .button {
+        border-radius: 999px;
+        padding: 12px 18px;
+        background: var(--lime);
+        color: #0a0a0b;
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .hero-copy {
+        padding: 52px 42px;
+      }
+
+      .hero-copy h2 {
+        max-width: 620px;
+        font-size: clamp(44px, 6vw, 76px);
+      }
+
+      code {
+        color: var(--lime);
+      }
+
+      @media (max-width: 980px) {
+        main {
+          width: min(100% - 20px, 560px);
+          padding-top: 24px;
+        }
+
+        .hero,
+        .grid,
+        .usage {
+          grid-template-columns: 1fr;
+        }
+
+        .intro,
+        .logo-stage,
+        .spec,
+        .hero-copy {
+          padding: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <article class="card intro">
+          <div class="eyebrow">Logo concept · Pulse Broadcast</div>
+          <h1>Creator energy meets content distribution.</h1>
+          <p>
+            This concept is less rigid than NodeCast. It keeps the central creator node, but the arcs feel more like media pulses
+            moving through a marketplace network. The organic curve hints at cannabis without becoming a leaf.
+          </p>
+          <p><strong>Flat palette:</strong> <code>#0A0A0B</code> background and <code>#B8FF3D</code> accent.</p>
+        </article>
+
+        <article class="card logo-stage">
+          <img class="primary" src="budcast-pulse-primary.svg" alt="BudCast Pulse Broadcast primary logo" />
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card spec">
+          <h2>Icon-only</h2>
+          <img class="icon" src="budcast-pulse-symbol.svg" alt="Pulse Broadcast icon" />
+          <p>Strong enough for app icon use while feeling more dynamic than the previous mark.</p>
+        </article>
+
+        <article class="card spec">
+          <h2>Micro icon</h2>
+          <img class="micro" src="budcast-pulse-micro.svg" alt="Pulse Broadcast micro icon" />
+          <p>Reduced detail for 16–32px favicon and small navigation contexts.</p>
+        </article>
+
+        <article class="card spec">
+          <h2>Monochrome</h2>
+          <img class="mono" src="budcast-pulse-mono.svg" alt="Pulse Broadcast monochrome icon" />
+          <p>One-color production version for masks, stamps, and edge cases.</p>
+        </article>
+
+        <article class="card spec">
+          <h2>Small sizes</h2>
+          <div class="sizes">
+            <img src="budcast-pulse-symbol.svg" alt="" style="width:72px;height:72px;" />
+            <img src="budcast-pulse-symbol.svg" alt="" style="width:48px;height:48px;" />
+            <img src="budcast-pulse-micro.svg" alt="" style="width:32px;height:32px;" />
+          </div>
+          <p>The micro version takes over once the outer detail gets too small.</p>
+        </article>
+      </section>
+
+      <section class="usage">
+        <article class="card phone">
+          <div class="screen">
+            <div class="app-top">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <img src="budcast-pulse-symbol.svg" alt="BudCast app mark" />
+                <div>
+                  <div style="font-size:18px;font-weight:700;">BudCast</div>
+                  <p style="margin:2px 0 0;font-size:12px;">@creatorhandle</p>
+                </div>
+              </div>
+              <div class="button">Filter</div>
+            </div>
+            <div class="feed">
+              <div class="post">
+                <div class="eyebrow">Campaign feed</div>
+                <h2>Paid drops for creators.</h2>
+              </div>
+              <div class="post">Shiminsky Cannabis · Paid + Product · Reel</div>
+              <div class="post">North Coast Supply · Paid · UGC Video</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card desktop">
+          <div class="nav">
+            <img src="budcast-pulse-primary.svg" alt="BudCast primary logo" />
+            <div class="button">Create Account</div>
+          </div>
+          <div class="hero-copy">
+            <div class="eyebrow">Creator marketplace for cannabis brands</div>
+            <h2>Find campaigns. Create content. Get paid for it.</h2>
+            <p>
+              Pulse Broadcast has more media-platform energy, so it sits better inside a social marketplace UI.
+            </p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

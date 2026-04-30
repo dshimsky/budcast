@@ -1,0 +1,9 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast Pulse Micro Icon</title>
+  <desc id="desc">Simplified BudCast pulse mark for small sizes.</desc>
+  <rect width="128" height="128" rx="30" fill="#0A0A0B"/>
+  <path d="M48 64C63 52 79 48 99 52" stroke="#B8FF3D" stroke-width="10" stroke-linecap="round"/>
+  <path d="M48 64C64 83 81 90 102 86" stroke="#B8FF3D" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="38" cy="64" r="15" fill="#B8FF3D"/>
+  <circle cx="38" cy="64" r="5" fill="#0A0A0B"/>
+</svg>

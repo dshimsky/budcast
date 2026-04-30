@@ -1,0 +1,23 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BudCast NodeCast Primary Logo</title>
+  <desc id="desc">Primary BudCast logo with geometric broadcast node symbol and custom wordmark.</desc>
+  <rect width="1200" height="360" rx="56" fill="#0A0A0B"/>
+  <g transform="translate(118 68)">
+    <g stroke="#B8FF3D" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M80 112H184" stroke-width="23"/>
+      <path d="M86 89C113 47 154 25 206 24" stroke-width="22"/>
+      <path d="M86 135C115 183 159 205 214 200" stroke-width="22"/>
+      <path d="M96 112C123 97 147 90 169 91" stroke-width="13" opacity="0.92"/>
+      <path d="M96 112C124 128 151 134 176 130" stroke-width="13" opacity="0.92"/>
+    </g>
+    <circle cx="56" cy="112" r="39" fill="#B8FF3D"/>
+    <circle cx="56" cy="112" r="13" fill="#0A0A0B"/>
+    <circle cx="208" cy="24" r="16" fill="#B8FF3D"/>
+    <circle cx="214" cy="200" r="16" fill="#B8FF3D"/>
+    <circle cx="184" cy="112" r="15" fill="#B8FF3D"/>
+  </g>
+  <g fill="#F7F7F2">
+    <text x="410" y="184" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="96" font-weight="800" letter-spacing="-5">BudCast</text>
+  </g>
+  <text x="416" y="232" fill="#B8FF3D" font-family="Avenir Next, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="9">CREATOR MARKETPLACE NETWORK</text>
+</svg>

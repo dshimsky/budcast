@@ -26,22 +26,14 @@ import { InfoTile, SectionBlock, SectionEyebrow } from "../../components/section
 
 function applyErrorCopy(key: ReturnType<typeof parseApplyError>) {
   switch (key) {
-    case "USER_NOT_CREATOR":
-      return "Only creator accounts can apply.";
-    case "OPPORTUNITY_NOT_AVAILABLE":
-      return "This opportunity is no longer available.";
-    case "OPPORTUNITY_FULL":
-      return "All slots are filled.";
-    case "ALREADY_APPLIED":
-      return "You already applied to this opportunity.";
-    case "PITCH_REQUIRED":
-      return "Paid and hybrid briefs require a pitch.";
-    case "PITCH_LENGTH_INVALID":
-      return "Pitch must be between 50 and 500 characters.";
-    case "INSUFFICIENT_CREDITS":
-      return "You do not have enough credits to apply.";
-    default:
-      return "Application failed.";
+    case "USER_NOT_CREATOR":      return "Only creator accounts can apply.";
+    case "OPPORTUNITY_NOT_AVAILABLE": return "This opportunity is no longer available.";
+    case "OPPORTUNITY_FULL":      return "All slots are filled.";
+    case "ALREADY_APPLIED":       return "You already applied to this opportunity.";
+    case "PITCH_REQUIRED":        return "Paid and hybrid briefs require a pitch.";
+    case "PITCH_LENGTH_INVALID":  return "Pitch must be between 50 and 500 characters.";
+    case "INSUFFICIENT_CREDITS":  return "You do not have enough credits to apply.";
+    default:                      return "Application failed. Try again.";
   }
 }
 
@@ -58,10 +50,11 @@ export default function CampaignDetailScreen() {
   const row = campaign.data;
   const applied = row ? myApplications.isApplied(row.id) : false;
   const requiresPitch = row?.campaign_type === "paid" || row?.campaign_type === "hybrid";
+  const creditCost = row?.credit_cost_per_slot ?? row?.credit_cost ?? 0;
+  const creditsBalance = profile?.credits_balance ?? 0;
 
   async function handleApply() {
     if (!row) return;
-
     try {
       setFeedback(null);
       setFeedbackTone(null);
@@ -77,20 +70,24 @@ export default function CampaignDetailScreen() {
     }
   }
 
+  // ── Loading / not found ──────────────────────────────────────────
   if (!row) {
     return (
       <PremiumScroll>
         <GlassCard>
-          <Text className="text-base text-surface-300">
-            {campaign.isLoading ? "Loading opportunity..." : "Opportunity not found."}
+          <Text className="text-sm text-[#a59a86]">
+            {campaign.isLoading ? "Loading opportunity…" : "Opportunity not found."}
           </Text>
         </GlassCard>
       </PremiumScroll>
     );
   }
 
+  // ── Campaign detail ────────────────────────────────────────────
   return (
     <PremiumScroll>
+
+      {/* ── Hero card ── */}
       <FadeInSection>
         <GlassCard>
           <SectionTitle
@@ -99,24 +96,44 @@ export default function CampaignDetailScreen() {
             description={row.short_description || row.description || "Campaign brief unavailable."}
           />
 
-          <View className="mt-6 flex-row flex-wrap gap-2">
-            <HeroChip>{row.cash_amount ? formatCurrency(row.cash_amount) : "Product-led"}</HeroChip>
-            <HeroChip>{row.credit_cost_per_slot ?? row.credit_cost} credits</HeroChip>
+          {/* Primary stats: payout + deadline */}
+          <View className="mt-5 flex-row flex-wrap gap-2">
+            <HeroChip>{row.cash_amount ? formatCurrency(row.cash_amount) : "Product gifting"}</HeroChip>
             <HeroChip>{formatDeadline(row.application_deadline)}</HeroChip>
-            <HeroChip>{row.brand?.company_name ?? "Unknown brand"}</HeroChip>
           </View>
+
+          {/* Application cost */}
+          <Text className="mt-3 text-xs text-[#a59a86]">
+            Costs {creditCost} {creditCost === 1 ? "credit" : "credits"} to apply
+          </Text>
         </GlassCard>
       </FadeInSection>
 
       <FadeInSection className="mt-6 gap-4" delay={80}>
+
+        {/* ── Brand ── */}
         <SectionBlock>
           <SectionEyebrow>Brand</SectionEyebrow>
-          <Text className="mt-2 text-lg font-semibold text-[#fbf8f4]">{row.brand?.company_name ?? "Unknown"}</Text>
-          <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
-            Review score {row.brand?.review_score ?? "—"} • Payment rate {row.brand?.payment_rate ?? "—"}
+          <Text className="mt-2 text-base font-semibold text-[#fbf8f4]">
+            {row.brand?.company_name ?? "Unknown brand"}
           </Text>
+          <View className="mt-3 flex-row gap-4">
+            <View>
+              <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">Review score</Text>
+              <Text className="mt-1 text-base font-semibold text-[#fbf8f4]">
+                {row.brand?.review_score ?? "—"}
+              </Text>
+            </View>
+            <View>
+              <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">Payment rate</Text>
+              <Text className="mt-1 text-base font-semibold text-[#fbf8f4]">
+                {row.brand?.payment_rate ?? "—"}
+              </Text>
+            </View>
+          </View>
         </SectionBlock>
 
+        {/* ── Required content ── */}
         <SectionBlock>
           <SectionEyebrow>Required content</SectionEyebrow>
           <Text className="mt-2 text-sm leading-6 text-[#d7cdbd]">
@@ -124,51 +141,72 @@ export default function CampaignDetailScreen() {
           </Text>
         </SectionBlock>
 
-        <SectionBlock>
-          <SectionEyebrow>Hashtags</SectionEyebrow>
-          <View className="mt-3 flex-row flex-wrap gap-2">
-            {(row.required_hashtags ?? []).map((tag) => (
-              <HeroChip key={tag}>{tag}</HeroChip>
-            ))}
-          </View>
-        </SectionBlock>
+        {/* ── Hashtags ── */}
+        {(row.required_hashtags ?? []).length > 0 ? (
+          <SectionBlock>
+            <SectionEyebrow>Required hashtags</SectionEyebrow>
+            <View className="mt-3 flex-row flex-wrap gap-2">
+              {(row.required_hashtags ?? []).map((tag) => (
+                <HeroChip key={tag}>{tag}</HeroChip>
+              ))}
+            </View>
+          </SectionBlock>
+        ) : null}
 
+        {/* ── Pitch input (paid + hybrid only) ── */}
         {requiresPitch ? (
           <SoftCard>
-            <Text className="text-sm font-medium text-surface-300">Pitch message</Text>
+            <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">Your pitch</Text>
             <TextInput
-              className="mt-3 min-h-[132px] rounded-[22px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-base text-[#fbf8f4]"
+              className="mt-3 min-h-[132px] rounded-[16px] border border-white/10 bg-[#0d0f0c] px-4 py-4 text-sm text-[#fbf8f4]"
               multiline
               onChangeText={setMessage}
-              placeholder="Tell the cannabis brand why your content fits this brief. Paid and hybrid briefs require 50-500 characters."
-              placeholderTextColor="#a59a86"
+              placeholder="Tell the brand why your content fits this brief. Paid and hybrid briefs require 50–500 characters."
+              placeholderTextColor="#5a5957"
               textAlignVertical="top"
               value={message}
             />
+            <Text className="mt-2 text-xs text-[#a59a86]">
+              {message.length} / 500 characters
+            </Text>
           </SoftCard>
         ) : null}
 
+        {/* ── Feedback ── */}
         {feedback ? (
           <InfoTile label={feedbackTone === "success" ? "Application sent" : "Application blocked"}>
-            <Text className={`text-sm leading-6 ${feedbackTone === "success" ? "text-herb-300" : "text-[#d7a07d]"}`}>
-              {feedback}
-            </Text>
+            {feedbackTone === "success"
+              ? `✓ ${feedback}`
+              : `✕ ${feedback}`}
           </InfoTile>
         ) : null}
 
-        <View className="mb-8 mt-2 flex-row flex-wrap gap-3">
-          <HeroChip>{profile?.credits_balance ?? 0} credits available</HeroChip>
-          <Link asChild href="/store">
-            <SecondaryPill>Back to opportunities</SecondaryPill>
-          </Link>
-          <PrimaryPill
-            className={applied ? "opacity-50" : ""}
-            disabled={applied || applyMutation.isPending}
-            onPress={handleApply}
-          >
-            {applied ? "Already applied" : applyMutation.isPending ? "Applying..." : "Apply now"}
-          </PrimaryPill>
+        {/* ── Actions ── */}
+        <View className="mb-8 gap-3">
+          {/* Credits balance line */}
+          <Text className="text-xs text-[#a59a86]">
+            You have {creditsBalance} {creditsBalance === 1 ? "credit" : "credits"} · this brief costs {creditCost}
+          </Text>
+
+          {/* CTA row */}
+          <View className="flex-row gap-3">
+            <Link asChild href="/store">
+              <SecondaryPill>Back</SecondaryPill>
+            </Link>
+            <PrimaryPill
+              className={`flex-1 ${applied ? "opacity-50" : ""}`}
+              disabled={applied || applyMutation.isPending}
+              onPress={handleApply}
+            >
+              {applied
+                ? "Already applied"
+                : applyMutation.isPending
+                ? "Applying…"
+                : "Apply now"}
+            </PrimaryPill>
+          </View>
         </View>
+
       </FadeInSection>
     </PremiumScroll>
   );

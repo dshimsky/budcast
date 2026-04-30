@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BudCast BC Content Tile Concept</title>
+    <style>
+      :root {
+        --bg: #0a0a0b;
+        --panel: rgba(255, 255, 255, 0.045);
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f7f7f2;
+        --muted: #a8a49c;
+        --lime: #b8ff3d;
+        --red: #d94f35;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 16% 0%, rgba(184, 255, 61, 0.1), transparent 26%),
+          radial-gradient(circle at 82% 0%, rgba(217, 79, 53, 0.09), transparent 30%),
+          linear-gradient(180deg, #0a0a0b, #050505 70%);
+        color: var(--text);
+        font-family: "Barlow Condensed", "Avenir Next Condensed", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      main {
+        width: min(1320px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 42px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+        gap: 22px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 36px;
+        background: var(--panel);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .intro,
+      .logo-stage,
+      .spec {
+        padding: 34px;
+      }
+
+      .eyebrow {
+        color: var(--lime);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 640px;
+        margin: 18px 0 0;
+        font-size: clamp(58px, 8.4vw, 112px);
+        font-weight: 700;
+        line-height: 0.82;
+        letter-spacing: -0.075em;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 34px;
+        line-height: 0.94;
+        letter-spacing: -0.045em;
+      }
+
+      p {
+        color: var(--muted);
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .primary {
+        display: grid;
+        min-height: 430px;
+        place-items: center;
+      }
+
+      .primary img {
+        width: min(100%, 860px);
+        height: auto;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .spec {
+        min-height: 310px;
+      }
+
+      .spec img {
+        display: block;
+        margin: 24px auto 18px;
+      }
+
+      .usage {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .phone {
+        min-height: 610px;
+        border-radius: 44px;
+        padding: 14px;
+      }
+
+      .screen {
+        min-height: 580px;
+        overflow: hidden;
+        border-radius: 32px;
+        background: #0a0a0b;
+      }
+
+      .app-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .app-top img {
+        width: 48px;
+        height: 48px;
+      }
+
+      .feed {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .post {
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .desktop {
+        min-height: 610px;
+        overflow: hidden;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 22px 26px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav img {
+        width: 190px;
+        height: auto;
+      }
+
+      .button {
+        border-radius: 999px;
+        padding: 12px 18px;
+        background: var(--lime);
+        color: #0a0a0b;
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .hero-copy {
+        padding: 52px 42px;
+      }
+
+      .hero-copy h2 {
+        max-width: 620px;
+        font-size: clamp(46px, 6vw, 78px);
+      }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .mini {
+        display: grid;
+        min-height: 140px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      code {
+        color: var(--lime);
+      }
+
+      @media (max-width: 980px) {
+        main {
+          width: min(100% - 20px, 560px);
+          padding-top: 24px;
+        }
+
+        .hero,
+        .grid,
+        .usage,
+        .comparison {
+          grid-template-columns: 1fr;
+        }
+
+        .intro,
+        .logo-stage,
+        .spec,
+        .hero-copy {
+          padding: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <article class="card intro">
+          <div class="eyebrow">New direction · BC Content Tile</div>
+          <h1>Less broadcast icon. More ownable app brand.</h1>
+          <p>
+            This direction leaves the node-and-wave language behind. It uses a custom BC monogram inside a media tile,
+            aiming for a premium social marketplace identity that can stand beside Instagram/X-style app surfaces.
+          </p>
+          <p><strong>Intent:</strong> creator marketplace, campaign card, app icon, brand monogram. No cannabis leaf. No broadcast arcs.</p>
+        </article>
+
+        <article class="card primary">
+          <img src="budcast-bc-tile-primary.svg" alt="BudCast BC Content Tile primary logo" />
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card spec">
+          <h2>Icon-only</h2>
+          <img src="budcast-bc-tile-icon.svg" alt="BudCast BC tile icon" style="width:154px;height:154px;" />
+          <p>Rounded media tile silhouette with a custom BC interior.</p>
+        </article>
+        <article class="card spec">
+          <h2>Micro icon</h2>
+          <img src="budcast-bc-tile-micro.svg" alt="BudCast BC tile micro icon" style="width:96px;height:96px;" />
+          <p>Simplified detail for favicon, bottom bars, and small UI use.</p>
+        </article>
+        <article class="card spec">
+          <h2>Monochrome</h2>
+          <img src="budcast-bc-tile-mono.svg" alt="BudCast BC tile monochrome" style="width:154px;height:154px;" />
+          <p>One-color production version. More brand stamp than tech signal.</p>
+        </article>
+        <article class="card spec">
+          <h2>Small-size check</h2>
+          <div class="comparison">
+            <div class="mini"><img src="budcast-bc-tile-icon.svg" alt="" style="width:72px;height:72px;" /></div>
+            <div class="mini"><img src="budcast-bc-tile-icon.svg" alt="" style="width:48px;height:48px;" /></div>
+            <div class="mini"><img src="budcast-bc-tile-micro.svg" alt="" style="width:32px;height:32px;" /></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="usage">
+        <article class="card phone">
+          <div class="screen">
+            <div class="app-top">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <img src="budcast-bc-tile-icon.svg" alt="BudCast app icon" />
+                <div>
+                  <div style="font-size:18px;font-weight:700;">BudCast</div>
+                  <p style="margin:2px 0 0;font-size:12px;">@creatorhandle</p>
+                </div>
+              </div>
+              <div class="button">Filter</div>
+            </div>
+            <div class="feed">
+              <div class="post">
+                <div class="eyebrow">Campaign feed</div>
+                <h2>Paid drops for creators.</h2>
+              </div>
+              <div class="post">Shiminsky Cannabis · Paid + Product · Reel</div>
+              <div class="post">North Coast Supply · Paid · UGC Video</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card desktop">
+          <div class="nav">
+            <img src="budcast-bc-tile-primary.svg" alt="BudCast primary logo" />
+            <div class="button">Create Account</div>
+          </div>
+          <div class="hero-copy">
+            <div class="eyebrow">Creator marketplace for cannabis brands</div>
+            <h2>Find campaigns. Create content. Get paid for it.</h2>
+            <p>
+              This concept feels more like a social marketplace app icon than a broadcast/network diagram.
+            </p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

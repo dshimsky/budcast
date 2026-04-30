@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BudCast Concept 2B Approved Logo Preview</title>
+    <style>
+      :root {
+        --bg: #050505;
+        --panel: rgba(255, 255, 255, 0.045);
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f7f7f2;
+        --muted: #a8a49c;
+        --lime: #b8ff3d;
+        --red: #d94f35;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 12% 0%, rgba(184, 255, 61, 0.09), transparent 30%),
+          radial-gradient(circle at 90% 6%, rgba(217, 79, 53, 0.08), transparent 28%),
+          linear-gradient(180deg, #050505, #080808 55%, #030303);
+        color: var(--text);
+        font-family: Avenir Next, Helvetica Neue, Arial, sans-serif;
+      }
+
+      main {
+        width: min(1440px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 72px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .card {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 36px;
+        background: var(--panel);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .intro {
+        padding: 38px;
+      }
+
+      .eyebrow {
+        color: var(--lime);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 720px;
+        margin: 18px 0 0;
+        font-size: clamp(48px, 7vw, 98px);
+        line-height: 0.88;
+        letter-spacing: -0.078em;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 34px;
+        line-height: 0.96;
+        letter-spacing: -0.045em;
+      }
+
+      p {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .logo-stage {
+        display: grid;
+        min-height: 430px;
+        place-items: center;
+        padding: 30px;
+        background: #030303;
+      }
+
+      .main-logo {
+        width: min(100%, 980px);
+        height: auto;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .spec {
+        min-height: 310px;
+        padding: 24px;
+      }
+
+      .spec img {
+        display: block;
+        margin: 24px auto 18px;
+        max-width: 100%;
+      }
+
+      .usage {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .phone {
+        min-height: 650px;
+        border-radius: 44px;
+        padding: 14px;
+      }
+
+      .screen {
+        min-height: 620px;
+        overflow: hidden;
+        border-radius: 32px;
+        background: #050505;
+      }
+
+      .app-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .app-top img {
+        width: 58px;
+        height: auto;
+      }
+
+      .button {
+        border-radius: 999px;
+        padding: 12px 18px;
+        background: linear-gradient(180deg, #caff38, #9de300);
+        color: #070707;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .feed {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .post {
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .desktop {
+        min-height: 650px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 22px 28px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav img {
+        width: 250px;
+        height: auto;
+      }
+
+      .landing {
+        padding: 54px 44px;
+      }
+
+      .landing h2 {
+        max-width: 650px;
+        font-size: clamp(44px, 6vw, 76px);
+      }
+
+      .sidebar-demo {
+        display: grid;
+        grid-template-columns: 270px 1fr;
+        min-height: 500px;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--line);
+        padding: 20px;
+      }
+
+      .sidebar img {
+        width: 132px;
+        height: auto;
+      }
+
+      .menu {
+        display: grid;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .item {
+        border-radius: 18px;
+        padding: 13px 14px;
+        background: rgba(255, 255, 255, 0.04);
+        color: #d0d0c8;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .item.active {
+        color: #050505;
+        background: var(--lime);
+      }
+
+      code {
+        color: var(--lime);
+      }
+
+      @media (max-width: 980px) {
+        main {
+          width: min(100% - 20px, 560px);
+          padding-top: 22px;
+        }
+
+        .hero,
+        .grid,
+        .usage,
+        .sidebar-demo {
+          grid-template-columns: 1fr;
+        }
+
+        .intro,
+        .logo-stage,
+        .spec,
+        .landing {
+          padding: 22px;
+        }
+
+        .nav img {
+          width: 180px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <article class="card intro">
+          <div class="eyebrow">Approved logo direction · Concept 2B</div>
+          <h1>BC monogram with creator broadcast energy.</h1>
+          <p>
+            This becomes the new brand source of truth. It feels more social, louder, more memorable, and more platform-native than the earlier node/arc explorations.
+          </p>
+          <p>
+            Source files are preserved in <code>apps/web/public/brand/concept-2b</code>. Generated tight crops are ready for app testing. Final vector/SVG tracing can happen after we lock placement and sizing.
+          </p>
+        </article>
+
+        <article class="card logo-stage">
+          <img class="main-logo" src="budcast-logo-main-tight.png" alt="BudCast main logo" />
+        </article>
+      </section>
+
+      <section class="grid">
+        <article class="card spec">
+          <h2>Square app icon</h2>
+          <img src="budcast-icon-square.png" alt="BudCast square app icon" style="width:170px;" />
+          <p>Best default App Store / home screen direction. Strongest silhouette and closest to the supplied icon system.</p>
+        </article>
+        <article class="card spec">
+          <h2>Circle icon</h2>
+          <img src="budcast-icon-circle.png" alt="BudCast circle app icon" style="width:170px;" />
+          <p>Useful for profile/system avatars, but less iOS-native as primary app icon.</p>
+        </article>
+        <article class="card spec">
+          <h2>Monogram</h2>
+          <img src="budcast-monogram.png" alt="BudCast monogram" style="width:210px;" />
+          <p>Best for app shell headers, bottom navigation, loading states, and compact brand moments where the full lockup is too wide.</p>
+        </article>
+        <article class="card spec">
+          <h2>Favicon</h2>
+          <img src="budcast-favicon-128.png" alt="BudCast favicon" style="width:128px;" />
+          <p>Small-size asset extracted from your icon board.</p>
+        </article>
+      </section>
+
+      <section class="usage">
+        <article class="card phone">
+          <div class="screen">
+            <div class="app-top">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <img src="budcast-monogram-transparent.png" alt="BudCast monogram" />
+                <div>
+                  <div style="font-size:18px;font-weight:900;">BudCast</div>
+                  <p style="margin:2px 0 0;font-size:12px;">@creatorhandle</p>
+                </div>
+              </div>
+              <div class="button">Filter</div>
+            </div>
+            <div class="feed">
+              <div class="post">
+                <div class="eyebrow">Campaign feed</div>
+                <h2>Paid drops for creators.</h2>
+              </div>
+              <div class="post">Shiminsky Cannabis · Paid + Product · Reel</div>
+              <div class="post">North Coast Supply · Paid · UGC Video</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card desktop">
+          <div class="nav">
+            <img src="budcast-logo-main-transparent.png" alt="BudCast main logo" />
+            <div class="button">Create Account</div>
+          </div>
+          <div class="landing">
+            <div class="eyebrow">Creator marketplace for cannabis brands</div>
+            <h2>Find campaigns. Create content. Get paid for it.</h2>
+            <p>The full logo has enough weight for the public marketplace header and auth surfaces.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="card sidebar-demo" style="margin-top:18px;">
+        <aside class="sidebar">
+          <img src="budcast-monogram-transparent.png" alt="BudCast monogram" />
+          <div class="eyebrow" style="margin-top:18px;">Brand portal</div>
+          <h2 style="margin-top:8px;">Shiminsky Cannabis</h2>
+          <nav class="menu">
+            <div class="item active">Campaign control</div>
+            <div class="item">Messages</div>
+            <div class="item">Post campaign</div>
+            <div class="item">Brand profile</div>
+          </nav>
+        </aside>
+        <section class="landing">
+          <div class="eyebrow">Dashboard placement</div>
+          <h2>Use the monogram in app shells. Use the full logo for public trust moments.</h2>
+          <p>This keeps the marketplace feeling premium and product-native instead of turning every screen into a logo billboard.</p>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
