@@ -19,7 +19,7 @@ type SubmissionCreatorSummary = Pick<
 >;
 type SubmissionOpportunitySummary = Pick<
   Opportunity,
-  "id" | "title" | "campaign_type" | "application_deadline" | "payment_methods" | "content_types"
+  "id" | "title" | "campaign_type" | "application_deadline" | "payment_methods" | "content_types" | "rights_confirmed"
 > & { brand: SubmissionBrandSummary | null };
 
 export interface SubmissionPipelineRow extends Application {
@@ -95,7 +95,7 @@ export function useMySubmissionPipeline() {
           `
           *,
           opportunity:opportunities!applications_opportunity_id_fkey (
-            id, title, campaign_type, application_deadline, payment_methods, content_types,
+            id, title, campaign_type, application_deadline, payment_methods, content_types, rights_confirmed,
             brand:users!opportunities_brand_id_fkey (
               id, company_name, avatar_url
             )
@@ -133,7 +133,7 @@ export function useBrandSubmissionQueue() {
             id, name, avatar_url, badges, instagram, tiktok, youtube, niches, review_score, review_count
           ),
           opportunity:opportunities!inner (
-            id, title, campaign_type, application_deadline, payment_methods, content_types, brand_id,
+            id, title, campaign_type, application_deadline, payment_methods, content_types, rights_confirmed, brand_id,
             brand:users!opportunities_brand_id_fkey (
               id, company_name, avatar_url
             )

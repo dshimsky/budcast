@@ -4,10 +4,9 @@
  *
  * Gifting workflow is created server-side when a brand accepts a creator
  * on a gifting or hybrid campaign. The brand uses this hook to see
- * the current status and mark product as arranged (brand_shipped).
+ * the current status and mark product as arranged.
  *
- * COMPLIANCE NOTE: BudCast never facilitates cannabis sale, delivery,
- * or pickup. This hook tracks brand-creator collaboration status only.
+ * COMPLIANCE NOTE: BudCast tracks brand-creator collaboration status only.
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,23 +41,27 @@ export function useGiftingWorkflow(applicationId: string | null | undefined) {
 export interface UpdateGiftingStatusInput {
   applicationId: string;
   status: GiftingWorkflowStatus;
-  brand_contact_method?: string;
+  note?: string;
 }
 
 export function useUpdateGiftingStatus() {
   const queryClient = useQueryClient();
 
   return useMutation<void, unknown, UpdateGiftingStatusInput>({
-    mutationFn: async ({ applicationId, status, brand_contact_method }) => {
-      const update: Record<string, unknown> = { status };
-      if (brand_contact_method?.trim()) {
-        update.brand_contact_method = brand_contact_method.trim();
-        update.brand_contact_at = new Date().toISOString();
-      }
-      const { error } = await supabase
+    mutationFn: async ({ applicationId, status, note }) => {
+      const { data: workflow, error: workflowError } = await supabase
         .from("gifting_workflow")
-        .update(update)
-        .eq("application_id", applicationId);
+        .select("id")
+        .eq("application_id", applicationId)
+        .maybeSingle();
+      if (workflowError) throw workflowError;
+      if (!workflow?.id) throw new Error("GIFTING_WORKFLOW_NOT_FOUND");
+
+      const { error } = await supabase.rpc("update_gifting_status", {
+        p_gifting_id: workflow.id,
+        p_new_status: status,
+        p_notes: note?.trim() || null,
+      });
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
@@ -84,15 +87,19 @@ export function useCreatorConfirmReceipt() {
 
   return useMutation<void, unknown, CreatorConfirmReceiptInput>({
     mutationFn: async ({ applicationId, creator_feedback }) => {
-      const update: Record<string, unknown> = {
-        status: 'creator_received',
-        creator_received_at: new Date().toISOString(),
-      };
-      if (creator_feedback?.trim()) update.creator_feedback = creator_feedback.trim();
-      const { error } = await supabase
+      const { data: workflow, error: workflowError } = await supabase
         .from("gifting_workflow")
-        .update(update)
-        .eq("application_id", applicationId);
+        .select("id")
+        .eq("application_id", applicationId)
+        .maybeSingle();
+      if (workflowError) throw workflowError;
+      if (!workflow?.id) throw new Error("GIFTING_WORKFLOW_NOT_FOUND");
+
+      const { error } = await supabase.rpc("update_gifting_status", {
+        p_gifting_id: workflow.id,
+        p_new_status: "creator_received",
+        p_notes: creator_feedback?.trim() || null,
+      });
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
@@ -114,14 +121,19 @@ export function useCreatorDeclineGifting() {
 
   return useMutation<void, unknown, CreatorDeclineGiftingInput>({
     mutationFn: async ({ applicationId, substitution_notes }) => {
-      const update: Record<string, unknown> = {
-        status: substitution_notes?.trim() ? 'substitution_requested' : 'creator_declined',
-      };
-      if (substitution_notes?.trim()) update.substitution_notes = substitution_notes.trim();
-      const { error } = await supabase
+      const { data: workflow, error: workflowError } = await supabase
         .from("gifting_workflow")
-        .update(update)
-        .eq("application_id", applicationId);
+        .select("id")
+        .eq("application_id", applicationId)
+        .maybeSingle();
+      if (workflowError) throw workflowError;
+      if (!workflow?.id) throw new Error("GIFTING_WORKFLOW_NOT_FOUND");
+
+      const { error } = await supabase.rpc("update_gifting_status", {
+        p_gifting_id: workflow.id,
+        p_new_status: substitution_notes?.trim() ? "substitution_requested" : "creator_declined",
+        p_notes: substitution_notes?.trim() || null,
+      });
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {

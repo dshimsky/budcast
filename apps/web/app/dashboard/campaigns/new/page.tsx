@@ -7,7 +7,9 @@ import {
   formatCompensationLabel,
   formatCurrency,
   formatDeadline,
+  getTrustComplianceGateCopy,
   hasCompletedOnboarding,
+  hasCompletedTrustCompliance,
   selectBalanceAfterPublish,
   selectCanPublish,
   selectCreditCost,
@@ -85,7 +87,7 @@ const BUILDER_STEP_HELPER: Record<StepNumber, string> = {
 const compensationDetails: Record<"gifting" | "paid" | "hybrid", { title: string; body: string; detail: string }> = {
   gifting: {
     title: "Product",
-    body: "Product-based campaign with pickup or coordination handled through messages.",
+    body: "Product-based campaign with brand-managed coordination handled through messages.",
     detail: "Best for reviews, demos, and local product experiences."
   },
   paid: {
@@ -249,6 +251,8 @@ export default function NewCampaignPage() {
   const drafts = useDrafts();
   const publishMutation = usePublishCampaign();
   const canManageCampaigns = Boolean(brandContext && canBrandTeamRole(brandContext.role, "manage_campaigns"));
+  const complianceProfile = brandTeamBrand ?? profile;
+  const trustReady = hasCompletedTrustCompliance(complianceProfile);
   const brandBalance = brandTeamBrand?.credits_balance ?? profile?.credits_balance ?? 0;
   const previewBrandName = brandTeamBrand?.company_name || profile?.company_name || profile?.name || "Your brand";
   useAutosaveDraft(canManageCampaigns);
@@ -268,10 +272,10 @@ export default function NewCampaignPage() {
       router.replace("/sign-in");
       return;
     }
-    if (!loading && session && !hasCompletedOnboarding(profile)) {
+    if (!loading && session && (!hasCompletedOnboarding(profile) || !hasCompletedTrustCompliance(complianceProfile))) {
       router.replace("/onboarding");
     }
-  }, [loading, profile, router, session]);
+  }, [complianceProfile, loading, profile, router, session]);
 
   useEffect(() => {
     if (!profile || !brandContext) return;
@@ -404,6 +408,18 @@ export default function NewCampaignPage() {
         eyebrow="Routing to setup"
         title="A few setup details come first."
         description="The campaign builder unlocks after onboarding so creators can see a complete brand profile."
+        primaryAction={{ href: "/onboarding", label: "Finish setup" }}
+        secondaryAction={{ href: "/dashboard", label: "Back to dashboard" }}
+      />
+    );
+  }
+
+  if (!trustReady) {
+    return (
+      <RouteTransitionScreen
+        eyebrow="Compliance setup"
+        title="Complete trust setup before publishing."
+        description={getTrustComplianceGateCopy(complianceProfile)}
         primaryAction={{ href: "/onboarding", label: "Finish setup" }}
         secondaryAction={{ href: "/dashboard", label: "Back to dashboard" }}
       />
@@ -649,7 +665,7 @@ export default function NewCampaignPage() {
                   <Eyebrow>Step 3</Eyebrow>
                   <h2 className="mt-2 text-4xl font-black tracking-[-0.05em] text-[#fbfbf7]">Creator compensation</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-[#d8ded1]">
-                    Be specific about pay, product details, and how creators should coordinate pickup, payment, or next steps through messages.
+                    Be specific about pay, product details, and how creators should coordinate campaign logistics and next steps through messages.
                   </p>
                 </div>
                 {(state.campaign_type === "paid" || state.campaign_type === "hybrid") ? (
@@ -690,7 +706,7 @@ export default function NewCampaignPage() {
                     Product details for creators
                     <textarea
                       className={textAreaClassName}
-                      placeholder="Describe the product experience and explain that coordination happens through BudCast messages. Do not promise shipment for cannabis products."
+                      placeholder="Describe the product experience and explain that brand-managed coordination happens through BudCast messages."
                       onChange={(event) =>
                         useCampaignForm.getState().patch({ product_description: event.target.value })
                       }
@@ -743,7 +759,7 @@ export default function NewCampaignPage() {
                   />
                 </label>
                 <div className="rounded-[24px] border border-[#b8ff3d]/20 bg-[#b8ff3d]/8 p-4 text-sm leading-6 text-[#d8ded1]">
-                  Cannabis-safe brief note: keep requests clear and brand-safe. Avoid medical claims, purchase CTAs,
+                  Cannabis-safe brief note: keep requests clear and brand-safe. Avoid medical claims, direct sales CTAs,
                   overconsumption language, or content that could appear targeted to minors.
                 </div>
 
@@ -838,7 +854,7 @@ export default function NewCampaignPage() {
                         <input
                           aria-label={`Off-limits item ${index + 1}`}
                           className={compactInputClassName}
-                          placeholder="Example: No medical claims or purchase instructions"
+                          placeholder="Example: No medical claims or direct sales instructions"
                           onChange={(event) =>
                             useCampaignForm.getState().updateBullet("off_limits", index, event.target.value)
                           }
@@ -1214,6 +1230,18 @@ export default function NewCampaignPage() {
                   </div>
 
                   {/* Compliance checklist */}
+                  <label className="flex items-start gap-3 cursor-pointer border-t border-white/10 pt-4 mt-4">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 h-4 w-4 accent-[#b8ff3d] shrink-0"
+                      checked={Boolean(state.rights_confirmed)}
+                      onChange={(e) => patch({ rights_confirmed: e.target.checked })}
+                    />
+                    <span className="text-xs leading-5 text-white/50">
+                      I confirm these usage rights are final for this campaign and will be visible to creators before they apply.
+                    </span>
+                  </label>
+
                   <label className="flex items-start gap-3 cursor-pointer border-t border-white/10 pt-4 mt-4">
                     <input
                       type="checkbox"

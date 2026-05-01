@@ -14,9 +14,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../auth/useAuth";
+import { hasCompletedTrustCompliance } from "../lib/profile";
 
 export type ApplyErrorKey =
   | 'USER_NOT_CREATOR'
+  | 'COMPLIANCE_REQUIRED'
   | 'OPPORTUNITY_NOT_AVAILABLE'
   | 'OPPORTUNITY_FULL'
   | 'ALREADY_APPLIED'
@@ -38,6 +40,7 @@ export interface ApplyToCampaignResult {
 
 const KNOWN_ERROR_KEYS: ApplyErrorKey[] = [
   'USER_NOT_CREATOR',
+  'COMPLIANCE_REQUIRED',
   'OPPORTUNITY_NOT_AVAILABLE',
   'OPPORTUNITY_FULL',
   'ALREADY_APPLIED',
@@ -68,6 +71,9 @@ export function useApplyToCampaign() {
     mutationFn: async (input) => {
       if (!profile?.id) {
         throw new Error('NOT_SIGNED_IN');
+      }
+      if (!hasCompletedTrustCompliance(profile)) {
+        throw new Error('COMPLIANCE_REQUIRED');
       }
       const { data, error } = await supabase.rpc('apply_to_campaign_rpc', {
         p_creator_id: profile.id,

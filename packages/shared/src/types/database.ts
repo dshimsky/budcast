@@ -152,6 +152,17 @@ export interface User {
   credits_rollover_last_month: number;
   last_credit_refresh: string | null;
 
+  // Trust and cannabis compliance
+  date_of_birth: string | null;
+  age_verified: boolean;
+  age_verified_at: string | null;
+  state_code: string | null;
+  market_eligible: boolean;
+  terms_accepted_at: string | null;
+  terms_policy_version: string | null;
+  terms_ip_address: string | null;
+  compliance_step: string | null;
+
   // Reputation
   payment_rate: number | null;
   completion_rate: number | null;
@@ -367,6 +378,26 @@ export interface Opportunity {
   image_url: string | null;
   status: CampaignStatus;
   approval_mode: ApprovalMode;
+  rights_organic_repost: boolean;
+  rights_paid_ads: boolean;
+  rights_whitelisting: boolean;
+  rights_handle_licensing: boolean;
+  rights_duration_days: number | null;
+  rights_expires_at: string | null;
+  rights_territory: string;
+  rights_exclusive: boolean;
+  rights_exclusivity_days: number | null;
+  rights_no_ai_training: boolean;
+  rights_revocable: boolean;
+  rights_revocation_notice_days: number | null;
+  rights_confirmed: boolean;
+  rights_confirmed_at: string | null;
+  eligible_states: string[];
+  target_platforms: string[];
+  disclosure_tags: string[];
+  prohibited_content: string[];
+  compliance_checklist_done: boolean;
+  min_applicant_age: number;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -413,7 +444,10 @@ export interface OpportunityDraftFormState {
   // Compliance fields (from migration 028)
   eligible_states?: string[];
   target_platforms?: string[];
+  disclosure_tags?: string[];
+  prohibited_content?: string[];
   compliance_checklist_done?: boolean;
+  min_applicant_age?: number;
 }
 
 export interface OpportunityDraft {

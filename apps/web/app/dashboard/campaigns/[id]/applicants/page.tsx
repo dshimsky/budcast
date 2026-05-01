@@ -5,7 +5,9 @@ import {
   formatCompact,
   formatCount,
   formatDeadline,
+  getTrustComplianceGateCopy,
   hasCompletedOnboarding,
+  hasCompletedTrustCompliance,
   parseReviewError,
   useAuth,
   useCampaign,
@@ -225,13 +227,13 @@ function GiftingWorkflowPanel({ applicationId }: { applicationId: string }) {
               </div>
               <input
                 type="text"
-                placeholder="e.g. emailed creator, in-store pickup arranged off-platform"
+                placeholder="e.g. brand contacted creator with off-platform product status"
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-[#fbfbf7] placeholder:text-white/25 focus:border-[#b8ff3d]/40 focus:outline-none"
                 value={contactMethod}
                 onChange={(e) => setContactMethod(e.target.value)}
               />
               <p className="text-[10px] leading-4 text-white/25">
-                BudCast does not arrange delivery. This records your off-platform contact only.
+                BudCast records collaboration status only. Regulated product logistics stay off platform.
               </p>
               <button
                 type="button"
@@ -240,7 +242,7 @@ function GiftingWorkflowPanel({ applicationId }: { applicationId: string }) {
                   updateStatus.mutate({
                     applicationId,
                     status: "brand_shipped",
-                    brand_contact_method: contactMethod.trim(),
+                    note: contactMethod.trim(),
                   })
                 }
                 className="rounded-full bg-[#b8ff3d] px-4 py-1.5 text-xs font-bold text-black transition-opacity disabled:opacity-40"
@@ -420,7 +422,7 @@ function ApplicantReviewCard({
 export default function CampaignApplicantsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { brandContext, loading, session, profile } = useAuth();
+  const { brandContext, brandTeamBrand, loading, session, profile } = useAuth();
   const campaign = useCampaign(params.id);
   const [activeTab, setActiveTab] = useState<ApplicantTab>("pending");
   const applicants = useCampaignApplicants(params.id, activeTab);
@@ -432,14 +434,15 @@ export default function CampaignApplicantsPage() {
       router.replace("/sign-in");
       return;
     }
-    if (!loading && session && !hasCompletedOnboarding(profile)) {
+    const complianceProfile = brandTeamBrand ?? profile;
+    if (!loading && session && (!hasCompletedOnboarding(profile) || !hasCompletedTrustCompliance(complianceProfile))) {
       router.replace("/onboarding");
       return;
     }
     if (!loading && profile?.user_type && !brandContext) {
       router.replace("/dashboard");
     }
-  }, [brandContext, loading, profile, router, session]);
+  }, [brandContext, brandTeamBrand, loading, profile, router, session]);
 
   async function handleDecision(applicationId: string, decision: "accept" | "reject") {
     if (!params.id) return;
@@ -479,6 +482,18 @@ export default function CampaignApplicantsPage() {
         description="Applicant review unlocks once your brand profile is fully routed and ready."
         eyebrow="Routing to setup"
         title="Onboarding needs to finish first."
+      />
+    );
+  }
+
+  if (!hasCompletedTrustCompliance(brandTeamBrand ?? profile)) {
+    return (
+      <RouteTransitionScreen
+        description={getTrustComplianceGateCopy(brandTeamBrand ?? profile)}
+        eyebrow="Compliance setup"
+        title="Complete trust setup before reviewing applicants."
+        primaryAction={{ href: "/onboarding", label: "Finish setup" }}
+        secondaryAction={{ href: "/dashboard", label: "Back to dashboard" }}
       />
     );
   }
@@ -644,7 +659,7 @@ export default function CampaignApplicantsPage() {
             title="Acceptance opens the assignment"
           />
           <WorkQueueItem
-            description="Use messages after acceptance to coordinate pickup, usage context, timing, and payment details."
+            description="Use messages after acceptance to coordinate campaign timing, usage context, product status, and payment details."
             title="Coordinate after acceptance"
           />
         </section>

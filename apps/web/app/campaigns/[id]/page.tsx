@@ -9,7 +9,9 @@ import {
   getCompensationLabel,
   getCompensationValue,
   getPlatformTarget,
+  getTrustComplianceGateCopy,
   hasCompletedOnboarding,
+  hasCompletedTrustCompliance,
   parseApplyError,
   useApplyToCampaign,
   useAuth,
@@ -55,6 +57,8 @@ function applyCopy(key: ReturnType<typeof parseApplyError>) {
       return "This campaign is no longer accepting applications.";
     case "USER_NOT_CREATOR":
       return "Only creator accounts can apply to campaigns.";
+    case "COMPLIANCE_REQUIRED":
+      return "Finish age, state, and terms setup before applying.";
     default:
       return "Application could not be submitted.";
   }
@@ -262,6 +266,10 @@ export default function CreatorCampaignDetailPage() {
       router.replace("/onboarding");
       return;
     }
+    if (!loading && session && !hasCompletedTrustCompliance(profile)) {
+      router.replace("/onboarding");
+      return;
+    }
     if (!loading && profile?.user_type === "brand") {
       router.replace("/dashboard");
     }
@@ -311,6 +319,18 @@ export default function CreatorCampaignDetailPage() {
         title="Finish your creator profile before applying."
         description="Brands review your profile beside every campaign application."
         primaryAction={{ href: "/profile/edit", label: "Edit profile" }}
+        secondaryAction={{ href: "/creator-dashboard", label: "Creator demo" }}
+      />
+    );
+  }
+
+  if (!hasCompletedTrustCompliance(profile)) {
+    return (
+      <RouteTransitionScreen
+        eyebrow="Compliance setup"
+        title="Finish trust setup before applying."
+        description={getTrustComplianceGateCopy(profile)}
+        primaryAction={{ href: "/onboarding", label: "Finish setup" }}
         secondaryAction={{ href: "/creator-dashboard", label: "Creator demo" }}
       />
     );
@@ -382,11 +402,22 @@ export default function CreatorCampaignDetailPage() {
   const deliverables = detail.content_types?.map(formatMarketplaceContentType).join(", ") || "UGC Video";
   const platformTarget = getPlatformTarget(detail);
   const deadlineLabel = formatDeadline(detail.application_deadline);
-  const locationLabel = detail.location || "Remote or pickup coordinated with the brand";
+  const locationLabel = detail.location || "Brand-managed market coordination";
   const mustIncludes = (detail.must_includes ?? []).filter(Boolean);
   const offLimits = (detail.off_limits ?? []).filter(Boolean);
   const hashtags = (detail.required_hashtags ?? []).filter(Boolean);
   const referenceImages = (detail.reference_image_urls ?? []).filter(Boolean);
+  const eligibleStates = detail.eligible_states ?? [];
+  const targetPlatforms = detail.target_platforms ?? [];
+  const disclosureTags = detail.disclosure_tags?.length ? detail.disclosure_tags : hashtags;
+  const rightsSummary = [
+    detail.rights_organic_repost ? "Organic repost" : null,
+    detail.rights_paid_ads ? "Paid ads" : null,
+    detail.rights_whitelisting ? "Handle whitelisting" : null,
+    detail.rights_handle_licensing ? "Handle licensing" : null,
+    detail.rights_exclusive ? "Exclusivity" : null,
+    detail.rights_no_ai_training ? "No AI training" : null
+  ].filter(Boolean) as string[];
   const hasAcceptedAssetAccess = application?.status === "accepted" || application?.status === "completed";
   const visibleReferenceImages = hasAcceptedAssetAccess ? referenceImages.slice(0, 6) : referenceImages.slice(0, 2);
   const availability = getApplicationAvailability(detail);
@@ -506,7 +537,7 @@ export default function CreatorCampaignDetailPage() {
                 <div className="rounded-[24px] border border-white/[0.065] bg-black/25 px-4 py-3 text-sm leading-6 text-[#d8ded1] shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
                   <div className="flex items-center gap-2 font-black text-[#fbfbf7]">
                     <MapPin className="h-4 w-4 text-[#e7ff9a]" />
-                    Pickup / location
+                    Market coordination
                   </div>
                   <div className="mt-1 text-[#c7ccc2]">{locationLabel}</div>
                 </div>
@@ -562,7 +593,7 @@ export default function CreatorCampaignDetailPage() {
                   </div>
                   <div className="mt-3">
                     <BriefList
-                      empty="Avoid medical claims, purchase CTAs, overconsumption language, and content that could appear targeted to minors."
+                      empty="Avoid medical claims, direct sales CTAs, overconsumption language, and content that could appear targeted to minors."
                       items={offLimits.slice(0, 5)}
                     />
                   </div>
@@ -577,7 +608,7 @@ export default function CreatorCampaignDetailPage() {
                   </div>
                   <p className="mt-3 text-sm leading-7 text-[#d8ded1]">
                     Keep the content creator-led and brand-safe. Do not make medical claims, target minors,
-                    encourage overconsumption, or include direct purchase language.
+                    encourage overconsumption, or include direct sales language.
                   </p>
                   {hashtags.length > 0 ? (
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -595,11 +626,43 @@ export default function CreatorCampaignDetailPage() {
                     <span className="text-xs font-black uppercase tracking-[0.2em]">Coordination</span>
                   </div>
                   <p className="mt-3 text-sm leading-7 text-[#d8ded1]">
-                    If this campaign includes Product, coordinate pickup, timing, usage context, and payment details
+                    If this campaign includes Product, coordinate campaign timing, usage context, and product status
                     directly with the brand after acceptance.
                   </p>
                 </DetailSubPanel>
               </div>
+
+              <DetailSubPanel className="mt-5 p-5">
+                <div className="flex items-center gap-2 text-[#e7ff9a]">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span className="text-xs font-black uppercase tracking-[0.2em]">Rights & compliance</span>
+                </div>
+                <div className="mt-4 grid gap-4 text-sm leading-6 text-[#d8ded1]">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.16em] text-[#83766e]">Usage rights</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(rightsSummary.length ? rightsSummary : ["Organic repost"]).map((item) => (
+                        <DetailChip key={item}>{item}</DetailChip>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.16em] text-[#83766e]">Markets and platforms</div>
+                    <div className="mt-2 text-[#c7ccc2]">
+                      Markets: {eligibleStates.length ? eligibleStates.join(", ") : "Brand-defined legal markets"} · Platforms:{" "}
+                      {targetPlatforms.length ? targetPlatforms.map((platform) => platform.replace(/\b\w/g, (letter) => letter.toUpperCase())).join(", ") : platformTarget}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[0.16em] text-[#83766e]">Required disclosures</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {disclosureTags.slice(0, 6).map((tag) => (
+                        <DetailChip key={tag}>{tag}</DetailChip>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </DetailSubPanel>
 
               {referenceImages.length > 0 ? (
                 <DetailSubPanel className="mt-5 p-5">
@@ -754,7 +817,7 @@ export default function CreatorCampaignDetailPage() {
                       onChange={(event) => setAcknowledged(event.target.checked)}
                       type="checkbox"
                     />
-                    <span>I understand the campaign requirements and content guidelines.</span>
+                    <span>I reviewed the campaign requirements, usage rights, market limits, disclosures, and content guidelines.</span>
                   </label>
                   <Button className="w-full" disabled={!pitch.trim() || !acknowledged || applyToCampaign.isPending} type="submit">
                     {applyToCampaign.isPending ? (
@@ -781,7 +844,7 @@ export default function CreatorCampaignDetailPage() {
                 {[
                   ["Apply", "Your pitch and profile go to the brand."],
                   ["Brand review", "The brand accepts or declines from applicant review."],
-                  ["Coordinate details", "Use messages to confirm pickup, payment, timing, and content usage."],
+                  ["Coordinate details", "Use messages to confirm campaign timing, payment expectations, product status, and content usage."],
                   ["Create content", "If accepted, submit the content link for approval."],
                   ["Track status", "BudCast keeps submission, payment, and product status visible."]
                 ].map(([title, copy]) => (

@@ -6,7 +6,9 @@ import {
   type BrandSubmissionQueueRow,
   formatDeliverable,
   formatPaymentMethod,
+  getTrustComplianceGateCopy,
   hasCompletedOnboarding,
+  hasCompletedTrustCompliance,
   useAuth,
   useBrandSubmissionQueue,
   useConfirmSubmissionPayment,
@@ -54,14 +56,14 @@ function getCompensationLabel(type?: string | null) {
 
 function getFulfillmentActionLabel(type?: string | null) {
   if (type === "paid") return "Confirm payment sent";
-  if (type === "hybrid") return "Confirm payment and product sent";
-  return "Confirm product sent";
+  if (type === "hybrid") return "Confirm payment and product status";
+  return "Confirm product status";
 }
 
 function getFulfillmentMethodLabel(type?: string | null) {
   if (type === "paid") return "Creator payout method";
-  if (type === "hybrid") return "Creator payout/product method";
-  return "Product fulfillment method";
+  if (type === "hybrid") return "Creator payout/product status method";
+  return "Product status method";
 }
 
 function getFulfillmentStatusLabel(type?: string | null) {
@@ -133,6 +135,7 @@ function SubmissionReviewCard({
   const fulfillmentMethodLabel = getFulfillmentMethodLabel(row.opportunity?.campaign_type);
   const fulfillmentStatusLabel = getFulfillmentStatusLabel(row.opportunity?.campaign_type);
   const canReview = Boolean(submission && stage === "needs_review");
+  const rightsConfirmed = row.opportunity?.rights_confirmed === true;
 
   return (
     <article className="overflow-hidden rounded-[34px] border border-white/[0.075] bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.024))] shadow-[0_22px_70px_rgba(0,0,0,0.28),0_1px_0_rgba(255,255,255,0.045)_inset] transition hover:-translate-y-1 hover:border-[#b8ff3d]/24">
@@ -260,7 +263,7 @@ function SubmissionReviewCard({
             {submission && canReview ? (
               <>
                 <Button
-                  disabled={verifyPending}
+                  disabled={verifyPending || !rightsConfirmed}
                   onClick={() => onVerification(row.id, submission.id, "verified")}
                 >
                   Approve content
@@ -281,6 +284,12 @@ function SubmissionReviewCard({
             ) : null}
           </div>
 
+          {submission && canReview && !rightsConfirmed ? (
+            <div className="rounded-[22px] border border-amber-400/25 bg-amber-400/10 p-4 text-sm leading-6 text-[#d8ded1]">
+              Confirm campaign usage rights before approving creator content.
+            </div>
+          ) : null}
+
           {submission ? (
             <div className="rounded-[26px] border border-white/[0.065] bg-black/20 p-4 text-sm leading-6 text-[#d8ded1] shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
               <div className="font-black text-[#fbfbf7]">{fulfillmentStatusLabel}</div>
@@ -297,7 +306,7 @@ function SubmissionReviewCard({
 function SubmissionQueueInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { brandContext, loading, session, profile } = useAuth();
+  const { brandContext, brandTeamBrand, loading, session, profile } = useAuth();
   const queue = useBrandSubmissionQueue();
   const verifySubmission = useUpdateContentSubmissionVerification();
   const confirmPayment = useConfirmSubmissionPayment();
@@ -312,14 +321,15 @@ function SubmissionQueueInner() {
       router.replace("/sign-in");
       return;
     }
-    if (!loading && session && !hasCompletedOnboarding(profile)) {
+    const complianceProfile = brandTeamBrand ?? profile;
+    if (!loading && session && (!hasCompletedOnboarding(profile) || !hasCompletedTrustCompliance(complianceProfile))) {
       router.replace("/onboarding");
       return;
     }
     if (!loading && profile?.user_type && !brandContext) {
       router.replace("/dashboard");
     }
-  }, [brandContext, loading, profile, router, session]);
+  }, [brandContext, brandTeamBrand, loading, profile, router, session]);
 
   const rows = queue.data ?? [];
   const campaignOptions = useMemo(() => {
@@ -383,6 +393,18 @@ function SubmissionQueueInner() {
         description="Content submissions unlock after your brand profile is complete."
         eyebrow="Routing to setup"
         title="Complete setup before reviewing submissions."
+      />
+    );
+  }
+
+  if (!hasCompletedTrustCompliance(brandTeamBrand ?? profile)) {
+    return (
+      <RouteTransitionScreen
+        description={getTrustComplianceGateCopy(brandTeamBrand ?? profile)}
+        eyebrow="Compliance setup"
+        title="Complete trust setup before reviewing content."
+        primaryAction={{ href: "/onboarding", label: "Finish setup" }}
+        secondaryAction={{ href: "/dashboard", label: "Back to dashboard" }}
       />
     );
   }
@@ -470,7 +492,7 @@ function SubmissionQueueInner() {
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-[#d8ded1]">
                 Accepted creators submit content links here. Approve content, request revisions, and confirm
-                payment or product status without losing campaign context.
+                payment and product status without losing campaign context.
               </p>
               {activeCampaignTitle ? (
                 <MarketplaceBadge className="mt-4" tone="content">
@@ -618,11 +640,11 @@ function SubmissionQueueInner() {
             title="Review creator submissions"
           />
           <WorkQueueItem
-            description="After approval, confirm payment or product status so both sides know what is complete."
+            description="After approval, confirm payment and product status so both sides know what is complete."
             title="Confirm fulfillment"
           />
           <WorkQueueItem
-            description="Use messages to coordinate pickup, content usage, timing, and payment details."
+            description="Use messages to coordinate campaign timing, content usage, product status, and payment details."
             title="Coordinate details"
           />
         </section>

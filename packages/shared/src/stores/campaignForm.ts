@@ -137,7 +137,16 @@ const INITIAL_STATE: CampaignFormState = {
   // Compliance defaults (migration 028)
   eligible_states: [],
   target_platforms: [],
+  disclosure_tags: [],
+  prohibited_content: [
+    "no_health_claims",
+    "no_sale_language",
+    "no_minors",
+    "no_driving",
+    "no_undisclosed_use"
+  ],
   compliance_checklist_done: false,
+  min_applicant_age: 21,
 };
 
 function normalizeHashtag(raw: string): string {
@@ -381,23 +390,23 @@ export function selectStepStatus(
       const hasFormats = (state.content_types?.length ?? 0) > 0;
       const hasMention = !!state.brand_mention?.trim();
       const hasBrief = !!state.description?.trim();
+      const hasProhibitedRules = (state.off_limits ?? []).some((item) => item.trim());
       // Filter out auto-injected compliance tags — they don't count as
       // user progress since they were added when the type was picked.
       const userTags = (state.required_hashtags ?? []).filter(
         (t) => t !== '#ad' && t !== '#gifted'
       );
       const hasUserTags = userTags.length > 0;
-      const filled = [hasFormats, hasMention, hasBrief, hasUserTags].filter(
+      const filled = [hasFormats, hasMention, hasBrief, hasUserTags, hasProhibitedRules].filter(
         Boolean
       ).length;
-      // For "complete" the four required items are: formats, mention,
-      // brief, AND at least the auto-injected compliance tag (which is
-      // always there for paid/hybrid/gifting — so hashtags requirement
-      // is satisfied automatically).
+      // For "complete" the required items are: formats, mention, brief,
+      // at least one prohibited-content rule, and a disclosure hashtag.
       const complete =
         hasFormats &&
         hasMention &&
         hasBrief &&
+        hasProhibitedRules &&
         (state.required_hashtags?.length ?? 0) > 0;
       if (complete) return 'complete';
       if (filled > 0) return 'in_progress';
@@ -432,7 +441,8 @@ export function selectStepStatus(
         step2 === 'complete' &&
         step3 === 'complete' &&
         step4 === 'complete' &&
-        step5 === 'complete'
+        step5 === 'complete' &&
+        selectCampaignTrustReady(state)
       )
         return 'complete';
       return 'not_started';
@@ -478,6 +488,7 @@ export function selectStepMissingFields(
       if (!state.brand_mention?.trim()) missing.push("brand mention");
       if (!state.description?.trim()) missing.push("campaign brief");
       if ((state.required_hashtags?.length ?? 0) === 0) missing.push("required hashtags");
+      if (!(state.off_limits ?? []).some((item) => item.trim())) missing.push("prohibited content rules");
       return missing;
     }
 
@@ -493,6 +504,9 @@ export function selectStepMissingFields(
       const missing = ([1, 2, 3, 4, 5] as StepNumber[]).flatMap((currentStep) =>
         selectStepMissingFields(state, currentStep)
       );
+      if ((state.eligible_states?.length ?? 0) === 0) missing.push('eligible states');
+      if ((state.target_platforms?.length ?? 0) === 0) missing.push('target platforms');
+      if (!state.rights_confirmed) missing.push('rights confirmation');
       if (!state.compliance_checklist_done) missing.push('compliance checklist');
       return missing;
     }
@@ -503,7 +517,16 @@ export function selectCanPublish(state: CampaignFormState): boolean {
   return (
     selectStepStatus(state, 6) === 'complete' &&
     !selectHasInsufficientCredits(state) &&
-    state.compliance_checklist_done === true
+    selectCampaignTrustReady(state)
+  );
+}
+
+export function selectCampaignTrustReady(state: CampaignFormState): boolean {
+  return Boolean(
+    state.rights_confirmed === true &&
+      (state.eligible_states?.length ?? 0) > 0 &&
+      (state.target_platforms?.length ?? 0) > 0 &&
+      state.compliance_checklist_done === true
   );
 }
 

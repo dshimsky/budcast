@@ -1,6 +1,6 @@
 "use client";
 
-import { hasCompletedOnboarding, supabase, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
+import { hasCompletedOnboarding, hasCompletedTrustCompliance, supabase, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BriefcaseBusiness, Users2, ShieldCheck, MapPin, Calendar } from "lucide-react";
@@ -51,7 +51,7 @@ type Step = "role" | "profile" | "age_gate" | "terms";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { session, profile, loading } = useAuth();
+  const { session, profile, loading, refreshProfile } = useAuth();
   const onboarding = useOnboarding();
   const saveProfile = useSaveProfile();
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -66,10 +66,16 @@ export default function OnboardingPage() {
 
   const userType = onboarding.userType;
   const isCreator = userType === "creator";
-  const onboardingComplete = hasCompletedOnboarding(profile);
+  const profileComplete = hasCompletedOnboarding(profile);
+  const trustComplete = hasCompletedTrustCompliance(profile);
+  const onboardingComplete = profileComplete && trustComplete;
 
   useEffect(() => {
-    if (profile) onboarding.hydrateFromProfile(profile);
+    if (!profile) return;
+    onboarding.hydrateFromProfile(profile);
+    if (hasCompletedOnboarding(profile) && !hasCompletedTrustCompliance(profile)) {
+      setStep("age_gate");
+    }
   }, [onboarding, profile]);
 
   useEffect(() => {
@@ -132,6 +138,7 @@ export default function OnboardingPage() {
       });
       if (error) throw error;
       if (!data?.success) throw new Error("Terms acceptance failed.");
+      await refreshProfile();
       // Redirect to workspace
       router.replace(getWorkspaceHrefForUserType(userType!));
     } catch (error) {
@@ -179,7 +186,7 @@ export default function OnboardingPage() {
                 </p>
                 <div className="mt-6 grid gap-3">
                   {([
-                    { copy: "Browse campaigns, submit content, message brands, and track payments.", icon: Users2, label: "Content creator", mode: "creator" as const },
+                    { copy: "Browse campaigns, submit content, message brands, and track campaign status.", icon: Users2, label: "Content creator", mode: "creator" as const },
                     { copy: "Post briefs, review creators, approve content, and track campaign results.", icon: BriefcaseBusiness, label: "Cannabis brand", mode: "brand" as const },
                   ]).map((option) => {
                     const Icon = option.icon;
@@ -326,7 +333,7 @@ export default function OnboardingPage() {
                   Review and accept the terms.
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-white/50">
-                  BudCast is a marketing collaboration platform. We do not facilitate the sale, delivery, or purchase of cannabis products.
+                  BudCast is a marketing collaboration platform. We do not facilitate cannabis transactions or product transfer logistics.
                 </p>
 
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-xs leading-6 text-white/60 space-y-2">
@@ -334,7 +341,7 @@ export default function OnboardingPage() {
                   <ul className="list-disc list-inside space-y-1">
                     <li>Disclose all sponsored or gifted content with #ad or #gifted</li>
                     <li>Not make health claims about cannabis products</li>
-                    <li>Not use sale language or facilitate cannabis transactions</li>
+                    <li>Not use sale language or coordinate regulated cannabis transactions</li>
                     <li>Only create content in states where cannabis marketing is permitted</li>
                     <li>Not post content featuring minors or promoting unsafe use</li>
                     <li>Follow all applicable state and local cannabis advertising laws</li>
@@ -365,7 +372,7 @@ export default function OnboardingPage() {
                       type="checkbox"
                     />
                     <span className="text-xs leading-5 text-white/60">
-                      I understand BudCast does not facilitate cannabis sales and I will follow all{" "}
+                      I understand BudCast does not facilitate cannabis transactions and I will follow all{" "}
                       <a className="text-[#b8ff3d]/80 underline" href="/legal/platform-rules" target="_blank">Platform Rules</a>
                       {" "}including FTC disclosure requirements.
                     </span>

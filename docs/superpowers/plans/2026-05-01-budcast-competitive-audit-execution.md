@@ -83,14 +83,16 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 - Modify: `packages/shared/src/hooks/useGiftingWorkflow.ts`
 - Modify: `apps/web/components/messaging/budcast-dm-inbox.tsx`
 
-- [ ] Make onboarding completion require 21+ date of birth, state, and explicit terms acceptance.
-- [ ] Gate creator marketplace, application, submission, and messaging flows behind completed compliance.
-- [ ] Make campaign creation require market eligibility, target platforms, prohibited content rules, and disclosure requirements.
-- [ ] Make usage-rights selection visible before publish and visible to creators before applying.
-- [ ] Block brand content approval until rights are confirmed.
-- [ ] Replace direct gifting table updates in shared hooks with the safe RPC path from migration `028`.
-- [ ] Remove or reword product copy that says "pickup", "delivery", "order", or anything that sounds like cannabis commerce facilitation.
-- [ ] Keep all gifting language framed as brand-managed collaboration status, not sale, pickup, delivery, or in-app transaction.
+- [x] Make onboarding completion require 21+ date of birth, state, and explicit terms acceptance.
+- [x] Gate creator marketplace, application, submission, and messaging flows behind completed compliance.
+- [x] Make campaign creation require market eligibility, target platforms, prohibited content rules, and disclosure requirements.
+- [x] Make usage-rights selection visible before publish and visible to creators before applying.
+- [x] Block brand content approval until rights are confirmed.
+- [x] Replace direct gifting table updates in shared hooks with the safe RPC path from migration `028`.
+- [x] Remove or reword product copy that says "pickup", "delivery", "order", or anything that sounds like cannabis commerce facilitation.
+- [x] Keep all gifting language framed as brand-managed collaboration status, not sale, pickup, delivery, or in-app transaction.
+
+**Phase 2 evidence:** Migration `032_phase2_trust_web_rpc_hardening.sql` is applied to the linked remote project; `npx supabase db push --dry-run` now reports the remote database is up to date. Local validation on May 1, 2026: `node --test packages/shared/tests/phase2-trust-web.test.ts` exited 0 with 5 passing tests; `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 13 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes.
 
 **Success criteria:** A brand cannot publish an incomplete cannabis campaign, a creator cannot apply without seeing rights and compliance requirements, and no UI suggests BudCast arranges cannabis sale, pickup, delivery, or purchase.
 

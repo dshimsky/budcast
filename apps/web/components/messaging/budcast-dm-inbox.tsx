@@ -7,7 +7,9 @@ import {
   type MessageWithSender,
   type MessageParticipant,
   type UserType,
+  getTrustComplianceGateCopy,
   getPrimaryTrustBadge,
+  hasCompletedTrustCompliance,
   useAuth,
   useConversations,
   useMessageParticipant,
@@ -164,6 +166,7 @@ export function BudCastDmInbox({ initialUserId, mobileOnly = false, searchTarget
   const sendMessage = useSendMessage();
 
   const currentUser = profile as MessageParticipant | null;
+  const trustReady = hasCompletedTrustCompliance(profile);
   const effectiveBrandId = brandContext?.brandId ?? (profile?.user_type === "brand" ? profile.id : null);
   const currentConversationParticipantId = effectiveBrandId ?? profile?.id ?? null;
   const conversationRows = conversations.data ?? [];
@@ -274,6 +277,20 @@ export function BudCastDmInbox({ initialUserId, mobileOnly = false, searchTarget
     return () => window.cancelAnimationFrame(frame);
   }, [searchFocusRequest, threadVisibleOnMobile]);
 
+  if (profile && !trustReady) {
+    return (
+      <section className="grid min-w-0 gap-4 overflow-hidden">
+        <div className="rounded-[32px] border border-[#e7ff9a]/18 bg-[#b8ff3d]/10 p-5 text-[#fbfbf7] shadow-[0_26px_80px_rgba(0,0,0,0.34)]">
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[#e7ff9a]">Compliance setup</div>
+          <h1 className="mt-3 text-3xl font-black tracking-[-0.04em]">Finish trust setup before messaging.</h1>
+          <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#d8ded1]">
+            {getTrustComplianceGateCopy(profile)}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="grid min-w-0 gap-4 overflow-hidden">
       <div className="min-w-0 rounded-[32px] border border-white/[0.08] bg-[radial-gradient(circle_at_14%_0%,rgba(184,255,61,0.14),transparent_36%),linear-gradient(180deg,rgba(24,15,12,0.92),rgba(8,6,5,0.98))] p-4 shadow-[0_26px_80px_rgba(0,0,0,0.44),0_1px_0_rgba(255,255,255,0.06)_inset] md:p-5">
@@ -372,7 +389,7 @@ export function BudCastDmInbox({ initialUserId, mobileOnly = false, searchTarget
               />
             </label>
             <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-              {["Campaign details", "Pickup", "Payment", "Content notes"].map((label) => (
+              {["Campaign details", "Product status", "Payment", "Content notes"].map((label) => (
                 <span
                   className="shrink-0 rounded-full border border-white/[0.07] bg-white/[0.035] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#8f8177]"
                   key={label}
@@ -501,7 +518,7 @@ export function BudCastDmInbox({ initialUserId, mobileOnly = false, searchTarget
                   <div className="mt-3 text-xl font-black tracking-[-0.04em] text-[#fbfbf7]">Start your first BudCast DM.</div>
                   <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-[#aeb5aa]">
                     Search a {searchTargetType === "brand" ? "brand" : "creator"} to coordinate campaign details,
-                    pickup, payment timing, and content questions.
+                    product status, payment timing, and content questions.
                   </p>
                   <button
                     className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[linear-gradient(180deg,#d7ff72,#b8ff3d)] px-4 text-xs font-black text-[#071007] shadow-[0_12px_28px_rgba(184,255,61,0.22),0_1px_0_rgba(255,255,255,0.22)_inset]"
@@ -623,10 +640,10 @@ export function BudCastDmInbox({ initialUserId, mobileOnly = false, searchTarget
                         Message {getParticipantName(selectedParticipant)}
                       </h2>
                       <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-[#aeb5aa]">
-                        Keep pickup details, creative direction, payment timing, and review notes in one BudCast thread.
+                        Keep campaign details, creative direction, payment timing, product status, and review notes in one BudCast thread.
                       </p>
                       <div className={`mx-auto mt-5 grid max-w-md gap-2 text-left ${mobileOnly ? "" : "sm:grid-cols-3"}`}>
-                        {["Confirm pickup", "Ask about content", "Track payment"].map((prompt) => (
+                        {["Confirm product status", "Ask about content", "Track payment"].map((prompt) => (
                           <button
                             className="rounded-[18px] border border-white/[0.075] bg-white/[0.04] px-3 py-3 text-xs font-black text-[#d8ded1] transition hover:border-[#b8ff3d]/24 hover:text-[#e7ff9a]"
                             key={prompt}
