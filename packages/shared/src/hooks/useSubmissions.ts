@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import type {
   Application,
   ContentSubmission,
+  GiftingWorkflow,
   Opportunity,
   PaymentMethod,
   PostType,
@@ -24,6 +25,7 @@ type SubmissionOpportunitySummary = Pick<
 export interface SubmissionPipelineRow extends Application {
   opportunity: SubmissionOpportunitySummary | null;
   submission: ContentSubmission | null;
+  gifting_workflow: GiftingWorkflow | null;
 }
 
 export interface BrandSubmissionQueueRow extends Application {
@@ -58,13 +60,14 @@ export interface ConfirmSubmissionPaymentInput {
   paymentMethod?: PaymentMethod | null;
 }
 
-function collapseSubmission<T extends { submissions?: ContentSubmission[] | null }>(
+function collapseSubmission<T extends { submissions?: ContentSubmission[] | null; gifting_workflows?: GiftingWorkflow[] | null }>(
   row: T
-): Omit<T, "submissions"> & { submission: ContentSubmission | null } {
-  const { submissions, ...rest } = row;
+): Omit<T, "submissions" | "gifting_workflows"> & { submission: ContentSubmission | null; gifting_workflow: GiftingWorkflow | null } {
+  const { submissions, gifting_workflows, ...rest } = row;
   return {
     ...rest,
-    submission: Array.isArray(submissions) ? (submissions[0] ?? null) : null
+    submission: Array.isArray(submissions) ? (submissions[0] ?? null) : null,
+    gifting_workflow: Array.isArray(gifting_workflows) ? (gifting_workflows[0] ?? null) : null,
   };
 }
 
@@ -97,7 +100,8 @@ export function useMySubmissionPipeline() {
               id, company_name, avatar_url
             )
           ),
-          submissions:content_submissions (*)
+          submissions:content_submissions (*),
+          gifting_workflows:gifting_workflow (*)
         `
         )
         .eq("creator_id", creatorId!)
@@ -105,7 +109,7 @@ export function useMySubmissionPipeline() {
         .order("accepted_at", { ascending: false });
 
       if (error) throw error;
-      return ((data ?? []) as Array<SubmissionPipelineRow & { submissions?: ContentSubmission[] | null }>).map(
+      return ((data ?? []) as Array<SubmissionPipelineRow & { submissions?: ContentSubmission[] | null; gifting_workflows?: GiftingWorkflow[] | null }>).map(
         collapseSubmission
       );
     }

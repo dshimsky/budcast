@@ -1035,6 +1035,199 @@ export default function NewCampaignPage() {
                     ))}
                   </div>
                 </div>
+                {/* Rights & Compliance — migration 028 */}
+                <div className={detailPanelClassName}>
+                  <div className="text-sm font-bold text-[#aeb5aa] mb-3">Content rights</div>
+
+                  {/* Target platforms */}
+                  <div className="mb-4">
+                    <div className="text-xs font-semibold uppercase tracking-widest text-[#aeb5aa] mb-2">Target platforms</div>
+                    <p className="mb-2 text-xs text-white/30">Where creators will publish their content.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {(
+                        [
+                          { value: 'instagram', label: 'Instagram' },
+                          { value: 'tiktok',    label: 'TikTok' },
+                          { value: 'youtube',   label: 'YouTube' },
+                          { value: 'facebook',  label: 'Facebook' },
+                          { value: 'x',         label: 'X / Twitter' },
+                          { value: 'linkedin',  label: 'LinkedIn' },
+                        ] as { value: string; label: string }[]
+                      ).map(({ value, label }) => {
+                        const selected = (state.target_platforms ?? []).includes(value);
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => {
+                              const current = state.target_platforms ?? [];
+                              patch({
+                                target_platforms: selected
+                                  ? current.filter((p) => p !== value)
+                                  : [...current, value],
+                              });
+                            }}
+                            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                              selected
+                                ? 'bg-[#b8ff3d] text-black'
+                                : 'border border-white/15 bg-white/5 text-white/60 hover:border-white/30 hover:text-white/90'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Rights checkboxes */}
+                  <div className="space-y-3 border-t border-white/10 pt-4">
+                    {(
+                      [
+                        { key: 'rights_organic_repost',    label: 'Organic repost allowed (baseline right)' },
+                        { key: 'rights_paid_ads',          label: 'Paid ads / dark posting allowed' },
+                        { key: 'rights_whitelisting',       label: 'Creator handle whitelisting allowed' },
+                        { key: 'rights_handle_licensing',   label: 'Handle licensing required' },
+                        { key: 'rights_exclusive',          label: 'Exclusivity required' },
+                        { key: 'rights_no_ai_training',     label: 'No AI training use' },
+                        { key: 'rights_revocable',          label: 'Brand may revoke usage rights' },
+                      ] as { key: keyof typeof state; label: string }[]
+                    ).map(({ key, label }) => (
+                      <div key={key}>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-[#b8ff3d] shrink-0"
+                            checked={Boolean(state[key])}
+                            onChange={(e) => patch({ [key]: e.target.checked })}
+                          />
+                          <span className="text-sm text-white/70">{label}</span>
+                        </label>
+                        {/* Exclusivity duration — only shown when exclusivity is checked */}
+                        {key === 'rights_exclusive' && Boolean(state.rights_exclusive) && (
+                          <div className="ml-7 mt-2">
+                            <input
+                              type="number"
+                              min={1}
+                              placeholder="Exclusivity duration (days) — leave blank for indefinite"
+                              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-[#fbfbf7] placeholder:text-white/30 focus:border-[#b8ff3d]/50 focus:outline-none"
+                              value={state.rights_exclusivity_days ?? ''}
+                              onChange={(e) =>
+                                patch({
+                                  rights_exclusivity_days: e.target.value === '' ? null : Number(e.target.value),
+                                })
+                              }
+                            />
+                            <p className="mt-1 text-xs text-white/30">How many days the creator cannot post for competing brands. Leave blank = indefinite.</p>
+                          </div>
+                        )}
+                        {/* Revocation notice period — only shown when revocable is checked */}
+                        {key === 'rights_revocable' && Boolean(state.rights_revocable) && (
+                          <div className="ml-7 mt-2">
+                            <input
+                              type="number"
+                              min={1}
+                              placeholder="Notice period (days)"
+                              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-[#fbfbf7] placeholder:text-white/30 focus:border-[#b8ff3d]/50 focus:outline-none"
+                              value={state.rights_revocation_notice_days ?? ''}
+                              onChange={(e) =>
+                                patch({
+                                  rights_revocation_notice_days: e.target.value === '' ? null : Number(e.target.value),
+                                })
+                              }
+                            />
+                            <p className="mt-1 text-xs text-white/30">How many days notice the brand must give before revoking. Default is 30.</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Rights duration */}
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <label className="block text-xs font-semibold uppercase tracking-widest text-[#aeb5aa] mb-2">
+                      Rights duration (days)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="e.g. 90 — leave blank for unlimited"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-[#fbfbf7] placeholder:text-white/30 focus:border-[#b8ff3d]/50 focus:outline-none"
+                      value={state.rights_duration_days ?? ''}
+                      onChange={(e) =>
+                        patch({
+                          rights_duration_days: e.target.value === '' ? null : Number(e.target.value),
+                        })
+                      }
+                    />
+                    <p className="mt-1 text-xs text-white/30">How long the brand may use the content. Leave blank = unlimited.</p>
+                  </div>
+
+                  {/* Eligible states */}
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <div className="text-xs font-semibold uppercase tracking-widest text-[#aeb5aa] mb-2">
+                      Eligible states
+                    </div>
+                    <p className="mb-3 text-xs text-white/30">Select every US state where this campaign is legally permitted to run.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA',
+                        'HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
+                        'MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ',
+                        'NM','NY','NC','ND','OH','OK','OR','PA','RI','SC',
+                        'SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC',
+                      ].map((st) => {
+                        const selected = (state.eligible_states ?? []).includes(st);
+                        return (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={() => {
+                              const current = state.eligible_states ?? [];
+                              patch({
+                                eligible_states: selected
+                                  ? current.filter((s) => s !== st)
+                                  : [...current, st],
+                              });
+                            }}
+                            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                              selected
+                                ? 'bg-[#b8ff3d] text-black'
+                                : 'border border-white/15 bg-white/5 text-white/60 hover:border-white/30 hover:text-white/90'
+                            }`}
+                          >
+                            {st}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {(state.eligible_states ?? []).length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => patch({ eligible_states: [] })}
+                        className="mt-2 text-xs text-white/30 hover:text-white/60 transition-colors"
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Compliance checklist */}
+                  <label className="flex items-start gap-3 cursor-pointer border-t border-white/10 pt-4 mt-4">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 h-4 w-4 accent-[#b8ff3d] shrink-0"
+                      checked={Boolean(state.compliance_checklist_done)}
+                      onChange={(e) => patch({ compliance_checklist_done: e.target.checked })}
+                    />
+                    <span className="text-xs leading-5 text-white/50">
+                      I confirm this campaign brief includes required disclosures (#ad / #gifted),
+                      makes no health claims, uses no sale language, and complies with applicable
+                      state cannabis advertising laws.
+                    </span>
+                  </label>
+                </div>
+
                 {publishFeedback ? (
                   <div className="rounded-[24px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
                     {publishFeedback}

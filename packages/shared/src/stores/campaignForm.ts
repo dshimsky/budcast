@@ -121,6 +121,23 @@ const INITIAL_STATE: CampaignFormState = {
   slots_available: 1,
   application_deadline: undefined,
   approval_mode: 'manual',
+  // Rights defaults (migration 028)
+  rights_organic_repost: true,
+  rights_paid_ads: false,
+  rights_whitelisting: false,
+  rights_handle_licensing: false,
+  rights_duration_days: null,
+  rights_territory: 'US',
+  rights_exclusive: false,
+  rights_exclusivity_days: null,
+  rights_no_ai_training: true,
+  rights_revocable: false,
+  rights_revocation_notice_days: 30,
+  rights_confirmed: false,
+  // Compliance defaults (migration 028)
+  eligible_states: [],
+  target_platforms: [],
+  compliance_checklist_done: false,
 };
 
 function normalizeHashtag(raw: string): string {
@@ -472,17 +489,21 @@ export function selectStepMissingFields(
       return missing;
     }
 
-    case 6:
-      return ([1, 2, 3, 4, 5] as StepNumber[]).flatMap((currentStep) =>
+    case 6: {
+      const missing = ([1, 2, 3, 4, 5] as StepNumber[]).flatMap((currentStep) =>
         selectStepMissingFields(state, currentStep)
       );
+      if (!state.compliance_checklist_done) missing.push('compliance checklist');
+      return missing;
+    }
   }
 }
 
 export function selectCanPublish(state: CampaignFormState): boolean {
   return (
     selectStepStatus(state, 6) === 'complete' &&
-    !selectHasInsufficientCredits(state)
+    !selectHasInsufficientCredits(state) &&
+    state.compliance_checklist_done === true
   );
 }
 

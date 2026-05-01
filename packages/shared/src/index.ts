@@ -16,6 +16,7 @@ export * from "./hooks/useMyNicheCampaigns";
 export * from "./hooks/useMessaging";
 export * from "./hooks/useModeration";
 export * from "./hooks/usePublishCampaign";
+export * from "./hooks/useGiftingWorkflow";
 export * from "./hooks/useReviewApplication";
 export * from "./hooks/useReviews";
 export * from "./hooks/useSafety";

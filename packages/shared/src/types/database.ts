@@ -395,6 +395,25 @@ export interface OpportunityDraftFormState {
   slots_available?: number;
   application_deadline?: string;
   approval_mode?: ApprovalMode;
+
+  // Rights fields (from migration 028)
+  rights_organic_repost?: boolean;
+  rights_paid_ads?: boolean;
+  rights_whitelisting?: boolean;
+  rights_handle_licensing?: boolean;
+  rights_duration_days?: number | null;
+  rights_territory?: string;
+  rights_exclusive?: boolean;
+  rights_exclusivity_days?: number | null;
+  rights_no_ai_training?: boolean;
+  rights_revocable?: boolean;
+  rights_revocation_notice_days?: number | null;
+  rights_confirmed?: boolean;
+
+  // Compliance fields (from migration 028)
+  eligible_states?: string[];
+  target_platforms?: string[];
+  compliance_checklist_done?: boolean;
 }
 
 export interface OpportunityDraft {
@@ -402,6 +421,47 @@ export interface OpportunityDraft {
   brand_id: string;
   form_state: OpportunityDraftFormState;
   current_step: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type GiftingWorkflowStatus =
+  | 'pending_brand_action'
+  | 'brand_shipped'
+  | 'creator_received'
+  | 'creator_declined'
+  | 'substitution_requested'
+  | 'cancelled';
+
+export type GiftingProductCategory =
+  | 'flower'
+  | 'pre_rolls'
+  | 'edibles'
+  | 'vapes'
+  | 'concentrates'
+  | 'topicals'
+  | 'accessories'
+  | 'merch'
+  | 'other';
+
+export interface GiftingWorkflow {
+  id: string;
+  opportunity_id: string;
+  application_id: string;
+  brand_id: string;
+  creator_id: string;
+  product_name: string;
+  product_category: GiftingProductCategory;
+  product_notes: string | null;
+  creator_state_confirmed: boolean;
+  creator_age_confirmed: boolean;
+  status: GiftingWorkflowStatus;
+  brand_contact_method: string | null;
+  brand_contact_at: string | null;
+  creator_received_at: string | null;
+  creator_feedback: string | null;
+  substitution_notes: string | null;
+  compliance_note: string;
   created_at: string;
   updated_at: string;
 }

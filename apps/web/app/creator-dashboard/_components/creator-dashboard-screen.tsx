@@ -15,13 +15,15 @@ import {
   getPrimaryContentType,
   hasCompletedOnboarding,
   useAuth,
+  useCreatorConfirmReceipt,
+  useCreatorDeclineGifting,
   useMyApplications,
   useMyNicheCampaigns,
   useMySubmissionPipeline
 } from "@budcast/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Bookmark, Heart, MessageCircle, MoreHorizontal, Repeat2, Sparkles } from "lucide-react";
 import {
   CampaignDropCard,
@@ -346,6 +348,16 @@ function CreatorNetworkSignalPost({
 }
 
 function getCreatorMessagePreview(row: SubmissionPipelineRow) {
+  const gw = row.gifting_workflow;
+  const isGifting = row.opportunity?.campaign_type === "gifting" || row.opportunity?.campaign_type === "hybrid";
+  if (isGifting && gw) {
+    if (gw.status === "pending_brand_action") return "Waiting on the brand to arrange your product.";
+    if (gw.status === "brand_shipped") return "Brand has arranged your product — confirm when received.";
+    if (gw.status === "creator_received") return "Product confirmed. Create your content and submit when ready.";
+    if (gw.status === "creator_declined") return "You declined this product. The brand has been notified.";
+    if (gw.status === "substitution_requested") return "You requested a substitution. Waiting on the brand.";
+    if (gw.status === "cancelled") return "This gifting arrangement was cancelled.";
+  }
   if (!row.submission) return "You’re accepted. Coordinate pickup details, content questions, timing, and payment expectations.";
   if (row.submission.verification_status === "pending") return "Content submitted. The brand is reviewing your post link.";
   if (row.submission.verification_status === "needs_revision" || row.submission.verification_status === "failed") {
@@ -361,6 +373,16 @@ function getCreatorMessagePreview(row: SubmissionPipelineRow) {
 }
 
 function getCreatorMessageTone(row: SubmissionPipelineRow) {
+  const gw = row.gifting_workflow;
+  const isGifting = row.opportunity?.campaign_type === "gifting" || row.opportunity?.campaign_type === "hybrid";
+  if (isGifting && gw) {
+    if (gw.status === "pending_brand_action") return "Pending product";
+    if (gw.status === "brand_shipped") return "Confirm receipt";
+    if (gw.status === "creator_received") return "Submit content";
+    if (gw.status === "creator_declined") return "Declined";
+    if (gw.status === "substitution_requested") return "Awaiting brand";
+    if (gw.status === "cancelled") return "Cancelled";
+  }
   if (!row.submission) return "Accepted";
   if (row.submission.verification_status === "pending") return "Under review";
   if (row.submission.verification_status === "needs_revision" || row.submission.verification_status === "failed") {
@@ -379,6 +401,103 @@ function getCreatorMessageAction(row: SubmissionPipelineRow) {
   if (row.submission.verification_status === "needs_revision" || row.submission.verification_status === "failed") return "Revise";
   if (row.submission.verification_status === "verified") return "Confirm";
   return "Open";
+}
+
+function CreatorGiftingStatusPanel({ row }: { row: SubmissionPipelineRow }) {
+  const gw = row.gifting_workflow;
+  const confirmReceipt = useCreatorConfirmReceipt();
+  const declineGifting = useCreatorDeclineGifting();
+  const [feedback, setFeedback] = useState("");
+  const [declineNote, setDeclineNote] = useState("");
+  const [showDecline, setShowDecline] = useState(false);
+
+  if (!gw) return null;
+  if (gw.status === "creator_received" || gw.status === "creator_declined" || gw.status === "cancelled") return null;
+
+  return (
+    <div className="mx-1 mb-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#aeb5aa]">Gifting</div>
+        <div className="text-xs font-bold text-amber-400">
+          {gw.status === "pending_brand_action" ? "Awaiting brand" : "Confirm receipt"}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+        <div>
+          <div className="text-white/40">Product</div>
+          <div className="mt-0.5 font-medium text-white/80">{gw.product_name}</div>
+        </div>
+        <div>
+          <div className="text-white/40">Category</div>
+          <div className="mt-0.5 font-medium text-white/80 capitalize">{gw.product_category.replace(/_/g, " ")}</div>
+        </div>
+        {gw.product_notes && (
+          <div className="col-span-2">
+            <div className="text-white/40">Notes</div>
+            <div className="mt-0.5 text-white/60">{gw.product_notes}</div>
+          </div>
+        )}
+      </div>
+      {gw.status === "brand_shipped" && !showDecline && (
+        <div className="space-y-2 border-t border-white/10 pt-3">
+          <textarea
+            rows={2}
+            placeholder="Optional: feedback for the brand (e.g. product condition, packaging)"
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-[#fbfbf7] placeholder:text-white/25 focus:border-[#b8ff3d]/40 focus:outline-none resize-none"
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={confirmReceipt.isPending}
+              onClick={() => confirmReceipt.mutate({ applicationId: row.id, creator_feedback: feedback })}
+              className="rounded-full bg-[#b8ff3d] px-4 py-1.5 text-xs font-bold text-black disabled:opacity-40 transition-opacity"
+            >
+              {confirmReceipt.isPending ? "Saving…" : "Confirm received"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDecline(true)}
+              className="rounded-full border border-white/10 px-4 py-1.5 text-xs font-bold text-white/50 hover:text-white/80 transition-colors"
+            >
+              Decline
+            </button>
+          </div>
+        </div>
+      )}
+      {showDecline && (
+        <div className="space-y-2 border-t border-white/10 pt-3">
+          <div className="text-[10px] font-black uppercase tracking-widest text-white/40">Decline or request substitution</div>
+          <textarea
+            rows={2}
+            placeholder="Optional: describe what substitution you’d accept. Leave blank to fully decline."
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-[#fbfbf7] placeholder:text-white/25 focus:border-red-400/40 focus:outline-none resize-none"
+            value={declineNote}
+            onChange={(e) => setDeclineNote(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={declineGifting.isPending}
+              onClick={() => declineGifting.mutate({ applicationId: row.id, substitution_notes: declineNote })}
+              className="rounded-full bg-red-500/20 border border-red-500/30 px-4 py-1.5 text-xs font-bold text-red-400 disabled:opacity-40 transition-opacity"
+            >
+              {declineGifting.isPending ? "Saving…" : declineNote.trim() ? "Request substitution" : "Decline product"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDecline(false)}
+              className="rounded-full border border-white/10 px-4 py-1.5 text-xs font-bold text-white/40 hover:text-white/70 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      <p className="text-[10px] leading-4 text-white/20">{gw.compliance_note}</p>
+    </div>
+  );
 }
 
 function CreatorMessageThreadCard({ row }: { row: SubmissionPipelineRow }) {

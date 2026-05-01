@@ -10,7 +10,9 @@ import {
   useAuth,
   useCampaign,
   useCampaignApplicants,
-  useReviewApplication
+  useGiftingWorkflow,
+  useReviewApplication,
+  useUpdateGiftingStatus
 } from "@budcast/shared";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -110,12 +112,159 @@ function getFitSignals(creator: ApplicantRow["creator"]) {
   };
 }
 
+const GIFTING_STATUS_LABELS: Record<string, string> = {
+  pending_brand_action:   "Pending — arrange product",
+  brand_shipped:          "Product arranged",
+  creator_received:       "Creator confirmed receipt",
+  creator_declined:       "Creator declined",
+  substitution_requested: "Substitution requested",
+  cancelled:              "Cancelled",
+};
+
+const GIFTING_STATUS_COLORS: Record<string, string> = {
+  pending_brand_action:   "text-amber-400",
+  brand_shipped:          "text-[#b8ff3d]",
+  creator_received:       "text-[#e7ff9a]",
+  creator_declined:       "text-red-400",
+  substitution_requested: "text-orange-400",
+  cancelled:              "text-white/30",
+};
+
+function GiftingWorkflowPanel({ applicationId }: { applicationId: string }) {
+  const {  workflow, isLoading } = useGiftingWorkflow(applicationId);
+  const updateStatus = useUpdateGiftingStatus();
+  const [contactMethod, setContactMethod] = useState("");
+  const [expanded, setExpanded] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="mt-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="h-3 w-36 animate-pulse rounded bg-white/10" />
+      </div>
+    );
+  }
+
+  if (!workflow) {
+    return (
+      <div className="mt-3 rounded-[20px] border border-amber-400/20 bg-amber-400/5 p-4">
+        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400/70">Gifting</div>
+        <p className="mt-1 text-xs text-white/40">No gifting record found for this application yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-3"
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#aeb5aa]">Gifting workflow</div>
+        <div className={`text-xs font-bold ${GIFTING_STATUS_COLORS[workflow.status] ?? "text-white/50"}`}>
+          {GIFTING_STATUS_LABELS[workflow.status] ?? workflow.status}
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+            <div>
+              <div className="text-white/40">Product</div>
+              <div className="mt-0.5 font-medium text-white/80">{workflow.product_name}</div>
+            </div>
+            <div>
+              <div className="text-white/40">Category</div>
+              <div className="mt-0.5 capitalize font-medium text-white/80">
+                {workflow.product_category.replace(/_/g, " ")}
+              </div>
+            </div>
+            {workflow.product_notes && (
+              <div className="col-span-2">
+                <div className="text-white/40">Notes</div>
+                <div className="mt-0.5 text-white/60">{workflow.product_notes}</div>
+              </div>
+            )}
+            <div>
+              <div className="text-white/40">Age confirmed (21+)</div>
+              <div className={`mt-0.5 font-bold ${workflow.creator_age_confirmed ? "text-[#b8ff3d]" : "text-white/30"}`}>
+                {workflow.creator_age_confirmed ? "Yes" : "Not yet"}
+              </div>
+            </div>
+            <div>
+              <div className="text-white/40">State eligible</div>
+              <div className={`mt-0.5 font-bold ${workflow.creator_state_confirmed ? "text-[#b8ff3d]" : "text-white/30"}`}>
+                {workflow.creator_state_confirmed ? "Confirmed" : "Not yet"}
+              </div>
+            </div>
+          </div>
+
+          {workflow.brand_contact_method && (
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs">
+              <div className="mb-1 font-bold text-white/40">Contact method recorded</div>
+              <div className="text-white/60">{workflow.brand_contact_method}</div>
+              {workflow.brand_contact_at && (
+                <div className="mt-1 text-white/25">
+                  {new Date(workflow.brand_contact_at).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+          )}
+
+          {workflow.creator_feedback && (
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs">
+              <div className="mb-1 font-bold text-white/40">Creator feedback</div>
+              <div className="text-white/60">{workflow.creator_feedback}</div>
+            </div>
+          )}
+
+          {workflow.status === "pending_brand_action" && (
+            <div className="space-y-2 border-t border-white/10 pt-3">
+              <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[#aeb5aa]">
+                Mark as arranged
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. emailed creator, in-store pickup arranged off-platform"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-[#fbfbf7] placeholder:text-white/25 focus:border-[#b8ff3d]/40 focus:outline-none"
+                value={contactMethod}
+                onChange={(e) => setContactMethod(e.target.value)}
+              />
+              <p className="text-[10px] leading-4 text-white/25">
+                BudCast does not arrange delivery. This records your off-platform contact only.
+              </p>
+              <button
+                type="button"
+                disabled={!contactMethod.trim() || updateStatus.isPending}
+                onClick={() =>
+                  updateStatus.mutate({
+                    applicationId,
+                    status: "brand_shipped",
+                    brand_contact_method: contactMethod.trim(),
+                  })
+                }
+                className="rounded-full bg-[#b8ff3d] px-4 py-1.5 text-xs font-bold text-black transition-opacity disabled:opacity-40"
+              >
+                {updateStatus.isPending ? "Saving…" : "Confirm arranged"}
+              </button>
+            </div>
+          )}
+
+          <p className="text-[10px] leading-4 text-white/20">{workflow.compliance_note}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ApplicantReviewCard({
   applicant,
+  campaignType,
   disabled,
   onDecision
 }: {
   applicant: ApplicantRow;
+  campaignType: string;
   disabled: boolean;
   onDecision: (applicationId: string, decision: "accept" | "reject") => void;
 }) {
@@ -256,6 +405,10 @@ function ApplicantReviewCard({
               <div className="rounded-[22px] border border-white/[0.075] bg-white/[0.04] px-4 py-3 text-sm font-bold text-[#d8ded1]">
                 Decision recorded.
               </div>
+              {(campaignType === "gifting" || campaignType === "hybrid") &&
+                applicant.status === "accepted" && (
+                  <GiftingWorkflowPanel applicationId={applicant.id} />
+                )}
             </div>
           )}
         </aside>
@@ -471,6 +624,7 @@ export default function CampaignApplicantsPage() {
               {applicants.data?.map((applicant) => (
                 <ApplicantReviewCard
                   applicant={applicant}
+                  campaignType={campaign.data?.campaign_type ?? ""}
                   disabled={reviewApplication.isPending}
                   key={applicant.id}
                   onDecision={(applicationId, decision) => void handleDecision(applicationId, decision)}
