@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const migration = readFileSync(
@@ -38,6 +38,13 @@ const trustRpcGrantMigration = readFileSync(
   new URL("../../../supabase/migrations/030_trust_rpc_grants.sql", import.meta.url),
   "utf8"
 );
+const trustRpcAnonRevokeMigrationPath = new URL(
+  "../../../supabase/migrations/031_revoke_trust_rpc_anon_access.sql",
+  import.meta.url
+);
+const trustRpcAnonRevokeMigration = existsSync(trustRpcAnonRevokeMigrationPath)
+  ? readFileSync(trustRpcAnonRevokeMigrationPath, "utf8")
+  : "";
 
 test("security hardening migration restricts direct profile updates and adds safe update RPC", () => {
   assert.match(migration, /DROP POLICY IF EXISTS "Users can update their own profile"/);
@@ -99,6 +106,12 @@ test("P0 trust RPCs are explicitly executable by authenticated users", () => {
   assert.match(trustRpcGrantMigration, /GRANT EXECUTE ON FUNCTION public\.confirm_campaign_rights\(UUID, BOOLEAN, BOOLEAN, BOOLEAN, INTEGER, TEXT, BOOLEAN, BOOLEAN\) TO authenticated/);
   assert.match(trustRpcGrantMigration, /REVOKE EXECUTE ON FUNCTION public\.update_gifting_status\(UUID, TEXT, TEXT\) FROM PUBLIC/);
   assert.match(trustRpcGrantMigration, /GRANT EXECUTE ON FUNCTION public\.update_gifting_status\(UUID, TEXT, TEXT\) TO authenticated/);
+});
+
+test("P0 trust RPCs explicitly deny anon REST execution", () => {
+  assert.match(trustRpcAnonRevokeMigration, /REVOKE EXECUTE ON FUNCTION public\.accept_terms\(DATE, TEXT, TEXT, TEXT\) FROM anon/);
+  assert.match(trustRpcAnonRevokeMigration, /REVOKE EXECUTE ON FUNCTION public\.confirm_campaign_rights\(UUID, BOOLEAN, BOOLEAN, BOOLEAN, INTEGER, TEXT, BOOLEAN, BOOLEAN\) FROM anon/);
+  assert.match(trustRpcAnonRevokeMigration, /REVOKE EXECUTE ON FUNCTION public\.update_gifting_status\(UUID, TEXT, TEXT\) FROM anon/);
 });
 
 test("P0 economic state migration blocks direct credit and slot mutations", () => {

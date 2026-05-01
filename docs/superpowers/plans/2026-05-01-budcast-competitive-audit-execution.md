@@ -54,19 +54,20 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 - Validate: `supabase/migrations/028_usage_rights_and_gifting.sql`
 - Validate: `supabase/migrations/029_gifting_workflow_rls.sql`
 - Add: `supabase/migrations/030_trust_rpc_grants.sql`
+- Add: `supabase/migrations/031_revoke_trust_rpc_anon_access.sql`
 - Add or extend tests near: `packages/shared/tests/security-hardening.test.ts`
 
 - [x] Confirm migrations `026` through `029` are already applied to the linked remote project.
-- [x] Add a forward migration for explicit authenticated-only RPC execution grants.
+- [x] Add forward migrations for explicit authenticated-only RPC execution grants and anon revocation.
 - [x] Static-verify direct client writes are blocked for `users.credits_balance` and `opportunities.slots_filled`.
 - [x] Static-verify `accept_terms` rejects users under 21 and records `state_code`, `market_eligible`, and `terms_policy_version`.
 - [x] Static-verify campaigns can store `eligible_states`, `target_platforms`, disclosure tags, prohibited content rules, and rights fields.
 - [x] Static-verify `gifting_workflow` records cannot be inserted directly by the client.
 - [x] Static-verify brand and creator status transitions are only possible for the correct participant.
-- [ ] Apply pending migration `030` to staging after owner confirmation.
-- [ ] Run remote/staging behavior checks after migration `030` is applied.
+- [x] Apply pending migrations `030` and `031` to staging after owner confirmation.
+- [x] Run remote/staging behavior checks after migrations `030` and `031` are applied.
 
-**Phase 1 evidence:** `npx supabase migration list` shows remote migrations `026` through `029` are already applied. `npx supabase db push --dry-run` reported only `030_trust_rpc_grants.sql` would be pushed and made no remote changes. Local validation on May 1, 2026: `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 12 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes. Remote mutation is intentionally paused pending owner approval to apply migration `030`.
+**Phase 1 evidence:** `npx supabase migration list` shows remote migrations `026` through `031` are applied. `npx supabase db push --dry-run` now reports the remote database is up to date. Local validation on May 1, 2026: `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 13 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes. Remote behavior check: an anonymous REST call to `accept_terms` now returns HTTP `401` with Postgres code `42501` and message `permission denied for function accept_terms`.
 
 **Success criteria:** Credits, slots, age gate, terms, campaign compliance fields, rights confirmation, and gifting status are protected by database rules, not just UI checks.
 
