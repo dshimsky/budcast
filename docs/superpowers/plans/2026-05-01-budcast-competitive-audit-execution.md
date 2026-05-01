@@ -34,11 +34,13 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 
 **Outcome:** Product work is reviewable, deployable, and not trapped in local-only state.
 
-- [ ] Create or switch to a WIP branch using the `codex/` prefix.
-- [ ] Review `git status --short` and separate unrelated `_audit` deletion state from product work.
-- [ ] Commit the current build-clean baseline after confirming scope with the repo owner.
-- [ ] Run `npm run typecheck` and `npm run build:web`.
-- [ ] Deploy the current branch to a staging environment before new feature work.
+- [x] Create or switch to a WIP branch using the `codex/` prefix.
+- [x] Review `git status --short` and separate unrelated `_audit` deletion state from product work.
+- [x] Commit the current build-clean baseline after confirming scope with the repo owner.
+- [x] Run `npm run typecheck` and `npm run build:web`.
+- [x] Push the current branch for staging/deployment review before new feature work.
+
+**Phase 0 evidence:** Branch `codex/budcast-audit-execution` was created in `.worktrees/codex-budcast-audit-execution`, committed as `ecfe54c`, and pushed to `origin`. Fresh verification on May 1, 2026: `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes. The build printed missing Supabase env warnings in the isolated worktree, but completed successfully.
 
 **Success criteria:** The staging branch builds, the current web preview is accessible, and no launch-critical work exists only as unstaged local edits.
 
@@ -51,14 +53,20 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 - Validate: `supabase/migrations/027_trust_layer.sql`
 - Validate: `supabase/migrations/028_usage_rights_and_gifting.sql`
 - Validate: `supabase/migrations/029_gifting_workflow_rls.sql`
+- Add: `supabase/migrations/030_trust_rpc_grants.sql`
 - Add or extend tests near: `packages/shared/tests/security-hardening.test.ts`
 
-- [ ] Apply migrations `026` through `029` to staging.
-- [ ] Verify direct client writes are blocked for `users.credits_balance` and `opportunities.slots_filled`.
-- [ ] Verify `accept_terms` rejects users under 21 and records `state_code`, `market_eligible`, and `terms_policy_version`.
-- [ ] Verify campaigns can store `eligible_states`, `target_platforms`, disclosure tags, prohibited content rules, and rights fields.
-- [ ] Verify `gifting_workflow` records cannot be inserted directly by the client.
-- [ ] Verify brand and creator status transitions are only possible for the correct participant.
+- [x] Confirm migrations `026` through `029` are already applied to the linked remote project.
+- [x] Add a forward migration for explicit authenticated-only RPC execution grants.
+- [x] Static-verify direct client writes are blocked for `users.credits_balance` and `opportunities.slots_filled`.
+- [x] Static-verify `accept_terms` rejects users under 21 and records `state_code`, `market_eligible`, and `terms_policy_version`.
+- [x] Static-verify campaigns can store `eligible_states`, `target_platforms`, disclosure tags, prohibited content rules, and rights fields.
+- [x] Static-verify `gifting_workflow` records cannot be inserted directly by the client.
+- [x] Static-verify brand and creator status transitions are only possible for the correct participant.
+- [ ] Apply pending migration `030` to staging after owner confirmation.
+- [ ] Run remote/staging behavior checks after migration `030` is applied.
+
+**Phase 1 evidence:** `npx supabase migration list` shows remote migrations `026` through `029` are already applied. `npx supabase db push --dry-run` reported only `030_trust_rpc_grants.sql` would be pushed and made no remote changes. Local validation on May 1, 2026: `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 12 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes. Remote mutation is intentionally paused pending owner approval to apply migration `030`.
 
 **Success criteria:** Credits, slots, age gate, terms, campaign compliance fields, rights confirmation, and gifting status are protected by database rules, not just UI checks.
 
