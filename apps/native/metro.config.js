@@ -15,9 +15,10 @@ config.resolver.extraNodeModules = {
 config.resolver.nodeModulesPaths = [
   path.resolve(__dirname, "node_modules"),
   path.resolve(workspaceRoot, "node_modules"),
+  path.resolve(workspaceRoot, "node_modules/expo-router/node_modules"),
   path.resolve(workspaceRoot, "node_modules/react-native/node_modules"),
 ];
-config.resolver.disableHierarchicalLookup = true;
+config.resolver.disableHierarchicalLookup = false;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName === "ws") {
     return {
