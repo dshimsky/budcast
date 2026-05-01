@@ -652,7 +652,7 @@ export default function BrandProfilePage() {
 
           <aside className="grid gap-3 xl:sticky xl:top-6">
             <WorkQueueItem
-              description="Creators can message brands after acceptance to coordinate pickup, content details, and payment status."
+              description="Creators can message brands after acceptance to coordinate campaign details, content details, and payment status."
               title="Campaign coordination happens in BudCast messages"
             />
             <WorkQueueItem
@@ -673,7 +673,7 @@ export default function BrandProfilePage() {
               </p>
               <div className="mt-4 flex items-start gap-2 text-sm leading-6 text-[#c7ccc2]">
                 <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#e7ff9a]" />
-                Confirm pickup, usage, and payment details before creating content.
+                Confirm usage rights, campaign details, and payment expectations before creating content.
               </div>
             </div>
           </aside>

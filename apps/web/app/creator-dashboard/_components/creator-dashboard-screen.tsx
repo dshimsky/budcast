@@ -358,7 +358,7 @@ function getCreatorMessagePreview(row: SubmissionPipelineRow) {
     if (gw.status === "substitution_requested") return "You requested a substitution. Waiting on the brand.";
     if (gw.status === "cancelled") return "This gifting arrangement was cancelled.";
   }
-  if (!row.submission) return "You’re accepted. Coordinate pickup details, content questions, timing, and payment expectations.";
+  if (!row.submission) return "You’re accepted. Coordinate campaign details, content questions, timing, and payment expectations.";
   if (row.submission.verification_status === "pending") return "Content submitted. The brand is reviewing your post link.";
   if (row.submission.verification_status === "needs_revision" || row.submission.verification_status === "failed") {
     return "Revision requested. Check brand notes and resubmit when ready.";
@@ -562,7 +562,7 @@ function CreatorMessagesInbox({
       initialUserId={initialUserId}
       mobileOnly
       searchTargetType="brand"
-      subtitle="Search brands, send DMs, and keep pickup details, creative questions, approvals, and payment timing inside BudCast."
+      subtitle="Search brands, send DMs, and keep campaign details, creative questions, approvals, and payment timing inside BudCast."
       title="Messages"
     />
   );
@@ -655,7 +655,7 @@ function CreatorWorkJobCard({ row }: { row: SubmissionPipelineRow }) {
           Due {dueDate}
         </span>
         <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-[#c7ccc2]">
-          Pickup details in DM
+          Campaign details in DM
         </span>
       </div>
 
@@ -1036,7 +1036,7 @@ export function CreatorDashboardScreen({
               Keep campaigns moving.
             </h1>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#c7ccc2]">
-              Submit content, track approvals, coordinate pickup, and confirm payment status.
+              Submit content, track approvals, coordinate campaign details, and confirm payment status.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2">
               {[

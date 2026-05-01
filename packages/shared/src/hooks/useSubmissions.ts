@@ -179,6 +179,8 @@ export function useUpsertContentSubmission() {
             payment_confirmed_by_brand: false,
             payment_confirmed_by_creator: false,
             payment_confirmed_by_user_id: null,
+            brand_confirmed_by_user_id: null,
+            creator_confirmed_by_user_id: null,
             brand_confirmed_at: null,
             creator_confirmed_at: null
           })
@@ -245,35 +247,17 @@ export function useUpdateContentSubmissionVerification() {
 
 export function useConfirmSubmissionPayment() {
   const queryClient = useQueryClient();
-  const { brandContext, profile } = useAuth();
+  const { profile } = useAuth();
 
   return useMutation<SubmissionMutationResult, unknown, ConfirmSubmissionPaymentInput>({
     mutationFn: async (input) => {
       if (!profile?.id || !profile.user_type) {
         throw new Error("NOT_SIGNED_IN");
       }
-      const actorId = brandContext?.actorId ?? profile.id;
-      const isBrandSideActor = Boolean(brandContext?.brandId) || profile.user_type === "brand";
-
-      const patch =
-        isBrandSideActor
-          ? {
-              payment_confirmed_by_brand: true,
-              brand_confirmed_at: new Date().toISOString(),
-              payment_confirmed_by_user_id: actorId,
-              payment_method: input.paymentMethod ?? undefined
-            }
-          : {
-              payment_confirmed_by_creator: true,
-              creator_confirmed_at: new Date().toISOString()
-            };
-
-      const { data, error } = await supabase
-        .from("content_submissions")
-        .update(patch)
-        .eq("id", input.submissionId)
-        .select("id")
-        .single();
+      const { data, error } = await supabase.rpc("confirm_submission_fulfillment", {
+        p_payment_method: input.paymentMethod ?? null,
+        p_submission_id: input.submissionId
+      });
 
       if (error) throw error;
       return data as SubmissionMutationResult;

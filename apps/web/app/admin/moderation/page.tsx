@@ -46,9 +46,24 @@ function getReportTitle(report: ModerationReport) {
   return `${report.target_type.replace("_", " ")} · ${report.reason_type.replace("_", " ")}`;
 }
 
+function getPaymentProductFlags(report: ModerationReport) {
+  const metadata = report.metadata ?? {};
+  return {
+    paymentIssue:
+      report.payment_issue_flag ||
+      report.reason_type === "payment_issue" ||
+      metadata.payment_issue_flag === true,
+    productNotReceived:
+      report.product_not_received_flag ||
+      report.reason_type === "product_not_received" ||
+      metadata.product_not_received_flag === true
+  };
+}
+
 function ModerationReportCard({ report }: { report: ModerationReport }) {
   const updateReport = useUpdateModerationReport();
   const [note, setNote] = useState(report.resolution_note ?? "");
+  const flags = getPaymentProductFlags(report);
 
   function update(status: Extract<SafetyReportStatus, "reviewing" | "actioned" | "dismissed">) {
     updateReport.mutate({
@@ -69,6 +84,21 @@ function ModerationReportCard({ report }: { report: ModerationReport }) {
           {statusLabel(report.status)}
         </span>
       </div>
+
+      {flags.paymentIssue || flags.productNotReceived ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {flags.paymentIssue ? (
+            <span className="rounded-full border border-[#d7b46a]/30 bg-[#d7b46a]/12 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.13em] text-[#f0d28d]">
+              Payment dispute
+            </span>
+          ) : null}
+          {flags.productNotReceived ? (
+            <span className="rounded-full border border-[#ff8a65]/30 bg-[#ff8a65]/12 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.13em] text-[#ffb199]">
+              Product not received
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="mt-4 grid gap-3 text-sm font-semibold leading-6 text-[#c7ccc2] md:grid-cols-2">
         <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.035] p-3">

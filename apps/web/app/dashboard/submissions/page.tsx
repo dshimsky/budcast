@@ -84,6 +84,13 @@ function formatApplicationStatus(status: string | null | undefined) {
     .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
+function formatConfirmationDetail(confirmed: boolean, actorId?: string | null, confirmedAt?: string | null) {
+  if (!confirmed) return "No";
+  const actor = actorId ? ` by ${actorId.slice(0, 8)}` : "";
+  const at = confirmedAt ? ` at ${new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(confirmedAt))}` : "";
+  return `Yes${actor}${at}`;
+}
+
 function formatChipLabel(value: string) {
   return value
     .replace(/_/g, " ")
@@ -293,8 +300,22 @@ function SubmissionReviewCard({
           {submission ? (
             <div className="rounded-[26px] border border-white/[0.065] bg-black/20 p-4 text-sm leading-6 text-[#d8ded1] shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
               <div className="font-black text-[#fbfbf7]">{fulfillmentStatusLabel}</div>
-              <div className="mt-2">Brand confirmed: {submission.payment_confirmed_by_brand ? "Yes" : "No"}</div>
-              <div>Creator confirmed: {submission.payment_confirmed_by_creator ? "Yes" : "No"}</div>
+              <div className="mt-2">
+                Brand confirmed:{" "}
+                {formatConfirmationDetail(
+                  submission.payment_confirmed_by_brand,
+                  submission.brand_confirmed_by_user_id ?? submission.payment_confirmed_by_user_id,
+                  submission.brand_confirmed_at
+                )}
+              </div>
+              <div>
+                Creator confirmed:{" "}
+                {formatConfirmationDetail(
+                  submission.payment_confirmed_by_creator,
+                  submission.creator_confirmed_by_user_id,
+                  submission.creator_confirmed_at
+                )}
+              </div>
             </div>
           ) : null}
         </aside>

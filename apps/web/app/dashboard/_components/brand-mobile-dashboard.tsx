@@ -177,7 +177,7 @@ function getThreadTimestamp(row: BrandMobileSubmissionRow) {
 }
 
 function getMessageThreadPreview(row: BrandMobileSubmissionRow) {
-  if (!row.submission) return "Accepted creator. Coordinate pickup details, timing, deliverables, and payment expectations.";
+  if (!row.submission) return "Accepted creator. Coordinate campaign details, timing, deliverables, and payment expectations.";
   if (row.submission.verification_status === "pending") return "Content submitted. Review the link and approve or request changes.";
   if (row.submission.verification_status === "needs_revision" || row.submission.verification_status === "failed") {
     return "Revision requested. Keep notes clear so the creator can resubmit quickly.";
@@ -860,7 +860,7 @@ export function BrandMessagesView({
             <div>
               <h3 className="text-2xl font-black leading-tight tracking-[-0.055em] text-[#fbfbf7]">Campaign inbox</h3>
               <p className="mt-2 text-sm font-medium leading-6 text-[#c7ccc2]">
-                Coordinate pickup details, deliverables, review notes, and payment expectations with accepted creators.
+                Coordinate campaign details, deliverables, review notes, and payment expectations with accepted creators.
               </p>
             </div>
             <span className="rounded-full border border-[#b8ff3d]/25 bg-[#b8ff3d]/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#e7ff9a]">
@@ -868,7 +868,7 @@ export function BrandMessagesView({
             </span>
           </div>
           <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-            {["Priority", "Creators", "Pickup", "Payments"].map((filter, index) => (
+            {["Priority", "Creators", "Product status", "Payments"].map((filter, index) => (
               <span
                 className={`shrink-0 rounded-full px-4 py-2 text-xs font-black ${
                   index === 0

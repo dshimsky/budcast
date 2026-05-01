@@ -102,10 +102,12 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 
 **Recommended MVP choice:** Keep payments out of platform rails for launch. Use credits for campaign posting and manual payout/product confirmation for completed collaborations. Defer Stripe Connect or escrow until legal, tax, KYC, cannabis payment-risk, and refund policy are reviewed.
 
-- [ ] Write a product decision record in `docs/superpowers/specs/2026-05-01-budcast-payment-model-decision.md`.
-- [ ] Ensure campaign type copy distinguishes paid creator services from cannabis product transactions.
-- [ ] Ensure submission confirmation records who confirmed payment/product status and when.
-- [ ] Add admin-facing flags for payment disputes and product-not-received issues.
+- [x] Write a product decision record in `docs/superpowers/specs/2026-05-01-budcast-payment-model-decision.md`.
+- [x] Ensure campaign type copy distinguishes paid creator services from cannabis product transactions.
+- [x] Ensure submission confirmation records who confirmed payment/product status and when.
+- [x] Add admin-facing flags for payment disputes and product-not-received issues.
+
+**Phase 3 evidence:** Migration `033_phase3_payment_posture.sql` is applied to the linked remote project; `npx supabase db push --dry-run` now reports the remote database is up to date. Local validation on May 1, 2026: `node --test packages/shared/tests/phase3-payment-posture.test.ts` exited 0 with 6 passing tests; `node --test packages/shared/tests/phase2-trust-web.test.ts` exited 0 with 5 passing tests; `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 13 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes.
 
 **Success criteria:** The app does not imply escrow, cannabis commerce, or automated payout unless the backend and operating model actually support it.
 

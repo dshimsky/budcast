@@ -117,7 +117,7 @@ export default function SignUpPage() {
               </h2>
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#d8ded1]">
                 BudCast connects cannabis brands and creators through campaigns, social proof, messages, approval
-                workflows, and payment or pickup coordination. Creators use the app. Brands can work from desktop or phone.
+                workflows, and manual payment/product status. Creators use the app. Brands can work from desktop or phone.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2">

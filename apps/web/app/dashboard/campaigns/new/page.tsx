@@ -78,7 +78,7 @@ const BUILDER_STEP_LABELS: Record<StepNumber, string> = {
 const BUILDER_STEP_HELPER: Record<StepNumber, string> = {
   1: "Pick the offer structure creators will see.",
   2: "Write the listing that appears in the campaign feed.",
-  3: "Clarify pay, product, and coordination details.",
+  3: "Clarify creator service pay, product context, and coordination details.",
   4: "Set deliverables, talking points, and guardrails.",
   5: "Choose creator slots, deadline, and review flow.",
   6: "Confirm the creator-facing brief before publishing."
@@ -92,12 +92,12 @@ const compensationDetails: Record<"gifting" | "paid" | "hybrid", { title: string
   },
   paid: {
     title: "Paid",
-    body: "Cash compensation for a defined creator deliverable and approval workflow.",
+    body: "Manual cash compensation for defined creator services and approval workflow.",
     detail: "Best for launches, retail content, and time-sensitive UGC."
   },
   hybrid: {
     title: "Paid + Product",
-    body: "Cash compensation plus product context for a richer creator assignment.",
+    body: "Manual creator service pay plus product context for a richer creator assignment.",
     detail: "Best for premium drops, lifestyle videos, and deeper product stories."
   }
 };
@@ -665,12 +665,12 @@ export default function NewCampaignPage() {
                   <Eyebrow>Step 3</Eyebrow>
                   <h2 className="mt-2 text-4xl font-black tracking-[-0.05em] text-[#fbfbf7]">Creator compensation</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-[#d8ded1]">
-                    Be specific about pay, product details, and how creators should coordinate campaign logistics and next steps through messages.
+                    Be specific about creator service pay, product context, and how creators should coordinate campaign logistics and next steps through messages.
                   </p>
                 </div>
                 {(state.campaign_type === "paid" || state.campaign_type === "hybrid") ? (
                   <label className={fieldLabelClassName}>
-                    Creator payment amount
+                    Creator service payment amount
                     <input
                       className={inputClassName}
                       min={0}
@@ -687,7 +687,7 @@ export default function NewCampaignPage() {
                 ) : null}
                 {state.campaign_type !== "gifting" ? (
                   <div>
-                    <SectionLabel>Payment methods</SectionLabel>
+                    <SectionLabel>Manual creator service payment methods</SectionLabel>
                     <div className="flex flex-wrap gap-2">
                       {paymentMethods.map((method) => (
                         <ToggleChip

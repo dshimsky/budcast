@@ -55,6 +55,7 @@ export type PostType =
 export type ReviewStatus = 'published' | 'flagged' | 'removed' | 'pending';
 export type DisputeType =
   | 'non_payment'
+  | 'product_not_received'
   | 'no_content'
   | 'content_quality'
   | 'other';
@@ -82,6 +83,7 @@ export type SafetyReportReasonType =
   | 'unsafe_content'
   | 'misrepresentation'
   | 'payment_issue'
+  | 'product_not_received'
   | 'other';
 export type SafetyReportStatus = 'open' | 'reviewing' | 'actioned' | 'dismissed';
 export type PlatformAdminRole = 'owner' | 'moderator';
@@ -204,6 +206,8 @@ export interface SafetyReport {
   description: string | null;
   status: SafetyReportStatus;
   metadata: Record<string, unknown>;
+  payment_issue_flag: boolean;
+  product_not_received_flag: boolean;
   reviewed_by: string | null;
   reviewed_at: string | null;
   resolution_note: string | null;
@@ -528,6 +532,8 @@ export interface ContentSubmission {
   verified_at: string | null;
   reviewed_by_user_id: string | null;
   payment_confirmed_by_user_id: string | null;
+  brand_confirmed_by_user_id: string | null;
+  creator_confirmed_by_user_id: string | null;
   payment_confirmed_by_brand: boolean;
   payment_confirmed_by_creator: boolean;
   payment_method: string | null;
@@ -574,6 +580,9 @@ export interface Dispute {
   resolved_at: string | null;
   credits_refunded: boolean;
   account_suspended: boolean;
+  payment_issue_flag: boolean;
+  product_not_received_flag: boolean;
+  admin_flagged_at: string | null;
   created_at: string;
   updated_at: string;
 }

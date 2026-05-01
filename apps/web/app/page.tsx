@@ -39,7 +39,7 @@ export default function HomePage() {
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#d8ded1] md:text-lg">
                 BudCast is where cannabis brands post campaigns, creators apply, content gets approved,
-                and payments or pickup details stay connected to the work.
+                and manual payout or product status stays connected to the work.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -83,8 +83,8 @@ export default function HomePage() {
               Brands post campaigns. Creators apply. Content moves through approval and payment status.
             </p>
             <p className="mt-4 text-sm leading-7 text-[#c7ccc2]">
-              Built around real cannabis workflows: paid, product, and paid + product campaigns with messages
-              for pickup, details, revisions, and payment coordination.
+              Built around real cannabis workflows: paid creator services, product collaborations, and paid + product
+              campaigns with messages for details, revisions, and manual payment coordination.
             </p>
           </div>
           <PublicRoleCards />

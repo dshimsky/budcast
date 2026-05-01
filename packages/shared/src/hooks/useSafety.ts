@@ -105,7 +105,13 @@ export function useCreateSafetyReport() {
         .from("safety_reports")
         .insert({
           description: input.description?.trim() || null,
-          metadata: input.metadata ?? {},
+          metadata: {
+            ...(input.metadata ?? {}),
+            payment_issue_flag: input.reasonType === "payment_issue",
+            product_not_received_flag: input.reasonType === "product_not_received"
+          },
+          payment_issue_flag: input.reasonType === "payment_issue",
+          product_not_received_flag: input.reasonType === "product_not_received",
           reason_type: input.reasonType,
           reported_user_id: input.reportedUserId ?? null,
           reporter_id: profile.id,
