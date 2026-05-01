@@ -57,7 +57,7 @@ export default function StoreScreen() {
             </View>
             <View className="items-end">
               <Text className="text-[28px] font-black leading-none text-[#fbf8f4]">
-                {campaigns.data?.length ?? —}
+                {campaigns.data?.length ?? "--"}
               </Text>
               <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Open</Text>
             </View>

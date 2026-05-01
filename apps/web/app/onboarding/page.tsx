@@ -1,13 +1,12 @@
 "use client";
 
-import { hasCompletedOnboarding, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
+import { hasCompletedOnboarding, supabase, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BriefcaseBusiness, Users2, ShieldCheck, MapPin, Calendar } from "lucide-react";
 import { PublicMarketplaceHeader } from "../../components/public-marketplace-entry";
 import { Button } from "../../components/ui/button";
 import { getWorkspaceHref, getWorkspaceHrefForUserType } from "../../lib/workspace-routing";
-import { createClient } from "@budcast/shared/lib/supabase";
 
 const creatorNiches = [
   "flower", "pre_rolls", "edibles", "vapes",
@@ -126,7 +125,6 @@ export default function OnboardingPage() {
     try {
       setFeedback(null);
       setSubmitting(true);
-      const supabase = createClient();
       const { data, error } = await supabase.rpc("accept_terms", {
         p_date_of_birth:  dob,
         p_state_code:     stateCode,
@@ -232,17 +230,17 @@ export default function OnboardingPage() {
                 <div className="mt-6 grid gap-4">
                   <div>
                     <label className={labelClass}>Your name</label>
-                    <input className={inputClass} onChange={(e) => onboarding.setName(e.target.value)} placeholder={isCreator ? "Your name" : "Your full name"} type="text" value={onboarding.name} />
+                    <input className={inputClass} onChange={(e) => onboarding.setField("name", e.target.value)} placeholder={isCreator ? "Your name" : "Your full name"} type="text" value={onboarding.name} />
                   </div>
                   {isCreator ? (
                     <div>
                       <label className={labelClass}>Instagram handle</label>
-                      <input className={inputClass} onChange={(e) => onboarding.setInstagram(e.target.value)} placeholder="@yourhandle" type="text" value={onboarding.instagram} />
+                      <input className={inputClass} onChange={(e) => onboarding.setField("instagram", e.target.value)} placeholder="@yourhandle" type="text" value={onboarding.instagram} />
                     </div>
                   ) : (
                     <div>
                       <label className={labelClass}>Brand / company name</label>
-                      <input className={inputClass} onChange={(e) => onboarding.setCompanyName(e.target.value)} placeholder="Your cannabis brand" type="text" value={onboarding.companyName} />
+                      <input className={inputClass} onChange={(e) => onboarding.setField("companyName", e.target.value)} placeholder="Your cannabis brand" type="text" value={onboarding.companyName} />
                     </div>
                   )}
                 </div>

@@ -149,6 +149,7 @@ export default function NativeHomeScreen() {
 
   // ── Creator home (authenticated + onboarded) ──────────────────
   const campaigns = nicheCampaigns.data ?? [];
+  const firstName = profile?.name?.trim().split(/\s+/)[0];
 
   return (
     <PremiumScroll>
@@ -159,8 +160,8 @@ export default function NativeHomeScreen() {
           <View className="flex-row items-start justify-between">
             <View className="flex-1">
               <Text className="text-sm font-medium text-[#e8dccd]">
-                {profile?.display_name
-                  ? `Hey, ${profile.display_name.split(" ")[0]} 👋`
+                {firstName
+                  ? `Hey, ${firstName} 👋`
                   : "Hey 👋"}
               </Text>
             </View>

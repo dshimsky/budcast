@@ -13,5 +13,8 @@
     "preview:native:web": "npm run preview:web -w @budcast/native",
     "typecheck": "npm run typecheck -w @budcast/shared && npm run typecheck -w @budcast/web && npm run typecheck -w @budcast/native",
     "build:web": "npm run build -w @budcast/web"
+  },
+  "engines": {
+    "node": ">=20.10.0"
   }
 }

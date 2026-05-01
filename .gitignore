@@ -16,3 +16,6 @@ apps/native/android
 apps/native/ios
 .DS_Store
 .superpowers/
+.worktrees/
+
+/_audit

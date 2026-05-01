@@ -255,6 +255,7 @@ export default function NewCampaignPage() {
 
   const currentStep = useCampaignForm((state) => state.current_step);
   const state = useCampaignForm();
+  const patch = useCampaignForm((s) => s.patch);
   const hasHydratedRef = useRef(false);
   const [draftPromptDismissed, setDraftPromptDismissed] = useState(false);
   const [hashtagInput, setHashtagInput] = useState("");

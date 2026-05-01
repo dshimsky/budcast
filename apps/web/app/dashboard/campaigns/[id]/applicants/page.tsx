@@ -131,7 +131,7 @@ const GIFTING_STATUS_COLORS: Record<string, string> = {
 };
 
 function GiftingWorkflowPanel({ applicationId }: { applicationId: string }) {
-  const {  workflow, isLoading } = useGiftingWorkflow(applicationId);
+  const { data: workflow, isLoading } = useGiftingWorkflow(applicationId);
   const updateStatus = useUpdateGiftingStatus();
   const [contactMethod, setContactMethod] = useState("");
   const [expanded, setExpanded] = useState(false);

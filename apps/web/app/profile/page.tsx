@@ -843,25 +843,27 @@ function getCreatorSocialItems(profile: Profile): MetadataItem[] {
 }
 
 function getCreatorSocialPlatformItems(profile: Profile): SocialPlatformItem[] {
-  return [
+  const items: SocialPlatformItem[] = [
     { label: "Instagram", platform: "instagram", value: profile.instagram ? normalizeHandle(profile.instagram) : null },
     { label: "TikTok", platform: "tiktok", value: profile.tiktok ? normalizeHandle(profile.tiktok) : null },
     { label: "YouTube", platform: "youtube", value: profile.youtube ? normalizeHandle(profile.youtube) : null },
     { label: "Facebook", platform: "facebook", value: profile.facebook },
     { label: "LinkedIn", platform: "linkedin", value: profile.linkedin },
     { label: "X", platform: "x", value: profile.x_profile ? normalizeHandle(profile.x_profile) : null }
-  ].filter((item) => item.value != null);
+  ];
+  return items.filter((item) => item.value != null);
 }
 
 function getBrandSocialItems(profile: Profile): SocialPlatformItem[] {
-  return [
+  const items: SocialPlatformItem[] = [
     { label: "Instagram", platform: "instagram", value: profile.instagram ? normalizeHandle(profile.instagram) : null },
     { label: "TikTok", platform: "tiktok", value: profile.tiktok ? normalizeHandle(profile.tiktok) : null },
     { label: "YouTube", platform: "youtube", value: profile.youtube ? normalizeHandle(profile.youtube) : null },
     { label: "Facebook", platform: "facebook", value: profile.facebook },
     { label: "LinkedIn", platform: "linkedin", value: profile.linkedin },
     { label: "X", platform: "x", value: profile.x_profile ? normalizeHandle(profile.x_profile) : null }
-  ].filter((item) => item.value != null);
+  ];
+  return items.filter((item) => item.value != null);
 }
 
 function getPortfolioItems(portfolioUrls: string[] = []): MediaGridItem[] {
