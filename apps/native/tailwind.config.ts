@@ -11,6 +11,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        budcast: {
+          canvas: "#070806",
+          surface: "#10120f",
+          raised: "#151714",
+          overlay: "#1a1b16",
+          line: "rgba(255,255,255,0.1)",
+          text: "#fbf8f4",
+          muted: "#a59a86",
+          subtle: "#6f7468",
+          lime: "#b8ff3d",
+          limeSoft: "rgba(184,255,61,0.12)",
+          success: "#8ee68e",
+          warning: "#f0b85c",
+          danger: "#ff6b4a",
+          trust: "#69d8d0",
+          premium: "#d7b46a"
+        },
         surface: {
           50: "#fbf8f4",
           100: "#f2ebe1",
@@ -35,6 +52,14 @@ const config: Config = {
           800: "#384629",
           900: "#303c25"
         }
+      },
+      borderRadius: {
+        surface: "20px",
+        raised: "24px",
+        pill: "999px"
+      },
+      spacing: {
+        safe: "20px"
       }
     }
   },

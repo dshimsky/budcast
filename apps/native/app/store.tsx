@@ -22,14 +22,14 @@ import {
 } from "../components/premium";
 import { SectionBlock, SectionEyebrow } from "../components/sections";
 
-const campaignTypes: Array<{ label: string; value: CampaignType | null }> = [
-  { label: "All", value: null },
-  { label: "Gifting", value: "gifting" },
+const campaignTypes = [
+  { label: "For You", value: null },
+  { label: "Product", value: "gifting" },
   { label: "Paid", value: "paid" },
-  { label: "Hybrid", value: "hybrid" }
-];
+  { label: "Paid + Product", value: "hybrid" }
+] satisfies Array<{ label: string; value: CampaignType | null }>;
 
-export default function StoreScreen() {
+export function StoreScreen() {
   const { loading, session, profile } = useAuth();
   const [activeType, setActiveType] = useState<CampaignType | null>(null);
   const campaigns = useCampaigns({ type: activeType, sort: "newest" });
@@ -52,8 +52,8 @@ export default function StoreScreen() {
         <GlassCard>
           <View className="flex-row items-start justify-between gap-4">
             <View className="flex-1">
-              <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#a59a86]">Free Store</Text>
-              <Text className="mt-2 text-[22px] font-black leading-tight tracking-tight text-[#fbf8f4]">Creator Opportunities</Text>
+              <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#a59a86]">Campaigns</Text>
+              <Text className="mt-2 text-[22px] font-black leading-tight tracking-tight text-[#fbf8f4]">Creator campaigns</Text>
             </View>
             <View className="items-end">
               <Text className="text-[28px] font-black leading-none text-[#fbf8f4]">
@@ -133,3 +133,5 @@ export default function StoreScreen() {
     </PremiumScroll>
   );
 }
+
+export default StoreScreen;

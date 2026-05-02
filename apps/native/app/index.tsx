@@ -7,7 +7,7 @@ import {
   useBrandCampaigns,
   useMyNicheCampaigns
 } from "@budcast/shared";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import { Text, View } from "react-native";
 import {
   FadeInSection,
@@ -148,6 +148,10 @@ export default function NativeHomeScreen() {
   }
 
   // ── Creator home (authenticated + onboarded) ──────────────────
+  if (profile?.user_type === "creator") {
+    return <Redirect href="/(tabs)/campaigns" />;
+  }
+
   const campaigns = nicheCampaigns.data ?? [];
   const firstName = profile?.name?.trim().split(/\s+/)[0];
 
@@ -202,8 +206,8 @@ export default function NativeHomeScreen() {
           <Link asChild href={`/campaigns/${campaign.id}`} key={campaign.id}>
             <SoftCard>
               {/* Brand banner image */}
-              <View className="-mx-[18px] -mt-[18px] mb-4 h-24 rounded-t-2xl bg-gradient-to-br from-[#1d2b0a] to-[#0e1a06] border border-[#b8ff3d]/10 overflow-hidden">
-                <View className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+              <View className="-mx-[18px] -mt-[18px] mb-4 h-24 overflow-hidden rounded-t-2xl border border-[#b8ff3d]/10 bg-[#111b0b]">
+                <View className="absolute inset-x-0 bottom-0 h-14 bg-black/45" />
                 <View className="absolute bottom-2.5 left-3">
                   <View className="px-2 py-1 rounded-md bg-black/50 border border-white/10">
                     <Text className="text-[10px] font-semibold uppercase tracking-wider text-[#a59a86]">
@@ -226,8 +230,8 @@ export default function NativeHomeScreen() {
               ) : null}
               
               {/* Stat tiles grid */}
-              <View className="mt-4 grid grid-cols-2 gap-2">
-                <View className="rounded-lg bg-white/5 border border-white/10 px-2.5 py-2">
+              <View className="mt-4 flex-row gap-2">
+                <View className="flex-1 rounded-lg bg-white/5 border border-white/10 px-2.5 py-2">
                   <Text className="text-sm font-bold text-[#b8ff3d] leading-none">
                     {campaign.cash_amount ? formatCurrency(campaign.cash_amount) : "Free"}
                   </Text>
@@ -235,7 +239,7 @@ export default function NativeHomeScreen() {
                     {campaign.cash_amount ? "Cash" : "Product gift"}
                   </Text>
                 </View>
-                <View className="rounded-lg bg-white/5 border border-white/10 px-2.5 py-2">
+                <View className="flex-1 rounded-lg bg-white/5 border border-white/10 px-2.5 py-2">
                   <Text className="text-sm font-bold text-[#b8ff3d] leading-none">
                     {formatDeadline(campaign.application_deadline)}
                   </Text>

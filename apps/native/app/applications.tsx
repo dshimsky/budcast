@@ -22,7 +22,7 @@ import {
 } from "../components/premium";
 import { InfoTile, SectionBlock, SectionEyebrow } from "../components/sections";
 
-export default function ApplicationsScreen() {
+export function ApplicationsScreen() {
   const { loading, session, profile } = useAuth();
   const applications = useMyApplications();
 
@@ -148,3 +148,5 @@ export default function ApplicationsScreen() {
     </PremiumScroll>
   );
 }
+
+export default ApplicationsScreen;

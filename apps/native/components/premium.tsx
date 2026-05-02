@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -10,12 +10,13 @@ import {
   type ScrollViewProps,
   type ViewProps
 } from "react-native";
+import { Surface } from "./mobile-system";
 
 // ── Layout ──────────────────────────────────────────────────────────
 
-export function MobileScreen({ children }: { children: React.ReactNode }) {
+export function MobileScreen({ children }: { children: ReactNode }) {
   return (
-    <View className="flex-1 bg-[#070806]">
+    <View className="flex-1 bg-budcast-canvas">
       {children}
     </View>
   );
@@ -43,7 +44,7 @@ export function FadeInSection({
   delay = 0,
   className = ""
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   delay?: number;
   className?: string;
 }) {
@@ -79,30 +80,30 @@ export function FadeInSection({
 // ── Cards ──────────────────────────────────────────────────────────
 
 /** Primary container — used for hero/welcome cards */
-export function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function GlassCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <View className={`rounded-[24px] border border-white/10 bg-[#10120f] px-5 py-6 ${className}`}>
+    <Surface tone="default" className={`rounded-raised px-5 py-6 ${className}`}>
       {children}
-    </View>
+    </Surface>
   );
 }
 
 /** Secondary container — used for feed items and list cards */
-export function SoftCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function SoftCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <View className={`rounded-[20px] border border-white/10 bg-[#151714] px-5 py-5 ${className}`}>
+    <Surface tone="raised" className={`px-5 py-5 ${className}`}>
       {children}
-    </View>
+    </Surface>
   );
 }
 
 // ── Chips & Labels ───────────────────────────────────────────────
 
 /** Metadata chip — payout, deadline, status */
-export function HeroChip({ children }: { children: React.ReactNode }) {
+export function HeroChip({ children }: { children: ReactNode }) {
   return (
-    <View className="rounded-full border border-white/10 bg-[#1a1b16] px-4 py-2">
-      <Text className="text-xs uppercase tracking-[2px] text-[#d7c3a0]">{children}</Text>
+    <View className="rounded-pill border border-white/10 bg-budcast-overlay px-4 py-2">
+      <Text className="text-xs uppercase tracking-[2px] text-budcast-premium">{children}</Text>
     </View>
   );
 }
@@ -120,10 +121,10 @@ export function MetricTile({
   className?: string;
 }) {
   return (
-    <View className={`rounded-[20px] border border-white/10 bg-[#0d0f0c] px-5 py-5 ${className}`}>
-      <Text className="text-3xl font-black text-[#fbf8f4]">{value}</Text>
-      <Text className="mt-2 text-xs uppercase tracking-[2px] text-[#a59a86]">{label}</Text>
-    </View>
+    <Surface tone="overlay" className={`px-5 py-5 ${className}`}>
+      <Text className="text-3xl font-black text-budcast-text">{value}</Text>
+      <Text className="mt-2 text-xs uppercase tracking-[2px] text-budcast-muted">{label}</Text>
+    </Surface>
   );
 }
 
@@ -141,10 +142,10 @@ export function SectionTitle({
 }) {
   return (
     <View>
-      <Text className="text-xs uppercase tracking-[3px] text-[#a59a86]">{eyebrow}</Text>
-      <Text className="mt-3 text-2xl font-black leading-[32px] text-[#fbf8f4]">{title}</Text>
+      <Text className="text-xs uppercase tracking-[3px] text-budcast-muted">{eyebrow}</Text>
+      <Text className="mt-3 text-2xl font-black leading-[32px] text-budcast-text">{title}</Text>
       {description ? (
-        <Text className="mt-3 text-sm leading-6 text-[#a59a86]">{description}</Text>
+        <Text className="mt-3 text-sm leading-6 text-budcast-muted">{description}</Text>
       ) : null}
     </View>
   );
@@ -158,17 +159,17 @@ export function PrimaryPill({
   className = "",
   isLoading = false,
   ...props
-}: PressableProps & { children: React.ReactNode; className?: string; isLoading?: boolean }) {
+}: PressableProps & { children: ReactNode; className?: string; isLoading?: boolean }) {
   return (
     <Pressable
-      className={`rounded-full bg-[#b8ff3d] px-5 py-3 active:scale-[0.97] active:opacity-90 ${isLoading ? "opacity-60" : ""} ${className}`}
+      className={`rounded-pill bg-budcast-lime px-5 py-3 active:scale-[0.97] active:opacity-90 ${isLoading ? "opacity-60" : ""} ${className}`}
       disabled={isLoading || props.disabled}
       {...props}
     >
       {isLoading ? (
         <ActivityIndicator size="small" color="#070806" />
       ) : (
-        <Text className="text-center text-sm font-semibold text-[#070806]">{children}</Text>
+        <Text className="text-center text-sm font-semibold text-budcast-canvas">{children}</Text>
       )}
     </Pressable>
   );
@@ -179,20 +180,20 @@ export function SecondaryPill({
   children,
   className = "",
   ...props
-}: PressableProps & { children: React.ReactNode; className?: string }) {
+}: PressableProps & { children: ReactNode; className?: string }) {
   return (
     <Pressable
-      className={`rounded-full border border-white/[0.15] bg-white/[0.07] px-5 py-3 active:scale-[0.97] active:opacity-70 ${className}`}
+      className={`rounded-pill border border-white/[0.15] bg-white/[0.07] px-5 py-3 active:scale-[0.97] active:opacity-70 ${className}`}
       {...props}
     >
-      <Text className="text-center text-sm font-medium text-[#e8dccd]">{children}</Text>
+      <Text className="text-center text-sm font-medium text-surface-200">{children}</Text>
     </Pressable>
   );
 }
 
 // ── Utility ─────────────────────────────────────────────────────────
 
-export function SurfaceView({ children, className = "", ...props }: ViewProps & { children: React.ReactNode; className?: string }) {
+export function SurfaceView({ children, className = "", ...props }: ViewProps & { children: ReactNode; className?: string }) {
   return (
     <View className={className} {...props}>
       {children}

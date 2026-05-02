@@ -15,7 +15,7 @@ import {
 } from "../components/premium";
 import { InfoTile, SectionBlock, SectionEyebrow } from "../components/sections";
 
-export default function ProfileScreen() {
+export function ProfileScreen() {
   const { loading, session, profile, signOut } = useAuth();
   const applications = useMyApplications();
   const submissionPipeline = useMySubmissionPipeline();
@@ -192,3 +192,5 @@ export default function ProfileScreen() {
     </PremiumScroll>
   );
 }
+
+export default ProfileScreen;
