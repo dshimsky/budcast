@@ -144,11 +144,13 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 - Validate: `supabase/migrations/005_reviews.sql`
 - Validate: `supabase/migrations/006_disputes.sql`
 
-- [ ] Implement review RPCs that allow one review per completed application per reviewer.
-- [ ] Recalculate visible `review_score`, `review_count`, and trust badges after reviews.
-- [ ] Implement dispute filing for non-payment, no content, product-not-received, content quality, and compliance violations.
-- [ ] Add dispute resolution states and admin escalation.
-- [ ] Surface review and dispute status in brand and creator dashboards.
+- [x] Implement review RPCs that allow one review per completed application per reviewer.
+- [x] Recalculate visible `review_score`, `review_count`, and trust badges after reviews.
+- [x] Implement dispute filing for non-payment, no content, product-not-received, content quality, and compliance violations.
+- [x] Add dispute resolution states and admin escalation.
+- [x] Surface review and dispute status in brand and creator dashboards.
+
+**Phase 5 evidence:** Migration `035_phase5_marketplace_trust_loops.sql` is applied to the linked remote project; `npx supabase db push --dry-run` reports the remote database is up to date after application. Local validation on May 1, 2026: `node --test packages/shared/tests/phase5-marketplace-trust-loops.test.ts` exited 0 with 4 passing tests; `node --test packages/shared/tests/phase4-moderation-minimum.test.ts` exited 0 with 5 passing tests; `node --test packages/shared/tests/phase3-payment-posture.test.ts` exited 0 with 6 passing tests; `node --test packages/shared/tests/phase2-trust-web.test.ts` exited 0 with 5 passing tests; `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 13 passing tests; `node --test packages/shared/tests/creator-mobile-redesign.test.ts` exited 0 with 2 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes.
 
 **Success criteria:** Every completed or failed collaboration has a durable marketplace trust record.
 

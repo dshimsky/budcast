@@ -9,9 +9,12 @@ import {
   getTrustComplianceGateCopy,
   hasCompletedOnboarding,
   hasCompletedTrustCompliance,
+  type MarketplaceDisputeType,
   useAuth,
   useBrandSubmissionQueue,
   useConfirmSubmissionPayment,
+  useCreateMarketplaceReview,
+  useFileMarketplaceDispute,
   useUpdateContentSubmissionVerification
 } from "@budcast/shared";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,6 +25,13 @@ import { CreatorIdentityRow, MarketplaceBadge, MetadataStrip, WorkQueueItem } fr
 import { Button } from "../../../components/ui/button";
 
 type QueueTab = "all" | "submitted" | "needs_review" | "revision_requested" | "approved" | "complete";
+
+const disputeOptions: Array<{ value: MarketplaceDisputeType; label: string }> = [
+  { value: "no_content", label: "No content" },
+  { value: "content_quality", label: "Content quality" },
+  { value: "compliance_violation", label: "Compliance violation" },
+  { value: "other", label: "Other" }
+];
 
 function getQueueStage(row: BrandSubmissionQueueRow): QueueTab {
   if (!row?.submission) return "submitted";
@@ -134,6 +144,14 @@ function SubmissionReviewCard({
   row: BrandSubmissionQueueRow;
   verifyPending: boolean;
 }) {
+  const { brandContext, profile } = useAuth();
+  const createReview = useCreateMarketplaceReview();
+  const fileDispute = useFileMarketplaceDispute();
+  const [reviewText, setReviewText] = useState("");
+  const [reviewScore, setReviewScore] = useState(5);
+  const [disputeType, setDisputeType] = useState<MarketplaceDisputeType>("content_quality");
+  const [disputeDescription, setDisputeDescription] = useState("");
+  const [trustActionError, setTrustActionError] = useState<string | null>(null);
   const stage = getQueueStage(row);
   const submission = row.submission;
   const statusLabel = getReviewStatusLabel(row);
@@ -143,6 +161,40 @@ function SubmissionReviewCard({
   const fulfillmentStatusLabel = getFulfillmentStatusLabel(row.opportunity?.campaign_type);
   const canReview = Boolean(submission && stage === "needs_review");
   const rightsConfirmed = row.opportunity?.rights_confirmed === true;
+  const actorId = brandContext?.actorId ?? profile?.id ?? null;
+  const brandReview = row.reviews.find((review) => review.reviewer_id === actorId);
+  const openDispute = row.disputes.find((dispute) => ["open", "under_review", "escalated"].includes(dispute.status));
+  const canLeaveCreatorReview = row.status === "completed" && !brandReview;
+
+  async function handleCreateReview() {
+    try {
+      setTrustActionError(null);
+      await createReview.mutateAsync({
+        applicationId: row.id,
+        contentQualityScore: reviewScore,
+        professionalismScore: reviewScore,
+        reviewText,
+        timelinessScore: reviewScore,
+      });
+      setReviewText("");
+    } catch (error) {
+      setTrustActionError(error instanceof Error ? error.message : "Creator review could not be saved.");
+    }
+  }
+
+  async function handleFileDispute() {
+    try {
+      setTrustActionError(null);
+      await fileDispute.mutateAsync({
+        applicationId: row.id,
+        description: disputeDescription,
+        disputeType,
+      });
+      setDisputeDescription("");
+    } catch (error) {
+      setTrustActionError(error instanceof Error ? error.message : "Dispute could not be filed.");
+    }
+  }
 
   return (
     <article className="overflow-hidden rounded-[34px] border border-white/[0.075] bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.024))] shadow-[0_22px_70px_rgba(0,0,0,0.28),0_1px_0_rgba(255,255,255,0.045)_inset] transition hover:-translate-y-1 hover:border-[#b8ff3d]/24">
@@ -318,10 +370,89 @@ function SubmissionReviewCard({
               </div>
             </div>
           ) : null}
+
+          <div className="rounded-[26px] border border-white/[0.065] bg-black/20 p-4 text-sm leading-6 text-[#d8ded1] shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
+            <div className="font-black text-[#fbfbf7]">Marketplace trust</div>
+            <div className="mt-2">Review status: {brandReview ? "Creator reviewed" : canLeaveCreatorReview ? "Ready for review" : "Available after completion"}</div>
+            <div>Dispute status: {openDispute ? statusLabelText(openDispute.status) : "No open dispute"}</div>
+          </div>
+
+          {canLeaveCreatorReview ? (
+            <div className="rounded-[26px] border border-[#b8ff3d]/16 bg-[#b8ff3d]/10 p-4 shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
+              <div className="text-sm font-black text-[#fbfbf7]">Leave creator review</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {[5, 4, 3, 2, 1].map((score) => (
+                  <button
+                    aria-pressed={reviewScore === score}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-black transition ${
+                      reviewScore === score
+                        ? "border-[#b8ff3d]/40 bg-[#b8ff3d]/18 text-[#e7ff9a]"
+                        : "border-white/[0.075] bg-white/[0.04] text-[#c7ccc2]"
+                    }`}
+                    key={score}
+                    onClick={() => setReviewScore(score)}
+                    type="button"
+                  >
+                    {score}/5
+                  </button>
+                ))}
+              </div>
+              <textarea
+                className="premium-textarea mt-3 min-h-[88px] text-sm"
+                onChange={(event) => setReviewText(event.target.value)}
+                placeholder="What should future brands know about this creator?"
+                value={reviewText}
+              />
+              <Button className="mt-3" disabled={createReview.isPending} onClick={() => void handleCreateReview()}>
+                Save creator review
+              </Button>
+            </div>
+          ) : null}
+
+          {!openDispute ? (
+            <div className="rounded-[26px] border border-[#d7b46a]/20 bg-[#d7b46a]/10 p-4 shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
+              <div className="text-sm font-black text-[#fbfbf7]">File dispute</div>
+              <select
+                className="mt-3 h-10 w-full rounded-full border border-white/[0.075] bg-black/35 px-3 text-sm font-bold text-[#fbfbf7] outline-none focus:border-[#b8ff3d]/28"
+                onChange={(event) => setDisputeType(event.target.value as MarketplaceDisputeType)}
+                value={disputeType}
+              >
+                {disputeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <textarea
+                className="premium-textarea mt-3 min-h-[88px] text-sm"
+                onChange={(event) => setDisputeDescription(event.target.value)}
+                placeholder="Describe the issue and where the evidence lives."
+                value={disputeDescription}
+              />
+              <Button
+                className="mt-3"
+                disabled={fileDispute.isPending || disputeDescription.trim().length < 10}
+                onClick={() => void handleFileDispute()}
+                variant="secondary"
+              >
+                File dispute
+              </Button>
+            </div>
+          ) : null}
+
+          {trustActionError ? (
+            <div className="rounded-[22px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
+              {trustActionError}
+            </div>
+          ) : null}
         </aside>
       </div>
     </article>
   );
+}
+
+function statusLabelText(status: string) {
+  return status.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function SubmissionQueueInner() {

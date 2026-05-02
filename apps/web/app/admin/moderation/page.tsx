@@ -4,13 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Ban, CheckCircle2, ShieldAlert, ShieldCheck, Trash2, XCircle } from "lucide-react";
 import {
+  type Dispute,
   type ModerationAction,
   type ModerationReport,
   type SafetyReportStatus,
   hasCompletedOnboarding,
+  useAdminDisputes,
   useAuth,
   useModerationReports,
   usePlatformAdminStatus,
+  useResolveMarketplaceDispute,
   useUpdateModerationReport
 } from "@budcast/shared";
 import { useRouter } from "next/navigation";
@@ -40,6 +43,10 @@ function statusClass(status: SafetyReportStatus) {
 }
 
 function statusLabel(status: SafetyReportStatus) {
+  return status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+function formatStatusText(status: string) {
   return status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
@@ -185,10 +192,94 @@ function ModerationReportCard({ report }: { report: ModerationReport }) {
   );
 }
 
+function DisputeEscalationCard({ dispute }: { dispute: Dispute }) {
+  const resolveDispute = useResolveMarketplaceDispute();
+  const [resolution, setResolution] = useState(dispute.resolution ?? "");
+
+  function update(status: "under_review" | "resolved" | "escalated" | "closed") {
+    resolveDispute.mutate({
+      disputeId: dispute.id,
+      resolution,
+      status
+    });
+  }
+
+  return (
+    <article className="rounded-[30px] border border-[#d7b46a]/22 bg-[linear-gradient(135deg,rgba(215,180,106,0.08),transparent_42%),#0c0907] p-4 shadow-[0_20px_70px_rgba(0,0,0,0.36),0_1px_0_rgba(255,255,255,0.04)_inset]">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[#f0d28d]">Dispute escalation</div>
+          <h2 className="mt-2 text-2xl font-black capitalize tracking-[-0.045em] text-[#fbfbf7]">
+            {dispute.dispute_type.replace(/_/g, " ")}
+          </h2>
+        </div>
+        <span className="rounded-full border border-[#d7b46a]/30 bg-[#d7b46a]/12 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.13em] text-[#f0d28d]">
+          {formatStatusText(dispute.status)}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 text-sm font-semibold leading-6 text-[#c7ccc2] md:grid-cols-2">
+        <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.035] p-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.14em] text-[#83766e]">Filed by</div>
+          <div className="mt-1 break-all text-[#fbfbf7]">{dispute.filed_by}</div>
+        </div>
+        <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.035] p-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.14em] text-[#83766e]">Filed against</div>
+          <div className="mt-1 break-all text-[#fbfbf7]">{dispute.filed_against}</div>
+        </div>
+      </div>
+
+      <p className="mt-4 rounded-[22px] border border-white/[0.07] bg-white/[0.035] p-3 text-sm font-semibold leading-6 text-[#d8ded1]">
+        {dispute.description}
+      </p>
+
+      <label className="mt-4 block">
+        <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#8f8177]">Resolution note</span>
+        <textarea
+          className="mt-2 min-h-20 w-full resize-none rounded-[22px] border border-white/[0.08] bg-black/25 px-4 py-3 text-sm font-semibold leading-6 text-[#fbfbf7] outline-none placeholder:text-[#7f7168] focus:border-[#b8ff3d]/24"
+          onChange={(event) => setResolution(event.target.value)}
+          placeholder="Add admin dispute resolution notes."
+          value={resolution}
+        />
+      </label>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#d7b46a]/22 bg-[#d7b46a]/10 px-4 text-xs font-black text-[#f0d28d] transition hover:bg-[#d7b46a]/14 disabled:opacity-50"
+          disabled={resolveDispute.isPending}
+          onClick={() => update("under_review")}
+          type="button"
+        >
+          <ShieldAlert className="h-4 w-4" />
+          Mark reviewing
+        </button>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#ff8a65]/24 bg-[#ff8a65]/10 px-4 text-xs font-black text-[#ffb199] transition hover:bg-[#ff8a65]/14 disabled:opacity-50"
+          disabled={resolveDispute.isPending}
+          onClick={() => update("escalated")}
+          type="button"
+        >
+          Escalate dispute
+        </button>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[linear-gradient(180deg,#d7ff72,#b8ff3d)] px-4 text-xs font-black text-[#071007] shadow-[0_12px_28px_rgba(184,255,61,0.2)] transition hover:brightness-110 disabled:opacity-50"
+          disabled={resolveDispute.isPending}
+          onClick={() => update("resolved")}
+          type="button"
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          Resolve dispute
+        </button>
+      </div>
+    </article>
+  );
+}
+
 export default function AdminModerationPage() {
   const router = useRouter();
   const { loading, session, profile } = useAuth();
   const admin = usePlatformAdminStatus();
+  const disputes = useAdminDisputes();
   const reports = useModerationReports();
   const [statusFilter, setStatusFilter] = useState<SafetyReportStatus>("open");
 
@@ -344,6 +435,29 @@ export default function AdminModerationPage() {
             ))}
           </div>
         ) : null}
+
+        <section className="grid gap-4">
+          <div>
+            <div className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f0d28d]">Dispute escalation</div>
+            <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-[#fbfbf7]">Open marketplace disputes.</h2>
+          </div>
+
+          {disputes.isLoading ? (
+            <div className="rounded-[28px] border border-white/[0.075] bg-white/[0.035] p-5 text-sm font-black text-[#c7ccc2]">
+              Loading dispute escalation queue...
+            </div>
+          ) : null}
+
+          {!disputes.isLoading && !(disputes.data ?? []).length ? (
+            <div className="rounded-[28px] border border-white/[0.075] bg-white/[0.035] p-5 text-sm font-black text-[#c7ccc2]">
+              No open dispute escalations.
+            </div>
+          ) : null}
+
+          {(disputes.data ?? []).map((dispute) => (
+            <DisputeEscalationCard dispute={dispute} key={dispute.id} />
+          ))}
+        </section>
       </div>
     </main>
   );

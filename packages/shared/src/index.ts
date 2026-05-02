@@ -9,6 +9,7 @@ export * from "./hooks/useCampaign";
 export * from "./hooks/useCampaignApplicants";
 export * from "./hooks/useCampaigns";
 export * from "./hooks/useDrafts";
+export * from "./hooks/useDisputes";
 export * from "./hooks/useFeedPosts";
 export * from "./hooks/useFollows";
 export * from "./hooks/useMyApplications";

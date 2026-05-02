@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { Application, Opportunity, Review, User } from '../types/database';
 
@@ -29,6 +29,17 @@ export type ProfileReviewsResult = {
   dimensionAverages: Record<ReviewDimensionKey, number | null>;
   reviewCount: number;
   reviews: ProfileReview[];
+};
+
+export type CreateMarketplaceReviewInput = {
+  applicationId: string;
+  reviewText?: string | null;
+  contentQualityScore?: number | null;
+  professionalismScore?: number | null;
+  timelinessScore?: number | null;
+  paymentSpeedScore?: number | null;
+  communicationScore?: number | null;
+  productQualityScore?: number | null;
 };
 
 const DIMENSION_KEYS: ReviewDimensionKey[] = [
@@ -130,6 +141,39 @@ export function useProfileReviews(profileId: string | null | undefined, limit = 
       };
     },
     staleTime: 30_000,
+  });
+}
+
+export function useCreateMarketplaceReview() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Review, unknown, CreateMarketplaceReviewInput>({
+    mutationFn: async (input) => {
+      const { data, error } = await supabase.rpc("create_marketplace_review", {
+        p_application_id: input.applicationId,
+        p_communication_score: input.communicationScore ?? null,
+        p_content_quality_score: input.contentQualityScore ?? null,
+        p_payment_speed_score: input.paymentSpeedScore ?? null,
+        p_product_quality_score: input.productQualityScore ?? null,
+        p_professionalism_score: input.professionalismScore ?? null,
+        p_review_text: input.reviewText ?? null,
+        p_timeliness_score: input.timelinessScore ?? null,
+      });
+
+      if (error) throw error;
+      return data as Review;
+    },
+    onSuccess: async (review) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["profile-reviews", review.reviewee_id] }),
+        queryClient.invalidateQueries({ queryKey: ["brand-submissions"] }),
+        queryClient.invalidateQueries({ queryKey: ["submission-pipeline"] }),
+        queryClient.invalidateQueries({ queryKey: ["my-applications"] }),
+        queryClient.invalidateQueries({ queryKey: ["applicants"] }),
+        queryClient.invalidateQueries({ queryKey: ["brands"] }),
+        queryClient.invalidateQueries({ queryKey: ["brand-profile"] }),
+      ]);
+    },
   });
 }
 

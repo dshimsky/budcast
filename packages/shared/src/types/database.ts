@@ -58,6 +58,7 @@ export type DisputeType =
   | 'product_not_received'
   | 'no_content'
   | 'content_quality'
+  | 'compliance_violation'
   | 'other';
 export type DisputeStatus =
   | 'open'
@@ -889,6 +890,38 @@ export interface Database {
           p_action?: 'status_only' | 'remove_content' | 'suspend_profile';
         };
         Returns: SafetyReport;
+      };
+      create_marketplace_review: {
+        Args: {
+          p_application_id: string;
+          p_review_text?: string | null;
+          p_content_quality_score?: number | null;
+          p_professionalism_score?: number | null;
+          p_timeliness_score?: number | null;
+          p_payment_speed_score?: number | null;
+          p_communication_score?: number | null;
+          p_product_quality_score?: number | null;
+        };
+        Returns: Review;
+      };
+      file_marketplace_dispute: {
+        Args: {
+          p_application_id: string;
+          p_dispute_type: DisputeType;
+          p_description: string;
+          p_evidence_urls?: string[];
+        };
+        Returns: Dispute;
+      };
+      resolve_marketplace_dispute: {
+        Args: {
+          p_dispute_id: string;
+          p_status: Extract<DisputeStatus, 'under_review' | 'resolved' | 'escalated' | 'closed'>;
+          p_resolution?: string | null;
+          p_credits_refunded?: boolean;
+          p_account_suspended?: boolean;
+        };
+        Returns: Dispute;
       };
     };
     Enums: Record<string, never>;

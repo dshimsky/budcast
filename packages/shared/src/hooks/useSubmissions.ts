@@ -4,10 +4,12 @@ import { supabase } from "../lib/supabase";
 import type {
   Application,
   ContentSubmission,
+  Dispute,
   GiftingWorkflow,
   Opportunity,
   PaymentMethod,
   PostType,
+  Review,
   User,
   VerificationStatus
 } from "../types/database";
@@ -26,12 +28,16 @@ export interface SubmissionPipelineRow extends Application {
   opportunity: SubmissionOpportunitySummary | null;
   submission: ContentSubmission | null;
   gifting_workflow: GiftingWorkflow | null;
+  disputes: Dispute[];
+  reviews: Review[];
 }
 
 export interface BrandSubmissionQueueRow extends Application {
   creator: SubmissionCreatorSummary | null;
   opportunity: SubmissionOpportunitySummary | null;
   submission: ContentSubmission | null;
+  disputes: Dispute[];
+  reviews: Review[];
 }
 
 interface SubmissionMutationResult {
@@ -60,14 +66,28 @@ export interface ConfirmSubmissionPaymentInput {
   paymentMethod?: PaymentMethod | null;
 }
 
-function collapseSubmission<T extends { submissions?: ContentSubmission[] | null; gifting_workflows?: GiftingWorkflow[] | null }>(
+function collapseSubmission<
+  T extends {
+    disputes?: Dispute[] | null;
+    gifting_workflows?: GiftingWorkflow[] | null;
+    reviews?: Review[] | null;
+    submissions?: ContentSubmission[] | null;
+  }
+>(
   row: T
-): Omit<T, "submissions" | "gifting_workflows"> & { submission: ContentSubmission | null; gifting_workflow: GiftingWorkflow | null } {
-  const { submissions, gifting_workflows, ...rest } = row;
+): Omit<T, "disputes" | "gifting_workflows" | "reviews" | "submissions"> & {
+  disputes: Dispute[];
+  gifting_workflow: GiftingWorkflow | null;
+  reviews: Review[];
+  submission: ContentSubmission | null;
+} {
+  const { disputes, submissions, gifting_workflows, reviews, ...rest } = row;
   return {
     ...rest,
+    disputes: Array.isArray(disputes) ? disputes : [],
     submission: Array.isArray(submissions) ? (submissions[0] ?? null) : null,
     gifting_workflow: Array.isArray(gifting_workflows) ? (gifting_workflows[0] ?? null) : null,
+    reviews: Array.isArray(reviews) ? reviews : [],
   };
 }
 
@@ -101,15 +121,24 @@ export function useMySubmissionPipeline() {
             )
           ),
           submissions:content_submissions (*),
-          gifting_workflows:gifting_workflow (*)
+          gifting_workflows:gifting_workflow (*),
+          disputes (*),
+          reviews (*)
         `
         )
         .eq("creator_id", creatorId!)
-        .in("status", ["accepted", "completed"])
+        .in("status", ["accepted", "completed", "disputed"])
         .order("accepted_at", { ascending: false });
 
       if (error) throw error;
-      return ((data ?? []) as Array<SubmissionPipelineRow & { submissions?: ContentSubmission[] | null; gifting_workflows?: GiftingWorkflow[] | null }>).map(
+      return ((data ?? []) as Array<
+        SubmissionPipelineRow & {
+          disputes?: Dispute[] | null;
+          gifting_workflows?: GiftingWorkflow[] | null;
+          reviews?: Review[] | null;
+          submissions?: ContentSubmission[] | null;
+        }
+      >).map(
         collapseSubmission
       );
     }
@@ -138,15 +167,23 @@ export function useBrandSubmissionQueue() {
               id, company_name, avatar_url
             )
           ),
-          submissions:content_submissions (*)
+          submissions:content_submissions (*),
+          disputes (*),
+          reviews (*)
         `
         )
         .eq("opportunity.brand_id", brandId!)
-        .in("status", ["accepted", "completed"])
+        .in("status", ["accepted", "completed", "disputed"])
         .order("accepted_at", { ascending: false });
 
       if (error) throw error;
-      return ((data ?? []) as Array<BrandSubmissionQueueRow & { submissions?: ContentSubmission[] | null }>).map(
+      return ((data ?? []) as Array<
+        BrandSubmissionQueueRow & {
+          disputes?: Dispute[] | null;
+          reviews?: Review[] | null;
+          submissions?: ContentSubmission[] | null;
+        }
+      >).map(
         collapseSubmission
       );
     }

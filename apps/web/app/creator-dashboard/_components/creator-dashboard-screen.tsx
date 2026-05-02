@@ -14,9 +14,12 @@ import {
   getPlatformTarget,
   getPrimaryContentType,
   hasCompletedOnboarding,
+  type MarketplaceDisputeType,
   useAuth,
+  useCreateMarketplaceReview,
   useCreatorConfirmReceipt,
   useCreatorDeclineGifting,
+  useFileMarketplaceDispute,
   useMyApplications,
   useMyNicheCampaigns,
   useMySubmissionPipeline
@@ -37,6 +40,13 @@ import { BudCastSocialFeed } from "../../../components/social-feed";
 import { TrustBadge } from "../../../components/marketplace/trust-badge";
 
 type CreatorTab = CreatorSocialShellProps["activeTab"];
+
+const creatorDisputeOptions: Array<{ value: MarketplaceDisputeType; label: string }> = [
+  { value: "non_payment", label: "Non-payment" },
+  { value: "product_not_received", label: "Product not received" },
+  { value: "compliance_violation", label: "Compliance violation" },
+  { value: "other", label: "Other" }
+];
 
 function getCreatorHandle(profile: ReturnType<typeof useAuth>["profile"]) {
   return profile?.instagram || profile?.tiktok || profile?.youtube || profile?.email?.split("@")[0] || "creator";
@@ -144,6 +154,10 @@ function getSocialTimestamp(source?: string | null) {
   if (diff < day) return `${Math.max(Math.floor(diff / hour), 1)}h`;
   if (diff < day * 7) return `${Math.max(Math.floor(diff / day), 1)}d`;
   return new Date(source).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function statusLabelText(status: string) {
+  return status.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function SocialActionRow({ primaryAction, primaryHref }: { primaryAction?: string; primaryHref?: string }) {
@@ -617,18 +631,56 @@ function CreatorWorkProgressRail({ progress }: { progress: number }) {
 }
 
 function CreatorWorkJobCard({ row }: { row: SubmissionPipelineRow }) {
+  const { profile } = useAuth();
+  const createReview = useCreateMarketplaceReview();
+  const fileDispute = useFileMarketplaceDispute();
+  const [reviewText, setReviewText] = useState("");
+  const [reviewScore, setReviewScore] = useState(5);
+  const [disputeType, setDisputeType] = useState<MarketplaceDisputeType>("non_payment");
+  const [disputeDescription, setDisputeDescription] = useState("");
+  const [trustActionError, setTrustActionError] = useState<string | null>(null);
   const brandName = row.opportunity?.brand?.company_name || "Cannabis brand";
   const brandInitials = getCreatorInitials(brandName) || "BC";
   const status = getWorkCardStatus(row);
   const progress = getWorkCardProgress(row);
   const dueDate = formatDeadline(row.completion_deadline);
   const postType = formatPostType(row.submission?.post_type);
+  const creatorReview = row.reviews.find((review) => review.reviewer_id === profile?.id);
+  const openDispute = row.disputes.find((dispute) => ["open", "under_review", "escalated"].includes(dispute.status));
+  const canLeaveBrandReview = row.status === "completed" && !creatorReview;
+
+  async function handleCreateReview() {
+    try {
+      setTrustActionError(null);
+      await createReview.mutateAsync({
+        applicationId: row.id,
+        communicationScore: reviewScore,
+        paymentSpeedScore: reviewScore,
+        productQualityScore: reviewScore,
+        reviewText,
+      });
+      setReviewText("");
+    } catch (error) {
+      setTrustActionError(error instanceof Error ? error.message : "Brand review could not be saved.");
+    }
+  }
+
+  async function handleFileDispute() {
+    try {
+      setTrustActionError(null);
+      await fileDispute.mutateAsync({
+        applicationId: row.id,
+        description: disputeDescription,
+        disputeType,
+      });
+      setDisputeDescription("");
+    } catch (error) {
+      setTrustActionError(error instanceof Error ? error.message : "Dispute could not be filed.");
+    }
+  }
 
   return (
-    <Link
-      className="rounded-[26px] border border-white/[0.075] bg-[linear-gradient(135deg,rgba(255,255,255,0.06),transparent_44%),#0c0f09] p-4 shadow-[0_18px_54px_rgba(0,0,0,0.36),0_1px_0_rgba(255,255,255,0.055)_inset] transition hover:border-[#b8ff3d]/25"
-      href="/creator-dashboard/work"
-    >
+    <article className="rounded-[26px] border border-white/[0.075] bg-[linear-gradient(135deg,rgba(255,255,255,0.06),transparent_44%),#0c0f09] p-4 shadow-[0_18px_54px_rgba(0,0,0,0.36),0_1px_0_rgba(255,255,255,0.055)_inset] transition hover:border-[#b8ff3d]/25">
       <div className="flex gap-3">
         <div className="premium-icon-surface grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[18px] text-xs font-black text-[#e7ff9a]">
           {row.opportunity?.brand?.avatar_url ? (
@@ -663,12 +715,92 @@ function CreatorWorkJobCard({ row }: { row: SubmissionPipelineRow }) {
 
       <div className="mt-3 flex items-center justify-between border-t border-white/[0.07] pt-3">
         <span className="text-xs font-bold text-[#aeb5aa]">Accepted → Submitted → Review</span>
-        <span className="text-xs font-black text-[#e7ff9a]">
+        <Link className="text-xs font-black text-[#e7ff9a]" href="/creator-dashboard/work">
           {getWorkCardAction(row)}
           <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
-        </span>
+        </Link>
       </div>
-    </Link>
+
+      <div className="mt-3 rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-3 text-xs font-bold leading-5 text-[#c7ccc2]">
+        <div className="font-black text-[#fbfbf7]">Marketplace trust</div>
+        <div className="mt-1">Review status: {creatorReview ? "Brand reviewed" : canLeaveBrandReview ? "Ready for review" : "Available after completion"}</div>
+        <div>Dispute status: {openDispute ? statusLabelText(openDispute.status) : "No open dispute"}</div>
+      </div>
+
+      {canLeaveBrandReview ? (
+        <div className="mt-3 rounded-[20px] border border-[#b8ff3d]/16 bg-[#b8ff3d]/10 p-3">
+          <div className="text-sm font-black text-[#fbfbf7]">Leave brand review</div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[5, 4, 3, 2, 1].map((score) => (
+              <button
+                aria-pressed={reviewScore === score}
+                className={`rounded-full border px-3 py-1.5 text-xs font-black transition ${
+                  reviewScore === score
+                    ? "border-[#b8ff3d]/40 bg-[#b8ff3d]/18 text-[#e7ff9a]"
+                    : "border-white/[0.075] bg-white/[0.04] text-[#c7ccc2]"
+                }`}
+                key={score}
+                onClick={() => setReviewScore(score)}
+                type="button"
+              >
+                {score}/5
+              </button>
+            ))}
+          </div>
+          <textarea
+            className="mt-3 min-h-[84px] w-full resize-none rounded-[18px] border border-white/[0.08] bg-black/25 px-3 py-2 text-sm font-semibold leading-6 text-[#fbfbf7] outline-none placeholder:text-[#7f7168] focus:border-[#b8ff3d]/24"
+            onChange={(event) => setReviewText(event.target.value)}
+            placeholder="What should future creators know about this brand?"
+            value={reviewText}
+          />
+          <button
+            className="mt-3 rounded-full bg-[linear-gradient(180deg,#d7ff72,#b8ff3d)] px-4 py-2 text-xs font-black text-[#071007] disabled:opacity-50"
+            disabled={createReview.isPending}
+            onClick={() => void handleCreateReview()}
+            type="button"
+          >
+            Save brand review
+          </button>
+        </div>
+      ) : null}
+
+      {!openDispute ? (
+        <div className="mt-3 rounded-[20px] border border-[#d7b46a]/20 bg-[#d7b46a]/10 p-3">
+          <div className="text-sm font-black text-[#fbfbf7]">File dispute</div>
+          <select
+            className="mt-3 h-10 w-full rounded-full border border-white/[0.075] bg-black/35 px-3 text-sm font-bold text-[#fbfbf7] outline-none focus:border-[#b8ff3d]/28"
+            onChange={(event) => setDisputeType(event.target.value as MarketplaceDisputeType)}
+            value={disputeType}
+          >
+            {creatorDisputeOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <textarea
+            className="mt-3 min-h-[84px] w-full resize-none rounded-[18px] border border-white/[0.08] bg-black/25 px-3 py-2 text-sm font-semibold leading-6 text-[#fbfbf7] outline-none placeholder:text-[#7f7168] focus:border-[#b8ff3d]/24"
+            onChange={(event) => setDisputeDescription(event.target.value)}
+            placeholder="Describe the issue and any evidence you have."
+            value={disputeDescription}
+          />
+          <button
+            className="mt-3 rounded-full border border-[#d7b46a]/30 bg-[#d7b46a]/12 px-4 py-2 text-xs font-black text-[#f0d28d] disabled:opacity-50"
+            disabled={fileDispute.isPending || disputeDescription.trim().length < 10}
+            onClick={() => void handleFileDispute()}
+            type="button"
+          >
+            File dispute
+          </button>
+        </div>
+      ) : null}
+
+      {trustActionError ? (
+        <div className="mt-3 rounded-[18px] border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200" role="alert">
+          {trustActionError}
+        </div>
+      ) : null}
+    </article>
   );
 }
 
@@ -792,6 +924,15 @@ export function CreatorDashboardScreen({
       ).length,
     [pipelineRows]
   );
+  const disputedJobCount = useMemo(
+    () =>
+      pipelineRows.filter(
+        (row) =>
+          row.status === "disputed" ||
+          row.disputes.some((dispute) => ["open", "under_review", "escalated"].includes(dispute.status))
+      ).length,
+    [pipelineRows]
+  );
   const deadlineApproachingCount = useMemo(
     () => applicationRows.filter(isDeadlineApproaching).length,
     [applicationRows]
@@ -819,6 +960,12 @@ export function CreatorDashboardScreen({
       actionLabel: "Track",
       description: `${paymentPendingCount} approved submission${paymentPendingCount === 1 ? "" : "s"} waiting on payment confirmation.`,
       title: "Track payment"
+    },
+    {
+      actionHref: "/creator-dashboard/work",
+      actionLabel: "Review",
+      description: `${disputedJobCount} collaboration${disputedJobCount === 1 ? "" : "s"} currently in dispute review.`,
+      title: "Disputed jobs"
     },
     {
       actionHref: "/creator-dashboard/work",
@@ -1043,6 +1190,7 @@ export function CreatorDashboardScreen({
                 { label: "Active campaign", value: acceptedApplicationCount },
                 { label: "Needs submission", value: submissionActionCount },
                 { label: "Payment pending", value: paymentPendingCount },
+                { label: "Disputed jobs", value: disputedJobCount },
                 { label: "Deadlines soon", value: deadlineApproachingCount }
               ].map((item) => (
                 <div

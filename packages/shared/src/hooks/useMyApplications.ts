@@ -2,7 +2,7 @@
  * useMyApplications — the current creator's applications, used to mark
  * "Applied" state on catalog cards and the detail page.
  *
- * Returns pending + accepted + completed applications (the states that
+ * Returns pending + accepted + completed + disputed applications (the states that
  * mean "I'm committed to this campaign"). Rejected/expired applications
  * do NOT block re-applying (the slots_filled check will usually prevent
  * it anyway, but the business logic says a creator CAN re-apply if they
@@ -71,7 +71,7 @@ export function useMyApplications(): UseMyApplicationsResult {
         `,
         )
         .eq('creator_id', creatorId!)
-        .in('status', ['pending', 'accepted', 'completed'])
+        .in('status', ['pending', 'accepted', 'completed', 'disputed'])
         .order('applied_at', { ascending: false });
       if (error) throw error;
       return (data ?? []) as ApplicationWithOpportunity[];
