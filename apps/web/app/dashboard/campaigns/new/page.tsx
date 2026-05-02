@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   autoInjectComplianceTag,
   canBrandTeamRole,
+  CAMPAIGN_TEMPLATES,
   formatCompensationLabel,
   formatCurrency,
   formatDeadline,
@@ -17,13 +18,16 @@ import {
   selectStepMissingFields,
   selectStepStatus,
   selectTotalCreditsRequired,
+  runCampaignPreflight,
   useAuth,
   useAutosaveDraft,
   useCampaignForm,
   useDrafts,
   usePublishCampaign,
   type CampaignCategory,
+  type CampaignTemplate,
   type ContentFormat,
+  type OpportunityDraftFormState,
   type PaymentMethod,
   type StepNumber
 } from "@budcast/shared";
@@ -65,6 +69,23 @@ const textAreaClassName = "premium-textarea mt-2";
 const compactInputClassName = "premium-input";
 const fieldLabelClassName = "text-sm font-black text-[#fbfbf7]";
 const detailPanelClassName = "rounded-[22px] border border-white/10 bg-white/[0.04] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.24)]";
+const templateDisplayLabels: Record<CampaignTemplate["category"], string> = {
+  product_education: "Product education",
+  budtender_education: "Budtender education",
+  event_recap: "Event recap",
+  compliant_lifestyle_ugc: "Compliant lifestyle UGC",
+  unboxing: "Unboxing",
+  retail_market_awareness: "Retail-market awareness",
+  ambassador_content: "Ambassador content"
+};
+const preflightLabels = {
+  missing_disclosure: "Missing disclosure",
+  sale_language: "Sale language",
+  health_claim: "Health claim",
+  age_market_mismatch: "Age / market mismatch",
+  platform_warning: "Platform warning"
+} as const;
+const duplicateCampaignStorageKey = "budcast_duplicate_campaign";
 
 const BUILDER_STEP_LABELS: Record<StepNumber, string> = {
   1: "Campaign type",
@@ -281,6 +302,20 @@ export default function NewCampaignPage() {
     if (!profile || !brandContext) return;
     if (hasHydratedRef.current) return;
     useCampaignForm.getState().hydrate(null, brandBalance);
+    const duplicateRaw = window.sessionStorage.getItem(duplicateCampaignStorageKey);
+    if (duplicateRaw) {
+      try {
+        const duplicateState = JSON.parse(duplicateRaw) as Partial<OpportunityDraftFormState>;
+        useCampaignForm.getState().patch({
+          ...duplicateState,
+          rights_confirmed: false,
+          compliance_checklist_done: false
+        });
+        useCampaignForm.getState().setStep(2);
+      } finally {
+        window.sessionStorage.removeItem(duplicateCampaignStorageKey);
+      }
+    }
     hasHydratedRef.current = true;
   }, [brandBalance, brandContext, profile]);
 
@@ -307,6 +342,7 @@ export default function NewCampaignPage() {
         .flatMap(({ label, missing }) => missing.map((item) => `${label}: ${item}`)),
     [steps]
   );
+  const preflight = useMemo(() => runCampaignPreflight(state), [state]);
 
   async function handleResumeLatestDraft() {
     if (!profile || !latestDraft) return;
@@ -360,6 +396,34 @@ export default function NewCampaignPage() {
       required_hashtags: autoInjectComplianceTag(nextState)
     });
     useCampaignForm.getState().setStep(2);
+  }
+
+  function applyTemplate(template: CampaignTemplate) {
+    const current = useCampaignForm.getState();
+    const requiredHashtags = Array.from(
+      new Set([...(current.required_hashtags ?? []), "#ad", ...(template.draftDefaults.disclosure_tags ?? [])])
+    );
+    useCampaignForm.getState().patch({
+      ...template.draftDefaults,
+      short_description: current.short_description || template.objective,
+      description:
+        current.description ||
+        [
+          template.objective,
+          "",
+          "Deliverables:",
+          ...template.deliverables.map((item) => `- ${item}`),
+          "",
+          "Compliance notes:",
+          ...template.complianceNotes.map((item) => `- ${item}`)
+        ].join("\n"),
+      required_hashtags: requiredHashtags,
+      must_includes: current.must_includes?.length ? current.must_includes : template.deliverables,
+      off_limits: current.off_limits?.length
+        ? current.off_limits
+        : ["No health claims", "No sale language", "No minors", "No driving or unsafe use"],
+      disclosure_tags: Array.from(new Set([...(template.draftDefaults.disclosure_tags ?? []), "#ad"]))
+    });
   }
 
   function updateReferenceImages() {
@@ -611,6 +675,34 @@ export default function NewCampaignPage() {
                     This is what creators scan in the campaign feed before opening the full brief.
                   </p>
                 </div>
+                <BuilderSubPanel className="p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <SectionLabel>Campaign templates</SectionLabel>
+                      <h3 className="text-2xl font-black tracking-[-0.04em] text-[#fbfbf7]">Start from a cannabis-native brief.</h3>
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c7ccc2]">
+                        Pick a template to prefill deliverables, platforms, disclosures, and compliance guardrails for common BudCast workflows.
+                      </p>
+                    </div>
+                    <div className="rounded-full border border-[#b8ff3d]/20 bg-[#b8ff3d]/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-[#e7ff9a]">
+                      {CAMPAIGN_TEMPLATES.length} templates
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    {CAMPAIGN_TEMPLATES.map((template) => (
+                      <button
+                        className="rounded-[22px] border border-white/10 bg-white/[0.035] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#b8ff3d]/25 hover:bg-[#b8ff3d]/8"
+                        key={template.id}
+                        onClick={() => applyTemplate(template)}
+                        type="button"
+                      >
+                        <div className="text-sm font-black text-[#fbfbf7]">{templateDisplayLabels[template.category]}</div>
+                        <div className="mt-2 line-clamp-2 text-xs leading-5 text-[#aeb5aa]">{template.objective}</div>
+                        <div className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-[#e7ff9a]">Apply template</div>
+                      </button>
+                    ))}
+                  </div>
+                </BuilderSubPanel>
                 <div className="grid gap-4">
                   <label className={fieldLabelClassName}>
                     Campaign title
@@ -1050,6 +1142,42 @@ export default function NewCampaignPage() {
                         ) : null}
                       </div>
                     ))}
+                  </div>
+                </div>
+                <div className={detailPanelClassName}>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-bold text-[#aeb5aa]">Compliance preflight</div>
+                      <div className="mt-1 text-xs leading-5 text-[#c7ccc2]">
+                        BudCast checks missing disclosure, sale language, health claim, age/market mismatch, and platform warnings before publish.
+                      </div>
+                    </div>
+                    <div
+                      className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] ${
+                        preflight.ok
+                          ? "border border-[#b8ff3d]/24 bg-[#b8ff3d]/10 text-[#e7ff9a]"
+                          : "border border-amber-400/25 bg-amber-400/10 text-amber-100"
+                      }`}
+                    >
+                      {preflight.ok ? "No blockers" : `${preflight.findings.length} findings`}
+                    </div>
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {preflight.findings.length > 0 ? (
+                      preflight.findings.map((finding) => (
+                        <div
+                          className="rounded-[18px] border border-white/10 bg-black/20 p-3 text-sm leading-6 text-[#d8ded1]"
+                          key={`${finding.code}-${finding.message}`}
+                        >
+                          <div className="font-black text-[#fbfbf7]">{preflightLabels[finding.code]}</div>
+                          <div className="mt-1 text-xs text-[#aeb5aa]">{finding.message}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-[18px] border border-[#b8ff3d]/20 bg-[#b8ff3d]/8 p-3 text-sm text-[#d8ded1]">
+                        Disclosure, platform, market, sale-language, and claim checks are clear.
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Rights & Compliance — migration 028 */}

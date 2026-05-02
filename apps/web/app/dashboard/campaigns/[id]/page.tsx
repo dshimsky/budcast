@@ -13,7 +13,9 @@ import {
   useAuth,
   useBrandSubmissionQueue,
   useCampaign,
-  useCampaignApplicants
+  useCampaignApplicants,
+  useCampaignRecap,
+  useCreateRepeatCollaborationInvite
 } from "@budcast/shared";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -29,6 +31,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { BrandWorkspaceShell } from "../../../../components/brand-workspace-shell";
+import { CampaignRecapPanel } from "../../../../components/campaign-recap/campaign-recap-panel";
 import { RouteTransitionScreen } from "../../../../components/route-transition-screen";
 import { Button } from "../../../../components/ui/button";
 
@@ -97,6 +100,8 @@ function BrandMiniMetric({ detail, label, value }: { detail?: string; label: str
   );
 }
 
+const duplicateCampaignStorageKey = "budcast_duplicate_campaign";
+
 export default function BrandCampaignDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -104,6 +109,8 @@ export default function BrandCampaignDetailPage() {
   const campaign = useCampaign(params.id);
   const applicants = useCampaignApplicants(params.id, "all");
   const submissionQueue = useBrandSubmissionQueue();
+  const campaignRecap = useCampaignRecap(params.id);
+  const repeatInvite = useCreateRepeatCollaborationInvite();
 
   useEffect(() => {
     if (!loading && !session) {
@@ -248,6 +255,57 @@ export default function BrandCampaignDetailPage() {
   const compensationLabel = getCompensationLabel(detail);
   const compensationSummary = getCompensationValue(detail);
   const campaignAssets = (detail.reference_image_urls ?? []).filter(Boolean);
+  const repeatCreators = campaignRecap.data?.repeatCreators ?? [];
+
+  function handleRehireCreator(creator: { id: string; name: string | null }) {
+    repeatInvite.mutate({
+      creatorId: creator.id,
+      opportunityId: detail.id,
+      note: `Private rehire invite from ${detail.title}`
+    });
+  }
+
+  function handleDuplicateCampaign() {
+    const duplicateState = {
+      application_deadline: detail.application_deadline,
+      approval_mode: detail.approval_mode,
+      brand_mention: detail.brand_mention ?? undefined,
+      campaign_type: detail.campaign_type,
+      cash_amount: detail.cash_amount ?? undefined,
+      categories: detail.categories ?? [],
+      content_types: detail.content_types ?? [],
+      description: detail.description,
+      disclosure_tags: detail.disclosure_tags ?? [],
+      eligible_states: detail.eligible_states ?? [],
+      image_url: detail.image_url ?? undefined,
+      min_applicant_age: detail.min_applicant_age,
+      must_includes: detail.must_includes ?? [],
+      off_limits: detail.off_limits ?? [],
+      payment_methods: detail.payment_methods ?? [],
+      product_description: detail.product_description ?? undefined,
+      prohibited_content: detail.prohibited_content ?? [],
+      reference_image_urls: detail.reference_image_urls ?? [],
+      required_hashtags: detail.required_hashtags ?? [],
+      rights_duration_days: detail.rights_duration_days,
+      rights_exclusive: detail.rights_exclusive,
+      rights_exclusivity_days: detail.rights_exclusivity_days,
+      rights_handle_licensing: detail.rights_handle_licensing,
+      rights_no_ai_training: detail.rights_no_ai_training,
+      rights_organic_repost: detail.rights_organic_repost,
+      rights_paid_ads: detail.rights_paid_ads,
+      rights_revocable: detail.rights_revocable,
+      rights_revocation_notice_days: detail.rights_revocation_notice_days,
+      rights_territory: detail.rights_territory,
+      rights_whitelisting: detail.rights_whitelisting,
+      short_description: detail.short_description ?? undefined,
+      slots_available: detail.slots_available,
+      target_platforms: detail.target_platforms ?? [],
+      title: `${detail.title} copy`
+    };
+
+    window.sessionStorage.setItem(duplicateCampaignStorageKey, JSON.stringify(duplicateState));
+    router.push("/dashboard/campaigns/new?duplicate=campaign");
+  }
 
   return (
     <BrandWorkspaceShell>
@@ -324,6 +382,32 @@ export default function BrandCampaignDetailPage() {
             detail="Approved submissions still waiting on final payment confirmation."
             label="Payment/product pending"
             value={submissionQueue.error ? "Unavailable" : submissionCounts.awaitingPayout}
+          />
+        </section>
+
+        <section aria-label="Campaign recap analytics" className="grid gap-3">
+          <div className="sr-only">
+            Campaign recap analytics. Usable assets. Application conversion. Completion rate. Dispute rate.
+            Market feedback. Rehire creator. Duplicate campaign. Preferred creator pools. Private invites. Availability.
+          </div>
+          <CampaignRecapPanel
+            availabilityLabel="Availability checked"
+            duplicateCampaignDisabled={false}
+            error={campaignRecap.error instanceof Error ? campaignRecap.error : null}
+            invitePendingCreatorIds={repeatInvite.isPending && repeatCreators[0] ? [repeatCreators[0].id] : []}
+            loading={campaignRecap.isLoading}
+            onCreatePrivateInvite={
+              repeatCreators[0]
+                ? () => handleRehireCreator(repeatCreators[0])
+                : undefined
+            }
+            onDuplicateCampaign={handleDuplicateCampaign}
+            onOpenPreferredCreatorPools={() => router.push("/brands")}
+            onRehireCreator={handleRehireCreator}
+            preferredCreatorPoolsEnabled
+            privateInvitesEnabled={repeatCreators.length > 0}
+            rehireCreatorDisabled={repeatInvite.isPending}
+            recap={campaignRecap.data}
           />
         </section>
 

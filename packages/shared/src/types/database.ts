@@ -77,6 +77,11 @@ export type TransactionType =
 export type ConversationType = 'direct' | 'campaign';
 export type FeedPostType = 'text' | 'media' | 'link' | 'repost';
 export type FeedPostVisibility = 'public' | 'followers' | 'private';
+export type ContentLibraryAssetType = 'post_url' | 'screenshot' | 'image' | 'video' | 'document' | 'other';
+export type ContentLibraryApprovalStatus = 'approved' | 'needs_review' | 'expired' | 'revoked';
+export type PreferredCreatorAvailability = 'open' | 'limited' | 'unavailable' | 'unknown';
+export type RepeatCollaborationInviteType = 'rehire_creator' | 'private_invite' | 'duplicate_campaign';
+export type RepeatCollaborationInviteStatus = 'pending' | 'accepted' | 'declined' | 'expired' | 'cancelled';
 export type SafetyReportTargetType = 'profile' | 'feed_post' | 'message' | 'review' | 'campaign' | 'conversation';
 export type SafetyReportReasonType =
   | 'spam'
@@ -624,6 +629,83 @@ export interface Dispute {
   updated_at: string;
 }
 
+export interface ContentLibraryAsset {
+  id: string;
+  brand_id: string;
+  creator_id: string | null;
+  opportunity_id: string | null;
+  application_id: string | null;
+  submission_id: string | null;
+  asset_url: string;
+  asset_type: ContentLibraryAssetType;
+  asset_title: string | null;
+  usage_terms: string;
+  rights_expires_at: string | null;
+  approval_status: ContentLibraryApprovalStatus;
+  market_tags: string[];
+  product_category_tags: string[];
+  platform_tags: string[];
+  engagement_metrics: Record<string, unknown>;
+  source_metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PreferredCreatorPool {
+  id: string;
+  brand_id: string;
+  name: string;
+  description: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PreferredCreatorPoolMember {
+  id: string;
+  pool_id: string;
+  brand_id: string;
+  creator_id: string;
+  source_opportunity_id: string | null;
+  notes: string | null;
+  availability: PreferredCreatorAvailability;
+  added_by: string | null;
+  created_at: string;
+}
+
+export interface RepeatCollaborationInvite {
+  id: string;
+  brand_id: string;
+  creator_id: string;
+  source_opportunity_id: string;
+  new_opportunity_id: string | null;
+  invite_type: RepeatCollaborationInviteType;
+  status: RepeatCollaborationInviteStatus;
+  note: string | null;
+  creator_availability_snapshot: string;
+  created_by: string | null;
+  created_at: string;
+  accepted_at: string | null;
+  expires_at: string;
+}
+
+export interface CampaignRecap {
+  opportunity_id: string;
+  usable_assets: Array<Record<string, unknown>>;
+  usable_asset_count: number;
+  application_conversion: number;
+  completion_rate: number;
+  dispute_rate: number;
+  review_score: number | null;
+  market_feedback: unknown;
+  post_urls: string[];
+  engagement: unknown;
+  repeat_creators: Array<Record<string, unknown>>;
+  total_applications: number;
+  accepted_applications: number;
+  completed_applications: number;
+}
+
 export interface CreditTransaction {
   id: string;
   user_id: string;
@@ -773,6 +855,32 @@ export interface Database {
         Insert: Partial<Dispute> &
           Pick<Dispute, 'application_id' | 'filed_by' | 'filed_against' | 'dispute_type' | 'description'>;
         Update: Partial<Dispute>;
+        Relationships: [];
+      };
+      content_library_assets: {
+        Row: ContentLibraryAsset;
+        Insert: Partial<ContentLibraryAsset> & Pick<ContentLibraryAsset, 'brand_id' | 'asset_url'>;
+        Update: Partial<ContentLibraryAsset>;
+        Relationships: [];
+      };
+      preferred_creator_pools: {
+        Row: PreferredCreatorPool;
+        Insert: Partial<PreferredCreatorPool> & Pick<PreferredCreatorPool, 'brand_id' | 'name'>;
+        Update: Partial<PreferredCreatorPool>;
+        Relationships: [];
+      };
+      preferred_creator_pool_members: {
+        Row: PreferredCreatorPoolMember;
+        Insert: Partial<PreferredCreatorPoolMember> &
+          Pick<PreferredCreatorPoolMember, 'pool_id' | 'brand_id' | 'creator_id'>;
+        Update: Partial<PreferredCreatorPoolMember>;
+        Relationships: [];
+      };
+      repeat_collaboration_invites: {
+        Row: RepeatCollaborationInvite;
+        Insert: Partial<RepeatCollaborationInvite> &
+          Pick<RepeatCollaborationInvite, 'brand_id' | 'creator_id' | 'source_opportunity_id'>;
+        Update: Partial<RepeatCollaborationInvite>;
         Relationships: [];
       };
       credit_transactions: {
@@ -979,6 +1087,21 @@ export interface Database {
           p_account_suspended?: boolean;
         };
         Returns: Dispute;
+      };
+      get_campaign_recap: {
+        Args: {
+          p_opportunity_id: string;
+        };
+        Returns: CampaignRecap;
+      };
+      create_repeat_collaboration_invite: {
+        Args: {
+          p_creator_id: string;
+          p_source_opportunity_id: string;
+          p_note?: string | null;
+          p_new_opportunity_id?: string | null;
+        };
+        Returns: RepeatCollaborationInvite;
       };
     };
     Enums: Record<string, never>;

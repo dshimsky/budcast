@@ -7,6 +7,7 @@ import {
   BriefcaseBusiness,
   CreditCard,
   LayoutDashboard,
+  LibraryBig,
   LogOut,
   MessageCircle,
   Settings2,
@@ -75,6 +76,12 @@ export function BrandWorkspaceShell({ children }: { children: React.ReactNode })
       icon: ShieldCheck,
       label: "Approve content",
       description: "Approve content"
+    },
+    {
+      href: "/dashboard/library",
+      icon: LibraryBig,
+      label: "Content library",
+      description: "Rights vault"
     },
     {
       href: "/dashboard/messages",
