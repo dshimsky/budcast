@@ -38,3 +38,19 @@ test("native tokens define BudCast mobile color roles", () => {
     assert.match(source, new RegExp(marker));
   }
 });
+
+test("native campaigns tab uses media-first marketplace primitives", () => {
+  const source = readWorkspaceFile("apps/native/app/store.tsx");
+
+  for (const marker of ["CampaignCard", "TrustRow", "SegmentedControl", "Payment protected", "Usage rights"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("native campaigns filters match the audit marketplace vocabulary", () => {
+  const source = readWorkspaceFile("apps/native/app/store.tsx");
+
+  for (const marker of ["For You", "Local", "Paid", "Product", "Paid + Product"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});

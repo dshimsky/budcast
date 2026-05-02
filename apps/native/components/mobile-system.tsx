@@ -146,13 +146,20 @@ export function CampaignCard({
   brand,
   children,
   ctaLabel,
+  imageUrl,
   onPress,
   title
-}: PressableProps & { brand: string; children?: ReactNode; ctaLabel: string; title: string }) {
+}: PressableProps & { brand: string; children?: ReactNode; ctaLabel: string; imageUrl?: string | null; title: string }) {
   return (
     <Pressable className="active:scale-[0.99]" onPress={onPress}>
       <Surface tone="raised">
         <MediaTile>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} className="h-full w-full" resizeMode="cover" />
+          ) : (
+            <View className="h-full w-full bg-[#111b0b]" />
+          )}
+          <View className="absolute inset-x-0 bottom-0 h-20 bg-black/45" />
           <View className="absolute bottom-3 left-3 rounded-lg bg-black/45 px-2.5 py-1.5">
             <Text className="text-[10px] font-bold uppercase tracking-[1.4px] text-budcast-text">{brand}</Text>
           </View>
