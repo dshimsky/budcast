@@ -53,7 +53,7 @@ function BrandMessagesPageContent() {
       <BudCastDmInbox
         initialUserId={searchParams.get("user")}
         searchTargetType="creator"
-        subtitle="Search creators, send DMs, and coordinate pickup, creative direction, review notes, payment timing, and content details."
+        subtitle="Search creators, send DMs, and coordinate campaign details, creative direction, review notes, payment timing, and content details."
         title="Messages"
       />
     </BrandWorkspaceShell>

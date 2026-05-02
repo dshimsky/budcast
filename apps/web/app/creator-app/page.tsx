@@ -16,7 +16,7 @@ const appSignals = [
     label: "Campaign drops"
   },
   {
-    copy: "Coordinate pickup, content details, timelines, revisions, and payment directly with brands.",
+    copy: "Coordinate campaign details, content details, timelines, revisions, and payment directly with brands.",
     icon: MessageCircle,
     label: "Brand DMs"
   },
@@ -100,7 +100,7 @@ export default function CreatorAppPage() {
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-8 text-[#d8ded1]">
                 Creators use the BudCast mobile app for campaign discovery, feed, messages, submissions, approvals,
-                and payment or pickup status. Brand accounts continue to use the web dashboard.
+                and payment or product status. Brand accounts continue to use the web dashboard.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Button asChild className="justify-center" size="lg">

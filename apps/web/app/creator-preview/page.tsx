@@ -19,8 +19,8 @@ const campaigns = [
   },
   {
     brand: "Kind Harbor",
-    copy: "Creators needed for storefront pickup, product education, and social proof.",
-    meta: "Product · Review · Local pickup",
+    copy: "Creators needed for product education, retail context, and social proof.",
+    meta: "Product · Review · Local market",
     title: "Dispensary review series"
   }
 ];
@@ -158,7 +158,7 @@ export default function CreatorPreviewPage() {
             <div className="mt-5 grid gap-3">
               {[
                 [WalletCards, "Payment pending", "Approved content waiting on brand confirmation."],
-                [MessageCircle, "Coordinate pickup", "Use messages to confirm timing, product, payment, and content context."],
+                [MessageCircle, "Coordinate details", "Use messages to confirm timing, product status, payment, and content context."],
                 [BriefcaseBusiness, "Accepted campaign", "Submit content from the work tab once the creator is ready."],
                 [Sparkles, "Profile matters", "Brands evaluate social links, niches, portfolio, and fit before accepting."]
               ].map(([Icon, title, copy]) => {

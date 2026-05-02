@@ -197,7 +197,7 @@ function PalettePreviewCard({ palette }: { palette: (typeof palettes)[number] })
               </span>
             </div>
             <p className="mt-4 text-sm leading-7 text-[#d8ded1]">
-              Looking for creators who can shoot clean product education with a lifestyle angle. Paid + Product campaign, pickup coordinated in messages.
+              Looking for creators who can shoot clean product education with a lifestyle angle. Paid + Product campaign, product status coordinated in messages.
             </p>
             <div className="mt-4 flex items-center gap-3 text-[#c7ccc2]">
               <button className="flex min-h-10 items-center gap-2 rounded-full border border-white/[0.075] bg-white/[0.035] px-3 py-0 text-xs font-black transition hover:border-[color-mix(in_srgb,var(--accent)_26%,transparent)] hover:bg-white/[0.055]">
@@ -230,7 +230,7 @@ function PalettePreviewCard({ palette }: { palette: (typeof palettes)[number] })
                 <span className="text-[11px] font-black uppercase tracking-[0.2em]">Messages</span>
               </div>
               <div className="mt-4 text-3xl font-black tracking-[-0.04em] text-[#fbfbf7]">4 active</div>
-              <p className="mt-2 text-sm leading-6 text-[#c7ccc2]">Coordinate pickup, campaign details, payment, and approval timing.</p>
+              <p className="mt-2 text-sm leading-6 text-[#c7ccc2]">Coordinate product status, campaign details, payment, and approval timing.</p>
             </div>
           </div>
 

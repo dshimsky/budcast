@@ -19,7 +19,7 @@ test("creator profile mobile route uses social storefront tabs", () => {
 test("creator work mobile route uses job tracker framing", () => {
   const source = readWorkspaceFile("apps/web/app/creator-dashboard/_components/creator-dashboard-screen.tsx");
 
-  for (const marker of ["Today's work", "Active jobs", "Payment pending", "Pickup details in DM"]) {
+  for (const marker of ["Today's work", "Active jobs", "Payment pending", "Campaign details in DM"]) {
     assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });

@@ -574,7 +574,7 @@ function BrandMobileDashboard({
           <div className="grid gap-3">
             <BrandMobilePreviewCard
               action="Open queue"
-              body="Use campaign threads to coordinate pickup details, deliverables, payment timing, and review notes."
+              body="Use campaign threads to coordinate campaign details, deliverables, payment timing, and review notes."
               href="/dashboard/submissions"
               title="Creator coordination lives here"
             />

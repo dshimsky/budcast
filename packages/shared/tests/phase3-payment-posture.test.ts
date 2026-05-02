@@ -77,6 +77,13 @@ test("payment-facing web copy does not imply escrow, automated payout, or produc
     "../../../apps/web/app/brands/[id]/page.tsx",
     "../../../apps/web/app/dashboard/campaigns/new/page.tsx",
     "../../../apps/web/app/dashboard/submissions/page.tsx",
+    "../../../apps/web/app/dashboard/page.tsx",
+    "../../../apps/web/app/dashboard/messages/page.tsx",
+    "../../../apps/web/app/creator-app/page.tsx",
+    "../../../apps/web/app/creator-preview/page.tsx",
+    "../../../apps/web/app/design-review/dark-moody/page.tsx",
+    "../../../apps/web/app/design-review/palette-preview/page.tsx",
+    "../../../apps/web/components/public-marketplace-entry.tsx",
     "../../../apps/web/components/messaging/budcast-dm-inbox.tsx"
   ];
 

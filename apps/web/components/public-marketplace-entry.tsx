@@ -22,8 +22,8 @@ const sampleCampaigns = [
   },
   {
     brand: "Kind Harbor",
-    copy: "Creators needed for storefront pickup, product education, and social proof.",
-    meta: "Product · Review · Local pickup"
+    copy: "Creators needed for product education, retail context, and social proof.",
+    meta: "Product · Review · Local market"
   }
 ];
 
@@ -155,7 +155,7 @@ export function PublicRoleCards() {
           title: "Find paid cannabis campaigns"
         },
         {
-          copy: "Post briefs, review applicants, approve content, and coordinate payment or pickup details.",
+          copy: "Post briefs, review applicants, approve content, and coordinate payment or product status.",
           href: "/sign-up",
           icon: BriefcaseBusiness,
           label: "Brands",

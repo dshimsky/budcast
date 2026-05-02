@@ -10,7 +10,7 @@ export const metadata = {
 const principles = [
   ["Campaigns first", "Creators land in active campaign opportunities before abstract dashboard metrics."],
   ["Feed is real", "Brand launches, creator work, reviews, and campaign proof should make BudCast feel alive."],
-  ["Messages matter", "Product pickup, payment details, and campaign coordination happen through messaging."],
+  ["Messages matter", "Product status, payment details, and campaign coordination happen through messaging."],
   ["Brand-safe cannabis", "No stoner clichés, no fake shipping flows, no medical claims, no gimmicky neon."]
 ];
 
@@ -54,7 +54,7 @@ export default function DarkMoodyPage() {
             {[
               ["Campaigns", "Deal-style opportunities from cannabis brands, labeled Paid, Product, or Paid + Product."],
               ["Feed", "Social updates from brands and creators: product launches, completed work, reviews, and new drops."],
-              ["Messages", "Coordination for pickup, payment, expectations, revisions, and next steps."],
+              ["Messages", "Coordination for product status, payment, expectations, revisions, and next steps."],
               ["Work", "Accepted campaigns, submissions, approvals, payment/product status, and deadlines."]
             ].map(([label, copy]) => (
               <InternalSubPanel className="p-4" key={label}>
