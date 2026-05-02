@@ -23,6 +23,13 @@ import {
 } from "@budcast/shared";
 import { BrandMobileBottomNav } from "../../../components/brand-mobile";
 import { BudCastLogo } from "../../../components/budcast-logo";
+import {
+  MobileDealTimeline,
+  MobileMetricTile,
+  MobileStatusPill,
+  MobileTrustBadge,
+  type MobileColorRole
+} from "../../../components/mobile-marketplace";
 import { BudCastSocialFeed } from "../../../components/social-feed";
 
 export type BrandMobileTab = "Campaigns" | "Feed" | "Messages" | "Review";
@@ -143,6 +150,20 @@ function getCampaignStatus(campaign: { pending_applications: number }, stats: Br
   return "Live";
 }
 
+function getCampaignStatusTone(statusLabel: string): MobileColorRole {
+  if (statusLabel === "Applicants waiting") return "pending";
+  if (statusLabel === "Content review") return "trust";
+  if (statusLabel === "Payment/product pending") return "premium";
+  return "success";
+}
+
+function getCampaignTimelineIndex(statusLabel: string) {
+  if (statusLabel === "Applicants waiting") return 1;
+  if (statusLabel === "Content review") return 2;
+  if (statusLabel === "Payment/product pending") return 3;
+  return 0;
+}
+
 function getCreatorDisplayName(row: BrandMobileSubmissionRow) {
   return row.creator?.name || row.creator?.instagram || row.creator?.tiktok || "Creator";
 }
@@ -242,23 +263,20 @@ function BrandMobileCampaignCard({
 }) {
   const compensationLabel = getCompensationLabel(campaign);
   const statusLabel = getCampaignStatus(campaign, stats);
+  const statusTone = getCampaignStatusTone(statusLabel);
   const spotsOpen = Math.max(campaign.slots_available - campaign.slots_filled, 0);
   const nextAction = getCampaignNextAction(campaign, stats);
 
   return (
-    <article className="rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(184,255,61,0.08),transparent_42%),#0c0907] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+    <article className="rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(105,216,208,0.08),transparent_36%),linear-gradient(160deg,rgba(184,255,61,0.065),transparent_56%),#0c0f09] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
       <div className="flex items-start gap-3">
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[17px] border border-[#b8ff3d]/25 bg-[#071007] text-xs font-black text-[#e7ff9a]">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[18px] border border-[#69d8d0]/25 bg-[#071214] text-xs font-black text-[#a7f5ef]">
           BC
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap gap-2">
-            <span className="rounded-full border border-[#b8ff3d]/[0.24] bg-[#b8ff3d]/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#e7ff9a]">
-              {statusLabel}
-            </span>
-            <span className="rounded-full border border-[#d7b46a]/30 bg-[#d7b46a]/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#f0d28d]">
-              {compensationLabel}
-            </span>
+            <MobileStatusPill tone={statusTone}>Brand decision</MobileStatusPill>
+            <MobileStatusPill tone="premium">{compensationLabel}</MobileStatusPill>
           </div>
           <Link href={`/dashboard/campaigns/${campaign.id}`}>
             <h3 className="mt-3 text-xl font-black leading-tight tracking-[-0.045em] text-[#fbfbf7]">
@@ -266,16 +284,34 @@ function BrandMobileCampaignCard({
             </h3>
           </Link>
           <p className="mt-2 text-sm font-medium leading-5 text-[#c7ccc2]">
-            {spotsOpen} creator spots open. {campaign.pending_applications} applicants waiting.{" "}
-            {formatDeadline(campaign.application_deadline)}.
+            {statusLabel}. {spotsOpen} creator spots open. {formatDeadline(campaign.application_deadline)}.
           </p>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <CampaignMetric label="Accepted" value={stats.acceptedCreators} />
-        <CampaignMetric label="Submitted" value={stats.submissions} />
-        <CampaignMetric label="Approved" value={stats.approvals} />
+        <MobileMetricTile label="Accepted" tone="success" value={stats.acceptedCreators} />
+        <MobileMetricTile label="Submitted" tone="trust" value={stats.submissions} />
+        <MobileMetricTile label="Approved" tone="primary" value={stats.approvals} />
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <MobileTrustBadge tone="success">Compliance-ready brief</MobileTrustBadge>
+        <MobileTrustBadge tone={stats.paymentProductPending > 0 ? "pending" : "trust"}>Product/payment</MobileTrustBadge>
+        <MobileTrustBadge tone="premium">Rights tracked</MobileTrustBadge>
+      </div>
+
+      <div className="mt-3">
+        <MobileDealTimeline
+          currentIndex={getCampaignTimelineIndex(statusLabel)}
+          steps={[
+            { label: "Brief", tone: "success" },
+            { label: "Applicants", tone: "pending" },
+            { label: "Content", tone: "trust" },
+            { label: "Approve", tone: "primary" },
+            { label: "Paid", tone: "success" }
+          ]}
+        />
       </div>
 
       <Link

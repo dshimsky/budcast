@@ -23,3 +23,24 @@ test("creator work mobile route uses job tracker framing", () => {
     assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("phase 8 mobile marketplace primitives are available", () => {
+  const source = readWorkspaceFile("apps/web/components/mobile-marketplace/index.tsx");
+
+  for (const marker of ["mobileColorRoles", "MobileStatusPill", "MobileTrustBadge", "MobileDealTimeline"]) {
+    assert.match(source, new RegExp(marker));
+  }
+});
+
+test("phase 8 creator and brand cards surface marketplace trust cues", () => {
+  const creatorCard = readWorkspaceFile("apps/web/components/creator-social/campaign-drop-card.tsx");
+  const brandDashboard = readWorkspaceFile("apps/web/app/dashboard/_components/brand-mobile-dashboard.tsx");
+
+  for (const marker of ["Payment protected", "Compliance fit", "MobileDealTimeline"]) {
+    assert.match(creatorCard, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  for (const marker of ["Brand decision", "Compliance-ready brief", "Product/payment"]) {
+    assert.match(brandDashboard, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});

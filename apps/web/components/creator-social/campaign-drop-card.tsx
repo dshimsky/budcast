@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import {
+  MobileDealTimeline,
+  MobileMetricTile,
+  MobileStatusPill,
+  MobileTrustBadge
+} from "../mobile-marketplace";
 
 export type CampaignDropCardProps = {
   applyHref: string;
@@ -47,12 +53,14 @@ export function CampaignDropCard({
   title,
   urgencyLabel
 }: CampaignDropCardProps) {
+  const primaryPlatform = platformLabel.split(/\s*[·•,]\s*/)[0] || platformLabel;
+
   return (
-    <article className="creator-feed-reveal overflow-hidden rounded-[22px] border border-white/[0.08] bg-[#0d0a08] shadow-[0_2px_4px_rgba(0,0,0,0.2),0_20px_60px_rgba(0,0,0,0.35)]">
+    <article className="creator-feed-reveal overflow-hidden rounded-[24px] border border-white/[0.08] bg-[linear-gradient(150deg,rgba(255,255,255,0.06),transparent_42%),#0c0f09] shadow-[0_2px_4px_rgba(0,0,0,0.2),0_20px_60px_rgba(0,0,0,0.35)]">
       <div className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-[10px]">
-            <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border border-[#b8ff3d]/[0.15] bg-[#b8ff3d]/[0.08] text-xs font-black text-[#b8ff3d]">
+            <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-[17px] border border-[#69d8d0]/[0.2] bg-[#69d8d0]/[0.08] text-xs font-black text-[#a7f5ef]">
               {brandAvatarUrl ? (
                 <img alt="" className="h-full w-full object-cover" src={brandAvatarUrl} />
               ) : (
@@ -64,19 +72,15 @@ export function CampaignDropCard({
               <div className="mt-[2px] truncate text-[11px] text-[#aeb5aa]">{locationLabel}</div>
             </div>
           </div>
-          {urgencyLabel ? (
-            <span className="shrink-0 rounded-full border border-[#ff6b4a]/[0.22] bg-[#ff6b4a]/[0.12] px-[10px] py-1 text-[10px] font-extrabold uppercase tracking-[0.10em] text-[#ff8f75]">
-              {urgencyLabel}
-            </span>
-          ) : null}
+          {urgencyLabel ? <MobileStatusPill tone="pending">{urgencyLabel}</MobileStatusPill> : null}
         </div>
 
         <Link className="group mt-[14px] block" href={detailHref}>
-          <div className="relative h-40 overflow-hidden rounded-2xl bg-[linear-gradient(160deg,#1e2d12_0%,#0a0503_100%)]">
+          <div className="relative h-40 overflow-hidden rounded-[22px] border border-white/[0.06] bg-[linear-gradient(160deg,#172611_0%,#0a0503_100%)]">
             {campaignImageUrl ? (
               <img
                 alt="Campaign visual"
-                className="h-full w-full object-cover opacity-70"
+                className="h-full w-full object-cover opacity-80"
                 loading="lazy"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
@@ -85,9 +89,15 @@ export function CampaignDropCard({
               />
             ) : null}
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.75)_0%,transparent_55%)]" />
-            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-              <span className="text-[15px] font-black text-[#b8ff3d]">{compensationValue}</span>
-              <span className="rounded-md bg-black/40 px-2 py-[3px] text-[11px] font-bold text-white/70">
+            <div className="absolute left-3 right-3 top-3 flex flex-wrap gap-2">
+              <MobileStatusPill tone={compensationLabel.toLowerCase().includes("paid") ? "primary" : "premium"}>
+                {compensationLabel}
+              </MobileStatusPill>
+              <MobileStatusPill tone="trust">{primaryPlatform}</MobileStatusPill>
+            </div>
+            <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
+              <span className="text-[17px] font-black text-[#e7ff9a]">{compensationValue}</span>
+              <span className="rounded-lg border border-white/[0.08] bg-black/45 px-2 py-1 text-[11px] font-bold text-white/74 backdrop-blur">
                 {contentTypeLabel}
               </span>
             </div>
@@ -100,26 +110,34 @@ export function CampaignDropCard({
         <p className="mt-2 text-[13px] leading-[1.6] text-[#c6b8ad]">{summary}</p>
 
         <div className="mt-[14px] grid grid-cols-3 gap-[6px]">
-          <div className="rounded-[10px] border border-white/[0.07] bg-white/[0.03] p-[10px]">
-            <div className="text-xs font-bold leading-tight text-[#fbfbf7]">{deadlineLabel}</div>
-            <div className="mt-[2px] text-[10px] leading-tight text-[#aeb5aa]">Deadline</div>
-          </div>
-          <div className="rounded-[10px] border border-white/[0.07] bg-white/[0.03] p-[10px]">
-            <div className="text-xs font-bold leading-tight text-[#fbfbf7]">{slotsLabel}</div>
-            <div className="mt-[2px] text-[10px] leading-tight text-[#aeb5aa]">Spots</div>
-          </div>
-          <div className="rounded-[10px] border border-white/[0.07] bg-white/[0.03] p-[10px]">
-            <div className="text-xs font-bold leading-tight text-[#fbfbf7]">
-              {platformLabel.split(/\s*[·•,]\s*/)[0] || platformLabel}
-            </div>
-            <div className="mt-[2px] text-[10px] leading-tight text-[#aeb5aa]">Platform</div>
-          </div>
+          <MobileMetricTile label="Deadline" tone="pending" value={deadlineLabel} />
+          <MobileMetricTile label="Spots" tone="success" value={slotsLabel} />
+          <MobileMetricTile label="Platform" tone="trust" value={primaryPlatform} />
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <MobileTrustBadge tone="trust">Payment protected</MobileTrustBadge>
+          <MobileTrustBadge tone="success">Compliance fit</MobileTrustBadge>
+          <MobileTrustBadge tone="premium">Usage rights set</MobileTrustBadge>
+        </div>
+
+        <div className="mt-3">
+          <MobileDealTimeline
+            currentIndex={1}
+            steps={[
+              { label: "Open", tone: "success" },
+              { label: "Apply", tone: "primary" },
+              { label: "Create", tone: "pending" },
+              { label: "Review", tone: "trust" },
+              { label: "Paid", tone: "success" }
+            ]}
+          />
         </div>
 
         <div className="mt-[14px] flex gap-2">
           <Link
             aria-label={`${applyLabel} for ${title}`}
-            className="flex h-11 flex-1 items-center justify-center rounded-xl bg-[#b8ff3d] text-sm font-black text-[#071007] transition-all duration-150 hover:-translate-y-[1px] hover:bg-[#c8ff52]"
+            className="flex h-11 flex-1 items-center justify-center rounded-xl bg-[#b8ff3d] text-sm font-black text-[#071007] shadow-[0_14px_30px_rgba(184,255,61,0.2)] transition-all duration-150 hover:-translate-y-[1px] hover:bg-[#c8ff52]"
             href={applyHref}
           >
             {applyLabel}
