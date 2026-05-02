@@ -2,7 +2,7 @@
 
 import { hasCompletedOnboarding, hasCompletedTrustCompliance, supabase, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BriefcaseBusiness, Users2, ShieldCheck, MapPin, Calendar } from "lucide-react";
 import { PublicMarketplaceHeader } from "../../components/public-marketplace-entry";
 import { Button } from "../../components/ui/button";
@@ -53,10 +53,12 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { session, profile, loading, refreshProfile } = useAuth();
   const onboarding = useOnboarding();
+  const hydrateFromProfile = useOnboarding((state) => state.hydrateFromProfile);
   const saveProfile = useSaveProfile();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [step, setStep] = useState<Step>("role");
   const [submitting, setSubmitting] = useState(false);
+  const hydratedProfileId = useRef<string | null>(null);
 
   // Age gate fields
   const [dob, setDob] = useState("");
@@ -71,12 +73,15 @@ export default function OnboardingPage() {
   const onboardingComplete = profileComplete && trustComplete;
 
   useEffect(() => {
-    if (!profile) return;
-    onboarding.hydrateFromProfile(profile);
+    if (!profile?.id) return;
+    if (hydratedProfileId.current !== profile.id) {
+      hydrateFromProfile(profile);
+      hydratedProfileId.current = profile.id;
+    }
     if (hasCompletedOnboarding(profile) && !hasCompletedTrustCompliance(profile)) {
       setStep("age_gate");
     }
-  }, [onboarding, profile]);
+  }, [hydrateFromProfile, profile]);
 
   useEffect(() => {
     if (!loading && onboardingComplete) {

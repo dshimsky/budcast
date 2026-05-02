@@ -87,6 +87,56 @@ function toOnboardingUserType(userType: UserType | null | undefined): Onboarding
   return userType === "creator" || userType === "brand" ? userType : null;
 }
 
+const onboardingDataKeys = Object.keys(initial) as Array<keyof OnboardingData>;
+
+function isSameArray(left: unknown[], right: unknown[]) {
+  return left.length === right.length && left.every((value, index) => Object.is(value, right[index]));
+}
+
+function isSameOnboardingValue(left: OnboardingData[keyof OnboardingData], right: OnboardingData[keyof OnboardingData]) {
+  if (Array.isArray(left) && Array.isArray(right)) {
+    return isSameArray(left, right);
+  }
+  return Object.is(left, right);
+}
+
+function isSameOnboardingData(state: OnboardingState, next: OnboardingData) {
+  return onboardingDataKeys.every((key) => isSameOnboardingValue(state[key], next[key]));
+}
+
+function getOnboardingDataFromProfile(profile: User): OnboardingData {
+  return {
+    userType: toOnboardingUserType(profile.user_type),
+    name: profile.name ?? "",
+    location: profile.location ?? "",
+    bio: profile.bio ?? "",
+    avatarUrl: profile.avatar_url ?? "",
+    coverUrl: profile.cover_url ?? "",
+    niches: profile.niches ?? [],
+    instagram: profile.instagram ?? "",
+    tiktok: profile.tiktok ?? "",
+    youtube: profile.youtube ?? "",
+    facebook: profile.facebook ?? "",
+    linkedin: profile.linkedin ?? "",
+    xProfile: profile.x_profile ?? "",
+    portfolioImageUrls: profile.portfolio_image_urls ?? [],
+    audienceAgeAttested: profile.audience_age_attested ?? false,
+    cannabisWillingness: profile.cannabis_willingness ?? 'unspecified',
+    creatorContentCategories: profile.creator_content_categories ?? [],
+    creatorMarkets: profile.creator_markets ?? [],
+    creatorAvailability: profile.creator_availability ?? 'open',
+    budtenderExperience: profile.budtender_experience ?? false,
+    budtenderMarket: profile.budtender_market ?? "",
+    storeAffiliation: profile.store_affiliation ?? "",
+    budtenderEducationExperience: profile.budtender_education_experience ?? false,
+    budtenderEventExperience: profile.budtender_event_experience ?? false,
+    samplingRecapAvailable: profile.sampling_recap_available ?? false,
+    companyName: profile.company_name ?? "",
+    website: profile.website ?? "",
+    brandCategories: []
+  };
+}
+
 export const useOnboarding = create<OnboardingState>()(
   persist(
     (set, get) => ({
@@ -103,35 +153,12 @@ export const useOnboarding = create<OnboardingState>()(
       },
       hydrateFromProfile: (profile) => {
         if (!profile) return;
-        set({
-          userType: toOnboardingUserType(profile.user_type),
-          name: profile.name ?? "",
-          location: profile.location ?? "",
-          bio: profile.bio ?? "",
-          avatarUrl: profile.avatar_url ?? "",
-          coverUrl: profile.cover_url ?? "",
-          niches: profile.niches ?? [],
-          instagram: profile.instagram ?? "",
-          tiktok: profile.tiktok ?? "",
-          youtube: profile.youtube ?? "",
-          facebook: profile.facebook ?? "",
-          linkedin: profile.linkedin ?? "",
-          xProfile: profile.x_profile ?? "",
-          portfolioImageUrls: profile.portfolio_image_urls ?? [],
-          audienceAgeAttested: profile.audience_age_attested ?? false,
-          cannabisWillingness: profile.cannabis_willingness ?? 'unspecified',
-          creatorContentCategories: profile.creator_content_categories ?? [],
-          creatorMarkets: profile.creator_markets ?? [],
-          creatorAvailability: profile.creator_availability ?? 'open',
-          budtenderExperience: profile.budtender_experience ?? false,
-          budtenderMarket: profile.budtender_market ?? "",
-          storeAffiliation: profile.store_affiliation ?? "",
-          budtenderEducationExperience: profile.budtender_education_experience ?? false,
-          budtenderEventExperience: profile.budtender_event_experience ?? false,
-          samplingRecapAvailable: profile.sampling_recap_available ?? false,
-          companyName: profile.company_name ?? "",
-          website: profile.website ?? "",
-          brandCategories: []
+        const next = getOnboardingDataFromProfile(profile);
+        set((state) => {
+          if (isSameOnboardingData(state, next)) {
+            return state;
+          }
+          return next;
         });
       },
       reset: () => set(initial),
