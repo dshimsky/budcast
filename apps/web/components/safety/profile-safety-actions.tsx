@@ -24,6 +24,7 @@ type ProfileSafetyActionsProps = {
 function getReportReason(targetType: SafetyReportTargetType): SafetyReportReasonType {
   if (targetType === "message" || targetType === "conversation") return "harassment";
   if (targetType === "campaign") return "misrepresentation";
+  if (targetType === "review") return "unsafe_content";
   return "other";
 }
 

@@ -7,7 +7,8 @@ import {
   PublicMarketplaceHeader,
   PublicMarketplacePreview,
   PublicRoleCards,
-  PublicSearchBar
+  PublicSearchBar,
+  PublicSupportFooter
 } from "../components/public-marketplace-entry";
 import { Button } from "../components/ui/button";
 import { getWorkspaceHref } from "../lib/workspace-routing";
@@ -89,6 +90,8 @@ export default function HomePage() {
           </div>
           <PublicRoleCards />
         </section>
+
+        <PublicSupportFooter />
       </div>
     </main>
   );

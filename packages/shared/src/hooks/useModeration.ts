@@ -5,7 +5,10 @@ import type { PlatformAdmin, SafetyReport, SafetyReportStatus } from "../types/d
 
 export type ModerationReport = SafetyReport;
 
+export type ModerationAction = "status_only" | "remove_content" | "suspend_profile";
+
 export type UpdateModerationReportInput = {
+  action?: ModerationAction;
   reportId: string;
   resolutionNote?: string | null;
   status: Extract<SafetyReportStatus, "reviewing" | "actioned" | "dismissed">;
@@ -60,17 +63,12 @@ export function useUpdateModerationReport() {
     mutationFn: async (input) => {
       if (!profile?.id) throw new Error("NOT_SIGNED_IN");
 
-      const { data, error } = await supabase
-        .from("safety_reports")
-        .update({
-          resolution_note: input.resolutionNote?.trim() || null,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: profile.id,
-          status: input.status
-        })
-        .eq("id", input.reportId)
-        .select("*")
-        .single();
+      const { data, error } = await supabase.rpc("moderate_safety_report", {
+        p_action: input.action ?? "status_only",
+        p_report_id: input.reportId,
+        p_resolution_note: input.resolutionNote?.trim() || null,
+        p_status: input.status
+      });
 
       if (error) throw error;
       return data as SafetyReport;

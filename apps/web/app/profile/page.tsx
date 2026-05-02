@@ -24,6 +24,7 @@ import { WorkQueueItem } from "../../components/marketplace/work-queue-item";
 import { BrandMobileBottomNav } from "../../components/brand-mobile";
 import { CreatorSocialShell } from "../../components/creator-social";
 import { RouteTransitionScreen } from "../../components/route-transition-screen";
+import { ProfileSafetyActions } from "../../components/safety/profile-safety-actions";
 import { Button } from "../../components/ui/button";
 
 type Profile = NonNullable<ReturnType<typeof useAuth>["profile"]>;
@@ -680,8 +681,16 @@ function ProfileReviewCard({ mode, review }: { mode: "brand" | "creator"; review
         </div>
       </div>
       <p className="mt-4 text-sm leading-7 text-[#d8ded1]">“{review.review_text}”</p>
-      <div className="mt-4 rounded-[18px] border border-white/[0.07] bg-black/22 px-3 py-2 text-xs font-bold text-[#aeb5aa]">
-        {campaignTitle ? `Campaign: ${campaignTitle}` : "Completed campaign work"}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-white/[0.07] bg-black/22 px-3 py-2 text-xs font-bold text-[#aeb5aa]">
+        <span>{campaignTitle ? `Campaign: ${campaignTitle}` : "Completed campaign work"}</span>
+        <ProfileSafetyActions
+          blockProfileId={review.reviewer?.id}
+          compact
+          reportLabel="Report review"
+          reportedUserId={review.reviewer?.id}
+          targetId={review.id}
+          targetType="review"
+        />
       </div>
     </article>
   );

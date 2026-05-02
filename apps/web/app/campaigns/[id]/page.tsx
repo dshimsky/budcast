@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { BudCastLogo } from "../../../components/budcast-logo";
 import { RouteTransitionScreen } from "../../../components/route-transition-screen";
+import { ProfileSafetyActions } from "../../../components/safety/profile-safety-actions";
 import { Button } from "../../../components/ui/button";
 
 function applyCopy(key: ReturnType<typeof parseApplyError>) {
@@ -492,6 +493,12 @@ export default function CreatorCampaignDetailPage() {
                     Message brand
                   </Link>
                 </Button>
+                <ProfileSafetyActions
+                  blockProfileId={detail.brand.id}
+                  reportedUserId={detail.brand.id}
+                  targetId={detail.id}
+                  targetType="campaign"
+                />
               </div>
             ) : null}
           </div>

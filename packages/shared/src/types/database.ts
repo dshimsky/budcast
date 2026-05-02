@@ -881,6 +881,15 @@ export interface Database {
         };
         Returns: boolean;
       };
+      moderate_safety_report: {
+        Args: {
+          p_report_id: string;
+          p_status: Extract<SafetyReportStatus, 'reviewing' | 'actioned' | 'dismissed'>;
+          p_resolution_note?: string | null;
+          p_action?: 'status_only' | 'remove_content' | 'suspend_profile';
+        };
+        Returns: SafetyReport;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

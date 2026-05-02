@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ShieldAlert, ShieldCheck, XCircle } from "lucide-react";
+import { ArrowLeft, Ban, CheckCircle2, ShieldAlert, ShieldCheck, Trash2, XCircle } from "lucide-react";
 import {
+  type ModerationAction,
   type ModerationReport,
   type SafetyReportStatus,
   hasCompletedOnboarding,
@@ -64,9 +65,15 @@ function ModerationReportCard({ report }: { report: ModerationReport }) {
   const updateReport = useUpdateModerationReport();
   const [note, setNote] = useState(report.resolution_note ?? "");
   const flags = getPaymentProductFlags(report);
+  const canRemoveContent = report.target_type === "review" || report.target_type === "feed_post" || report.target_type === "campaign";
+  const canSuspendProfile = Boolean(report.reported_user_id || (report.target_type === "profile" && report.target_id));
 
-  function update(status: Extract<SafetyReportStatus, "reviewing" | "actioned" | "dismissed">) {
+  function update(
+    status: Extract<SafetyReportStatus, "reviewing" | "actioned" | "dismissed">,
+    action: ModerationAction = "status_only"
+  ) {
     updateReport.mutate({
+      action,
       reportId: report.id,
       resolutionNote: note,
       status
@@ -155,6 +162,24 @@ function ModerationReportCard({ report }: { report: ModerationReport }) {
           <XCircle className="h-4 w-4" />
           Dismiss
         </button>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#ff8a65]/24 bg-[#ff8a65]/10 px-4 text-xs font-black text-[#ffb199] transition hover:bg-[#ff8a65]/14 disabled:opacity-50"
+          disabled={updateReport.isPending || !canRemoveContent}
+          onClick={() => update("actioned", "remove_content")}
+          type="button"
+        >
+          <Trash2 className="h-4 w-4" />
+          Remove content
+        </button>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#ff4d6d]/24 bg-[#ff4d6d]/10 px-4 text-xs font-black text-[#ffb3c1] transition hover:bg-[#ff4d6d]/14 disabled:opacity-50"
+          disabled={updateReport.isPending || !canSuspendProfile}
+          onClick={() => update("actioned", "suspend_profile")}
+          type="button"
+        >
+          <Ban className="h-4 w-4" />
+          Suspend profile
+        </button>
       </div>
     </article>
   );
@@ -181,6 +206,15 @@ export default function AdminModerationPage() {
   const filteredReports = useMemo(
     () => (reports.data ?? []).filter((report) => report.status === statusFilter),
     [reports.data, statusFilter]
+  );
+  const reportCounts = useMemo(
+    () =>
+      statusTabs.map((status) => ({
+        count: (reports.data ?? []).filter((report) => report.status === status).length,
+        label: status === "open" ? "Open reports" : `${statusLabel(status)} reports`,
+        status
+      })),
+    [reports.data]
   );
 
   if (loading || !session) {
@@ -262,6 +296,24 @@ export default function AdminModerationPage() {
             </button>
           ))}
         </div>
+
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {reportCounts.map((item) => (
+            <button
+              className={`rounded-[26px] border p-4 text-left transition ${
+                statusFilter === item.status
+                  ? "border-[#b8ff3d]/24 bg-[#b8ff3d]/10"
+                  : "border-white/[0.075] bg-white/[0.035] hover:border-[#b8ff3d]/18"
+              }`}
+              key={item.status}
+              onClick={() => setStatusFilter(item.status)}
+              type="button"
+            >
+              <div className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8f8177]">{item.label}</div>
+              <div className="mt-2 text-3xl font-black tracking-[-0.05em] text-[#fbfbf7]">{item.count}</div>
+            </button>
+          ))}
+        </section>
 
         {reports.isLoading ? (
           <div className="rounded-[28px] border border-white/[0.075] bg-white/[0.035] p-5 text-sm font-black text-[#c7ccc2]">

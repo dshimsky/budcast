@@ -122,11 +122,13 @@ Execution should therefore focus on applying, validating, wiring, and closing ga
 - Validate: `supabase/migrations/022_security_privacy_hardening.sql`
 - Validate: `supabase/migrations/024_platform_moderation.sql`
 
-- [ ] Confirm report/block actions exist on profiles, feed posts, messages, reviews, and campaigns.
-- [ ] Add admin queue views for open safety reports.
-- [ ] Add moderation actions for dismiss, actioned, remove content, and suspend profile where already supported by schema.
-- [ ] Add public support/contact copy in the app shell or footer.
-- [ ] Run `npm run typecheck` and `npm run build:web`.
+- [x] Confirm report/block actions exist on profiles, feed posts, messages, reviews, and campaigns.
+- [x] Add admin queue views for open safety reports.
+- [x] Add moderation actions for dismiss, actioned, remove content, and suspend profile where already supported by schema.
+- [x] Add public support/contact copy in the app shell or footer.
+- [x] Run `npm run typecheck` and `npm run build:web`.
+
+**Phase 4 evidence:** Migration `034_phase4_moderation_minimum.sql` is applied to the linked remote project; `npx supabase db push --dry-run` reports the remote database is up to date after application. Local validation on May 1, 2026: `node --test packages/shared/tests/phase4-moderation-minimum.test.ts` exited 0 with 5 passing tests; `node --test packages/shared/tests/phase3-payment-posture.test.ts` exited 0 with 6 passing tests; `node --test packages/shared/tests/phase2-trust-web.test.ts` exited 0 with 5 passing tests; `node --test packages/shared/tests/security-hardening.test.ts` exited 0 with 13 passing tests; `node --test packages/shared/tests/creator-mobile-redesign.test.ts` exited 0 with 2 passing tests; `npm run typecheck` exited 0; `npm run build:web` exited 0 and generated 30 routes.
 
 **Success criteria:** Users can report and block, admins can review and act, and support contact information is visible.
 

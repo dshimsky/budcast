@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, BriefcaseBusiness, MessageCircle, Radio, Search, Sparkles } from "lucide-react";
+import { ArrowUpRight, BriefcaseBusiness, Mail, MessageCircle, Radio, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { BudCastLogo } from "./budcast-logo";
 import { Button } from "./ui/button";
 
@@ -188,5 +188,28 @@ export function PublicSearchBar() {
       <Search className="h-4 w-4 text-[#e7ff9a]" />
       Search campaigns, creators, brands
     </div>
+  );
+}
+
+export function PublicSupportFooter() {
+  return (
+    <footer className="flex flex-col gap-4 rounded-[30px] border border-white/[0.07] bg-white/[0.035] p-5 text-sm text-[#c7ccc2] shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[16px] border border-[#b8ff3d]/18 bg-[#b8ff3d]/10 text-[#e7ff9a]">
+          <ShieldCheck className="h-5 w-5" />
+        </span>
+        <div>
+          <div className="text-sm font-black text-[#fbfbf7]">Safety and support</div>
+          <div className="mt-1 leading-6">For reports, account access, or platform safety help, contact BudCast support.</div>
+        </div>
+      </div>
+      <a
+        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 text-xs font-black text-[#fbfbf7] transition hover:border-[#b8ff3d]/22 hover:text-[#e7ff9a]"
+        href="mailto:support@budcast.app"
+      >
+        <Mail className="h-4 w-4" />
+        support@budcast.app
+      </a>
+    </footer>
   );
 }
