@@ -22,6 +22,17 @@ export interface OnboardingState {
   linkedin: string;
   xProfile: string;
   portfolioImageUrls: string[];
+  audienceAgeAttested: boolean;
+  cannabisWillingness: 'unspecified' | 'yes' | 'limited' | 'no';
+  creatorContentCategories: string[];
+  creatorMarkets: string[];
+  creatorAvailability: 'open' | 'limited' | 'unavailable';
+  budtenderExperience: boolean;
+  budtenderMarket: string;
+  storeAffiliation: string;
+  budtenderEducationExperience: boolean;
+  budtenderEventExperience: boolean;
+  samplingRecapAvailable: boolean;
   // Brand
   companyName: string;
   website: string;
@@ -37,9 +48,11 @@ export interface OnboardingState {
   reset: () => void;
 }
 
+type OnboardingData = Omit<OnboardingState, 'setUserType' | 'setField' | 'toggleNiche' | 'hydrateFromProfile' | 'reset'>;
+
 const storage = createJSONStorage(() => getSyncStorage());
 
-const initial = {
+const initial: OnboardingData = {
   userType: null,
   name: '',
   location: '',
@@ -54,6 +67,17 @@ const initial = {
   linkedin: '',
   xProfile: '',
   portfolioImageUrls: [],
+  audienceAgeAttested: false,
+  cannabisWillingness: 'unspecified',
+  creatorContentCategories: [],
+  creatorMarkets: [],
+  creatorAvailability: 'open',
+  budtenderExperience: false,
+  budtenderMarket: '',
+  storeAffiliation: '',
+  budtenderEducationExperience: false,
+  budtenderEventExperience: false,
+  samplingRecapAvailable: false,
   companyName: '',
   website: '',
   brandCategories: [],
@@ -94,6 +118,17 @@ export const useOnboarding = create<OnboardingState>()(
           linkedin: profile.linkedin ?? "",
           xProfile: profile.x_profile ?? "",
           portfolioImageUrls: profile.portfolio_image_urls ?? [],
+          audienceAgeAttested: profile.audience_age_attested ?? false,
+          cannabisWillingness: profile.cannabis_willingness ?? 'unspecified',
+          creatorContentCategories: profile.creator_content_categories ?? [],
+          creatorMarkets: profile.creator_markets ?? [],
+          creatorAvailability: profile.creator_availability ?? 'open',
+          budtenderExperience: profile.budtender_experience ?? false,
+          budtenderMarket: profile.budtender_market ?? "",
+          storeAffiliation: profile.store_affiliation ?? "",
+          budtenderEducationExperience: profile.budtender_education_experience ?? false,
+          budtenderEventExperience: profile.budtender_event_experience ?? false,
+          samplingRecapAvailable: profile.sampling_recap_available ?? false,
           companyName: profile.company_name ?? "",
           website: profile.website ?? "",
           brandCategories: []

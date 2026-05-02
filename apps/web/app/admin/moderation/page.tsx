@@ -8,13 +8,16 @@ import {
   type ModerationAction,
   type ModerationReport,
   type SafetyReportStatus,
+  type TalentDirectoryRow,
   hasCompletedOnboarding,
   useAdminDisputes,
   useAuth,
   useModerationReports,
   usePlatformAdminStatus,
   useResolveMarketplaceDispute,
-  useUpdateModerationReport
+  useTalentDirectory,
+  useUpdateModerationReport,
+  useVerifyCannabisTalent
 } from "@budcast/shared";
 import { useRouter } from "next/navigation";
 import { PublicMarketplaceHeader } from "../../../components/public-marketplace-entry";
@@ -275,12 +278,68 @@ function DisputeEscalationCard({ dispute }: { dispute: Dispute }) {
   );
 }
 
+function TalentVerificationCard({
+  talent
+}: {
+  talent: TalentDirectoryRow;
+}) {
+  const verifyTalent = useVerifyCannabisTalent();
+  const isCreatorVerified = talent.badges.includes("verified_creator");
+  const isBudtenderVerified = talent.badges.includes("verified_budtender");
+
+  return (
+    <article className="rounded-[26px] border border-white/[0.075] bg-white/[0.035] p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[#e7ff9a]">Talent verification</div>
+          <h3 className="mt-2 text-xl font-black text-[#fbfbf7]">{talent.name || "Creator"}</h3>
+          <p className="mt-1 text-sm font-semibold text-[#c7ccc2]">
+            {(talent.creator_markets ?? []).slice(0, 3).join(", ") || talent.location || "Market pending"}
+          </p>
+        </div>
+        <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.13em] text-[#c7ccc2]">
+          {talent.creator_social_verification_status}
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black text-[#d8ded1]">
+        <span className="rounded-full border border-white/[0.075] bg-black/20 px-3 py-1.5">
+          Cannabis: {talent.cannabis_willingness}
+        </span>
+        {talent.budtender_experience ? (
+          <span className="rounded-full border border-[#b8ff3d]/22 bg-[#b8ff3d]/10 px-3 py-1.5 text-[#e7ff9a]">
+            Budtender
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          className="inline-flex min-h-10 items-center rounded-full bg-[linear-gradient(180deg,#d7ff72,#b8ff3d)] px-4 text-xs font-black text-[#071007] disabled:opacity-50"
+          disabled={verifyTalent.isPending || isCreatorVerified}
+          onClick={() => verifyTalent.mutate({ userId: talent.id, verifiedCreator: true })}
+          type="button"
+        >
+          Verify creator
+        </button>
+        <button
+          className="inline-flex min-h-10 items-center rounded-full border border-[#b8ff3d]/22 bg-[#b8ff3d]/10 px-4 text-xs font-black text-[#e7ff9a] disabled:opacity-50"
+          disabled={verifyTalent.isPending || isBudtenderVerified || !talent.budtender_experience}
+          onClick={() => verifyTalent.mutate({ userId: talent.id, verifiedBudtender: true })}
+          type="button"
+        >
+          Verify budtender
+        </button>
+      </div>
+    </article>
+  );
+}
+
 export default function AdminModerationPage() {
   const router = useRouter();
   const { loading, session, profile } = useAuth();
   const admin = usePlatformAdminStatus();
   const disputes = useAdminDisputes();
   const reports = useModerationReports();
+  const talent = useTalentDirectory();
   const [statusFilter, setStatusFilter] = useState<SafetyReportStatus>("open");
 
   useEffect(() => {
@@ -457,6 +516,18 @@ export default function AdminModerationPage() {
           {(disputes.data ?? []).map((dispute) => (
             <DisputeEscalationCard dispute={dispute} key={dispute.id} />
           ))}
+        </section>
+
+        <section className="grid gap-4">
+          <div>
+            <div className="text-[11px] font-black uppercase tracking-[0.2em] text-[#e7ff9a]">Talent verification</div>
+            <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] text-[#fbfbf7]">Creator and budtender review.</h2>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {(talent.data ?? []).slice(0, 8).map((row) => (
+              <TalentVerificationCard key={row.id} talent={row} />
+            ))}
+          </div>
         </section>
       </div>
     </main>

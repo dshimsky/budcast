@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { ArrowRight, BadgeCheck, Eye, ShieldCheck } from "lucide-react";
-import { formatCompact, useBrands } from "@budcast/shared";
+import { formatCompact, useBrands, useTalentDirectory } from "@budcast/shared";
 import { PublicMarketplaceHeader, PublicSearchBar } from "../../components/public-marketplace-entry";
 import { MarketplaceBadge, MetadataStrip } from "../../components/marketplace";
 
@@ -18,7 +19,15 @@ function formatRating(score?: number | null, count?: number | null) {
 
 export default function BrandsPage() {
   const brands = useBrands();
+  const talent = useTalentDirectory();
+  const [talentFilter, setTalentFilter] = useState<"all" | "creator" | "budtender">("all");
   const rows = brands.data ?? [];
+  const talentRows = talent.data ?? [];
+  const visibleTalent = useMemo(() => {
+    if (talentFilter === "budtender") return talentRows.filter((row) => row.budtender_experience);
+    if (talentFilter === "creator") return talentRows.filter((row) => row.cannabis_willingness === "yes" || row.cannabis_willingness === "limited");
+    return talentRows;
+  }, [talentFilter, talentRows]);
 
   return (
     <main className="creator-obsidian min-h-screen bg-[#030303] px-4 pb-10 pt-3 text-[#fbfbf7] md:px-8 md:pt-5">
@@ -74,6 +83,80 @@ export default function BrandsPage() {
             <p className="mt-4 text-lg font-black text-[#fbfbf7]">No brands are available yet.</p>
           </section>
         ) : (
+          <>
+          <section className="rounded-[34px] border border-[#b8ff3d]/16 bg-[radial-gradient(circle_at_82%_0%,rgba(184,255,61,0.14),transparent_34%),linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.024))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.32)] md:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-[#e7ff9a]">Talent discovery</div>
+                <h2 className="mt-3 text-3xl font-black tracking-[-0.045em] text-[#fbfbf7]">Cannabis-ready creators and budtenders.</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#c7ccc2]">
+                  Filter talent by cannabis readiness, budtender experience, markets, categories, availability, and reputation.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  ["all", "All talent"],
+                  ["creator", "Cannabis-ready creators"],
+                  ["budtender", "Budtenders"]
+                ].map(([value, label]) => (
+                  <button
+                    aria-pressed={talentFilter === value}
+                    className={`rounded-full border px-4 py-2.5 text-xs font-black transition ${
+                      talentFilter === value ? "border-[#b8ff3d]/36 bg-[#b8ff3d]/14 text-[#e7ff9a]" : "border-white/[0.075] bg-white/[0.04] text-[#c7ccc2]"
+                    }`}
+                    key={value}
+                    onClick={() => setTalentFilter(value as typeof talentFilter)}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {talent.isLoading ? (
+              <div className="mt-5 rounded-[24px] border border-white/[0.075] bg-black/20 p-4 text-sm font-black text-[#c7ccc2]">
+                Loading talent profiles...
+              </div>
+            ) : (
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {visibleTalent.slice(0, 6).map((creator) => (
+                  <article className="rounded-[26px] border border-white/[0.075] bg-black/20 p-4" key={creator.id}>
+                    <div className="flex items-start gap-3">
+                      <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-[18px] border border-white/[0.12] bg-white/[0.05] text-sm font-black text-[#e7ff9a]">
+                        {creator.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img alt="" className="h-full w-full object-cover" src={creator.avatar_url} />
+                        ) : (
+                          getInitials(creator.name || "Creator")
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="truncate text-lg font-black text-[#fbfbf7]">{creator.name || "Creator"}</div>
+                        <div className="mt-1 text-xs font-bold text-[#aeb5aa]">
+                          {(creator.creator_markets ?? []).slice(0, 3).join(", ") || creator.location || "Market pending"}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <MarketplaceBadge tone="status">{creator.cannabis_willingness === "yes" ? "Cannabis-ready" : "Readiness pending"}</MarketplaceBadge>
+                      {creator.budtender_experience ? <MarketplaceBadge tone="content">Budtender</MarketplaceBadge> : null}
+                      {creator.creator_social_verification_status === "verified" ? <MarketplaceBadge tone="status">Verified creator</MarketplaceBadge> : null}
+                    </div>
+                    <MetadataStrip
+                      className="mt-3 grid-cols-3"
+                      items={[
+                        { label: "Rating", value: creator.review_score ? creator.review_score.toFixed(1) : "New" },
+                        { label: "Availability", value: creator.creator_availability },
+                        { label: "Markets", value: formatCompact((creator.creator_markets ?? []).length) }
+                      ]}
+                    />
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {rows.map((brand) => {
               const displayName = brand.company_name || brand.name || "Cannabis brand";
@@ -143,6 +226,7 @@ export default function BrandsPage() {
               );
             })}
           </section>
+          </>
         )}
       </div>
     </main>

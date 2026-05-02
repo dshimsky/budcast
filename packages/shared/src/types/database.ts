@@ -107,6 +107,7 @@ export type NotificationType =
 export type Badge =
   | 'verified_brand'
   | 'verified_creator'
+  | 'verified_budtender'
   | 'payment_ready'
   | 'campaign_ready'
   | 'social_verified'
@@ -142,6 +143,25 @@ export interface User {
   follower_count_youtube: number | null;
   portfolio_image_urls: string[];
   niches: string[];
+  creator_social_verification_status: 'unverified' | 'submitted' | 'verified' | 'rejected';
+  creator_platform_links: Record<string, string>;
+  audience_age_attested: boolean;
+  cannabis_willingness: 'unspecified' | 'yes' | 'limited' | 'no';
+  creator_content_categories: string[];
+  creator_markets: string[];
+  creator_availability: 'open' | 'limited' | 'unavailable';
+  budtender_experience: boolean;
+  budtender_market: string | null;
+  store_affiliation: string | null;
+  store_affiliation_verified: boolean;
+  budtender_education_experience: boolean;
+  budtender_event_experience: boolean;
+  sampling_recap_available: boolean;
+  creator_verified_at: string | null;
+  creator_verified_by: string | null;
+  budtender_verified_at: string | null;
+  budtender_verified_by: string | null;
+  talent_verification_notes: string | null;
 
   // Brand-specific
   company_name: string | null;
@@ -251,6 +271,22 @@ export type PublicProfile = Pick<
   | 'review_count'
   | 'reputation_score'
   | 'badges'
+  | 'creator_social_verification_status'
+  | 'creator_platform_links'
+  | 'audience_age_attested'
+  | 'cannabis_willingness'
+  | 'creator_content_categories'
+  | 'creator_markets'
+  | 'creator_availability'
+  | 'budtender_experience'
+  | 'budtender_market'
+  | 'store_affiliation'
+  | 'store_affiliation_verified'
+  | 'budtender_education_experience'
+  | 'budtender_event_experience'
+  | 'sampling_recap_available'
+  | 'creator_verified_at'
+  | 'budtender_verified_at'
   | 'account_status'
   | 'created_at'
   | 'updated_at'
@@ -873,6 +909,27 @@ export interface Database {
           p_website?: string | null;
           p_portfolio_image_urls?: string[];
           p_niches?: string[];
+          p_creator_platform_links?: Record<string, string>;
+          p_audience_age_attested?: boolean;
+          p_cannabis_willingness?: User['cannabis_willingness'];
+          p_creator_content_categories?: string[];
+          p_creator_markets?: string[];
+          p_creator_availability?: User['creator_availability'];
+          p_budtender_experience?: boolean;
+          p_budtender_market?: string | null;
+          p_store_affiliation?: string | null;
+          p_budtender_education_experience?: boolean;
+          p_budtender_event_experience?: boolean;
+          p_sampling_recap_available?: boolean;
+        };
+        Returns: User;
+      };
+      verify_cannabis_talent: {
+        Args: {
+          p_user_id: string;
+          p_verified_creator?: boolean;
+          p_verified_budtender?: boolean;
+          p_notes?: string | null;
         };
         Returns: User;
       };

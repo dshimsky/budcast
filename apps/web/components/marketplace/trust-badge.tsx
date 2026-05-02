@@ -32,6 +32,7 @@ const badgeIcons: Record<TrustBadgeId, LucideIcon> = {
   payment_ready: CircleDollarSign,
   social_verified: BadgeCheck,
   verified_brand: ShieldCheck,
+  verified_budtender: BadgeCheck,
   verified_creator: UserCheck
 };
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { hasCompletedOnboarding, supabase, useAuth, useOnboarding, useSaveProfile } from "@budcast/shared";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BriefcaseBusiness, Camera, Eye, Image as ImageIcon, Sparkles, Users2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, BriefcaseBusiness, Camera, Eye, Image as ImageIcon, ShieldCheck, Sparkles, Users2 } from "lucide-react";
 import { BrandMobileBottomNav } from "../../../components/brand-mobile";
 import { BudCastLogo } from "../../../components/budcast-logo";
 import { CreatorBottomNav } from "../../../components/creator-social/creator-bottom-nav";
@@ -22,6 +22,9 @@ const creatorNiches = [
   "accessories",
   "lifestyle"
 ] as const;
+
+const creatorMarkets = ["CA", "MI", "NY", "NJ", "IL", "MA", "AZ", "CO", "NV", "OR", "WA"] as const;
+const creatorContentCategories = ["education", "lifestyle_ugc", "product_review", "event_recap", "retail_training", "unboxing"] as const;
 
 const brandKitAcceptedTypes = new Set(["image/png", "image/jpeg", "image/webp", "image/svg+xml"]);
 const brandKitAcceptedExtensions = new Set(["png", "jpg", "jpeg", "webp", "svg"]);
@@ -234,6 +237,11 @@ export default function EditProfilePage() {
     const next = [...onboarding.portfolioImageUrls];
     next[index] = value;
     onboarding.setField("portfolioImageUrls", next);
+  }
+
+  function toggleArrayField(field: "creatorContentCategories" | "creatorMarkets", value: string) {
+    const current = onboarding[field];
+    onboarding.setField(field, current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
   }
 
   async function handleBrandKitAssetUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -600,6 +608,143 @@ export default function EditProfilePage() {
                           </button>
                         );
                       })}
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <EditorSectionTitle
+                      copy="Cannabis-ready signals help brands filter for creators who understand regulated content, adult audiences, and local markets."
+                      icon={<ShieldCheck className="h-4 w-4" />}
+                      title="Cannabis creator readiness"
+                    />
+                    <div className="grid gap-4 rounded-[28px] border border-white/[0.075] bg-black/25 p-5 md:grid-cols-2">
+                      <label className="text-sm font-black text-[#fbfbf7]">
+                        Cannabis willingness
+                        <select
+                          className="premium-input mt-2"
+                          onChange={(event) => onboarding.setField("cannabisWillingness", event.target.value as typeof onboarding.cannabisWillingness)}
+                          value={onboarding.cannabisWillingness}
+                        >
+                          <option value="unspecified">Not specified</option>
+                          <option value="yes">Open to cannabis campaigns</option>
+                          <option value="limited">Limited cannabis categories</option>
+                          <option value="no">Not accepting cannabis work</option>
+                        </select>
+                      </label>
+                      <label className="text-sm font-black text-[#fbfbf7]">
+                        Availability
+                        <select
+                          className="premium-input mt-2"
+                          onChange={(event) => onboarding.setField("creatorAvailability", event.target.value as typeof onboarding.creatorAvailability)}
+                          value={onboarding.creatorAvailability}
+                        >
+                          <option value="open">Open</option>
+                          <option value="limited">Limited</option>
+                          <option value="unavailable">Unavailable</option>
+                        </select>
+                      </label>
+                      <label className="flex items-center gap-3 rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-4 text-sm font-black text-[#fbfbf7]">
+                        <input
+                          checked={onboarding.audienceAgeAttested}
+                          onChange={(event) => onboarding.setField("audienceAgeAttested", event.target.checked)}
+                          type="checkbox"
+                        />
+                        I attest my audience is appropriate for 21+ cannabis campaign review.
+                      </label>
+                      <div className="rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-4">
+                        <div className="text-sm font-black text-[#fbfbf7]">Cannabis markets</div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {creatorMarkets.map((market) => (
+                            <button
+                              aria-pressed={onboarding.creatorMarkets.includes(market)}
+                              className={`rounded-full border px-3 py-2 text-xs font-black ${
+                                onboarding.creatorMarkets.includes(market) ? "border-[#b8ff3d]/30 bg-[#b8ff3d]/14 text-[#e7ff9a]" : "border-white/[0.075] bg-white/[0.04] text-[#d8ded1]"
+                              }`}
+                              key={market}
+                              onClick={() => toggleArrayField("creatorMarkets", market)}
+                              type="button"
+                            >
+                              {market}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="md:col-span-2">
+                        <div className="text-sm font-black text-[#fbfbf7]">Content categories</div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {creatorContentCategories.map((category) => (
+                            <button
+                              aria-pressed={onboarding.creatorContentCategories.includes(category)}
+                              className={`rounded-full border px-4 py-2.5 text-sm font-black ${
+                                onboarding.creatorContentCategories.includes(category) ? "border-[#b8ff3d]/30 bg-[#b8ff3d]/14 text-[#e7ff9a]" : "border-white/[0.075] bg-white/[0.04] text-[#d8ded1]"
+                              }`}
+                              key={category}
+                              onClick={() => toggleArrayField("creatorContentCategories", category)}
+                              type="button"
+                            >
+                              {category.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <EditorSectionTitle
+                      copy="Budtender signals tell brands whether you can support education, events, sampling recaps, and retail-market feedback."
+                      icon={<BriefcaseBusiness className="h-4 w-4" />}
+                      title="Budtender verification"
+                    />
+                    <div className="grid gap-4 rounded-[28px] border border-white/[0.075] bg-black/25 p-5 md:grid-cols-2">
+                      <label className="flex items-center gap-3 rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-4 text-sm font-black text-[#fbfbf7]">
+                        <input
+                          checked={onboarding.budtenderExperience}
+                          onChange={(event) => onboarding.setField("budtenderExperience", event.target.checked)}
+                          type="checkbox"
+                        />
+                        I have budtender or retail cannabis experience.
+                      </label>
+                      <label className="text-sm font-black text-[#fbfbf7]">
+                        Budtender market
+                        <input
+                          className="premium-input mt-2"
+                          onChange={(event) => onboarding.setField("budtenderMarket", event.target.value)}
+                          placeholder="Example: Michigan"
+                          value={onboarding.budtenderMarket}
+                        />
+                      </label>
+                      <label className="text-sm font-black text-[#fbfbf7] md:col-span-2">
+                        Store affiliation
+                        <input
+                          className="premium-input mt-2"
+                          onChange={(event) => onboarding.setField("storeAffiliation", event.target.value)}
+                          placeholder="Optional store, chain, or retail context"
+                          value={onboarding.storeAffiliation}
+                        />
+                      </label>
+                      <label className="flex items-center gap-3 rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-4 text-sm font-black text-[#fbfbf7]">
+                        <input
+                          checked={onboarding.budtenderEducationExperience}
+                          onChange={(event) => onboarding.setField("budtenderEducationExperience", event.target.checked)}
+                          type="checkbox"
+                        />
+                        Education experience
+                      </label>
+                      <label className="flex items-center gap-3 rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-4 text-sm font-black text-[#fbfbf7]">
+                        <input
+                          checked={onboarding.budtenderEventExperience}
+                          onChange={(event) => onboarding.setField("budtenderEventExperience", event.target.checked)}
+                          type="checkbox"
+                        />
+                        Event experience
+                      </label>
+                      <label className="flex items-center gap-3 rounded-[20px] border border-white/[0.075] bg-white/[0.035] p-4 text-sm font-black text-[#fbfbf7]">
+                        <input
+                          checked={onboarding.samplingRecapAvailable}
+                          onChange={(event) => onboarding.setField("samplingRecapAvailable", event.target.checked)}
+                          type="checkbox"
+                        />
+                        Sampling recap available
+                      </label>
                     </div>
                   </div>
                 </>

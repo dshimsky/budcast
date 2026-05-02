@@ -3,6 +3,7 @@ import type { Badge, UserType } from "../types/database";
 export type TrustBadgeId =
   | "verified_brand"
   | "verified_creator"
+  | "verified_budtender"
   | "payment_ready"
   | "campaign_ready"
   | "social_verified"
@@ -29,6 +30,12 @@ const TRUST_BADGES: Record<TrustBadgeId, TrustBadgeDescriptor> = {
     id: "verified_creator",
     label: "Verified Creator",
     tone: "aqua"
+  },
+  verified_budtender: {
+    description: "BudCast has reviewed this budtender or retail education profile.",
+    id: "verified_budtender",
+    label: "Verified Budtender",
+    tone: "lime"
   },
   payment_ready: {
     description: "This brand has a clear payment workflow for paid campaigns.",
@@ -66,14 +73,15 @@ const BADGE_ALIASES: Record<string, TrustBadgeId> = {
   top_rated: "highly_rated",
   trusted_creator: "campaign_ready",
   verified_brand: "verified_brand",
+  verified_budtender: "verified_budtender",
   verified_creator: "verified_creator",
   verified_payer: "payment_ready"
 };
 
 const PROFILE_BADGE_ORDER: Record<UserType, TrustBadgeId[]> = {
-  brand: ["verified_brand", "payment_ready", "social_verified", "highly_rated", "campaign_ready", "verified_creator"],
-  brand_team: ["verified_brand", "social_verified", "highly_rated", "payment_ready", "campaign_ready", "verified_creator"],
-  creator: ["verified_creator", "campaign_ready", "social_verified", "highly_rated", "payment_ready", "verified_brand"]
+  brand: ["verified_brand", "payment_ready", "social_verified", "highly_rated", "campaign_ready", "verified_creator", "verified_budtender"],
+  brand_team: ["verified_brand", "social_verified", "highly_rated", "payment_ready", "campaign_ready", "verified_creator", "verified_budtender"],
+  creator: ["verified_creator", "verified_budtender", "campaign_ready", "social_verified", "highly_rated", "payment_ready", "verified_brand"]
 };
 
 export function getTrustBadgeDescriptors({

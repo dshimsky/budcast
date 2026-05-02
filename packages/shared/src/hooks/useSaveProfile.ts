@@ -31,7 +31,26 @@ function buildProfilePayload(
       p_linkedin: onboarding.linkedin.trim() || null,
       p_x_profile: onboarding.xProfile.trim() || null,
       p_portfolio_image_urls: onboarding.portfolioImageUrls.filter((url) => url.trim()).map((url) => url.trim()),
-      p_niches: onboarding.niches
+      p_niches: onboarding.niches,
+      p_creator_platform_links: {
+        facebook: onboarding.facebook.trim(),
+        instagram: onboarding.instagram.trim(),
+        linkedin: onboarding.linkedin.trim(),
+        tiktok: onboarding.tiktok.trim(),
+        x: onboarding.xProfile.trim(),
+        youtube: onboarding.youtube.trim()
+      },
+      p_audience_age_attested: onboarding.audienceAgeAttested,
+      p_budtender_education_experience: onboarding.budtenderEducationExperience,
+      p_budtender_event_experience: onboarding.budtenderEventExperience,
+      p_budtender_experience: onboarding.budtenderExperience,
+      p_budtender_market: onboarding.budtenderMarket.trim() || null,
+      p_cannabis_willingness: onboarding.cannabisWillingness,
+      p_creator_availability: onboarding.creatorAvailability,
+      p_creator_content_categories: onboarding.creatorContentCategories,
+      p_creator_markets: onboarding.creatorMarkets,
+      p_sampling_recap_available: onboarding.samplingRecapAvailable,
+      p_store_affiliation: onboarding.storeAffiliation.trim() || null
     };
   }
 

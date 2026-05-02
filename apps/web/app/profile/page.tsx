@@ -177,6 +177,32 @@ function CreatorProfileView({ profile, signOut: _signOut }: ProfileViewProps) {
             value={niches.length ? formatList(niches) : "Add specialties so brands can judge audience fit."}
           />
           <ProfileRow
+            label="Cannabis markets"
+            value={profile.creator_markets.length ? formatList(profile.creator_markets) : "Add markets for local cannabis campaign matching."}
+          />
+          <ProfileRow
+            label="Cannabis readiness"
+            value={`${formatStatus(profile.cannabis_willingness)} · ${formatStatus(profile.creator_availability)} availability`}
+          />
+          <ProfileRow
+            label="Budtender experience"
+            value={
+              profile.budtender_experience
+                ? `${profile.budtender_market ?? "Market not set"}${profile.store_affiliation ? ` · ${profile.store_affiliation}` : ""}`
+                : "No budtender experience added."
+            }
+          />
+          <ProfileRow
+            label="Retail education"
+            value={
+              [
+                profile.budtender_education_experience ? "Education" : null,
+                profile.budtender_event_experience ? "Events" : null,
+                profile.sampling_recap_available ? "Sampling recaps" : null
+              ].filter(Boolean).join(", ") || "Add education, event, or sampling recap experience."
+            }
+          />
+          <ProfileRow
             label="Portfolio media"
             value={
               portfolioUrls.length
@@ -832,6 +858,10 @@ function formatList(values: string[] = []) {
   return values
     .map((value) => value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()))
     .join(", ");
+}
+
+function formatStatus(value: string) {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function getCreatorSocialItems(profile: Profile): MetadataItem[] {

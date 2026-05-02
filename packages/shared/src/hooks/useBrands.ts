@@ -31,6 +31,39 @@ export type BrandDirectoryRow = Pick<
   badges: Badge[];
 };
 
+export type TalentDirectoryRow = Pick<
+  PublicProfile,
+  | 'id'
+  | 'name'
+  | 'bio'
+  | 'location'
+  | 'avatar_url'
+  | 'instagram'
+  | 'tiktok'
+  | 'youtube'
+  | 'portfolio_image_urls'
+  | 'niches'
+  | 'badges'
+  | 'review_score'
+  | 'review_count'
+  | 'completion_rate'
+  | 'creator_social_verification_status'
+  | 'audience_age_attested'
+  | 'cannabis_willingness'
+  | 'creator_content_categories'
+  | 'creator_markets'
+  | 'creator_availability'
+  | 'budtender_experience'
+  | 'budtender_market'
+  | 'store_affiliation'
+  | 'store_affiliation_verified'
+  | 'budtender_education_experience'
+  | 'budtender_event_experience'
+  | 'sampling_recap_available'
+> & {
+  badges: Badge[];
+};
+
 export function useBrands() {
   return useQuery<BrandDirectoryRow[]>({
     queryKey: ['brands'],
@@ -46,6 +79,26 @@ export function useBrands() {
 
       if (error) throw error;
       return (data ?? []) as BrandDirectoryRow[];
+    },
+    staleTime: 30_000,
+  });
+}
+
+export function useTalentDirectory() {
+  return useQuery<TalentDirectoryRow[]>({
+    queryKey: ['talent-directory'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('public_profiles')
+        .select(
+          'id, name, bio, location, avatar_url, instagram, tiktok, youtube, portfolio_image_urls, niches, badges, review_score, review_count, completion_rate, creator_social_verification_status, audience_age_attested, cannabis_willingness, creator_content_categories, creator_markets, creator_availability, budtender_experience, budtender_market, store_affiliation, store_affiliation_verified, budtender_education_experience, budtender_event_experience, sampling_recap_available',
+        )
+        .eq('user_type', 'creator')
+        .eq('account_status', 'active')
+        .order('review_score', { ascending: false, nullsFirst: false });
+
+      if (error) throw error;
+      return (data ?? []) as TalentDirectoryRow[];
     },
     staleTime: 30_000,
   });

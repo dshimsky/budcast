@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../auth/useAuth";
 import { supabase } from "../lib/supabase";
-import type { PlatformAdmin, SafetyReport, SafetyReportStatus } from "../types/database";
+import type { PlatformAdmin, SafetyReport, SafetyReportStatus, User } from "../types/database";
 
 export type ModerationReport = SafetyReport;
 
@@ -12,6 +12,13 @@ export type UpdateModerationReportInput = {
   reportId: string;
   resolutionNote?: string | null;
   status: Extract<SafetyReportStatus, "reviewing" | "actioned" | "dismissed">;
+};
+
+export type VerifyCannabisTalentInput = {
+  notes?: string | null;
+  userId: string;
+  verifiedBudtender?: boolean;
+  verifiedCreator?: boolean;
 };
 
 export function usePlatformAdminStatus() {
@@ -32,6 +39,30 @@ export function usePlatformAdminStatus() {
       return (data ?? null) as PlatformAdmin | null;
     },
     staleTime: 30_000
+  });
+}
+
+export function useVerifyCannabisTalent() {
+  const queryClient = useQueryClient();
+
+  return useMutation<User, unknown, VerifyCannabisTalentInput>({
+    mutationFn: async (input) => {
+      const { data, error } = await supabase.rpc("verify_cannabis_talent", {
+        p_notes: input.notes ?? null,
+        p_user_id: input.userId,
+        p_verified_budtender: input.verifiedBudtender ?? false,
+        p_verified_creator: input.verifiedCreator ?? false
+      });
+
+      if (error) throw error;
+      return data as User;
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["talent-directory"] }),
+        queryClient.invalidateQueries({ queryKey: ["profile-reviews"] }),
+      ]);
+    }
   });
 }
 
