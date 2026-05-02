@@ -137,14 +137,14 @@ export function CampaignDropCard({
         <div className="mt-[14px] flex gap-2">
           <Link
             aria-label={`${applyLabel} for ${title}`}
-            className="flex h-11 flex-1 items-center justify-center rounded-xl bg-[#b8ff3d] text-sm font-black text-[#071007] shadow-[0_14px_30px_rgba(184,255,61,0.2)] transition-all duration-150 hover:-translate-y-[1px] hover:bg-[#c8ff52]"
+            className="flex h-11 flex-1 items-center justify-center rounded-xl bg-[#b8ff3d] text-sm font-black text-[#071007] shadow-[0_14px_30px_rgba(184,255,61,0.2)] transition-all duration-150 hover:-translate-y-[1px] hover:bg-[#c8ff52] active:scale-[0.98]"
             href={applyHref}
           >
             {applyLabel}
           </Link>
           <Link
             aria-label={`View details for ${title}`}
-            className="flex h-11 items-center gap-[6px] rounded-xl border border-white/[0.09] bg-transparent px-4 text-[13px] font-bold text-[#c6b8ad] transition-all duration-150 hover:border-[#b8ff3d]/20 hover:text-[#e7ff9a]"
+            className="flex h-11 items-center gap-[6px] rounded-xl border border-white/[0.09] bg-transparent px-4 text-[13px] font-bold text-[#c6b8ad] transition-all duration-150 hover:border-[#b8ff3d]/20 hover:text-[#e7ff9a] active:scale-[0.98]"
             href={detailHref}
           >
             Details

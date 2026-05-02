@@ -38,6 +38,7 @@ import {
   WalletCards
 } from "lucide-react";
 import { BudCastLogo } from "../../../components/budcast-logo";
+import { MobileDealTimeline, MobileStatusPill } from "../../../components/mobile-marketplace";
 import { RouteTransitionScreen } from "../../../components/route-transition-screen";
 import { ProfileSafetyActions } from "../../../components/safety/profile-safety-actions";
 import { Button } from "../../../components/ui/button";
@@ -150,8 +151,9 @@ function getCreatorCompensationValue(
 }
 
 function getCreatorCtaCopy(status?: string | null) {
-  if (status === "accepted") return "Submit content";
-  if (status) return "Application submitted";
+  if (status === "accepted" || status === "completed") return "Accepted by brand";
+  if (status === "rejected") return "Not selected";
+  if (status) return "Brand reviewing";
   return "Apply to campaign";
 }
 
@@ -195,6 +197,76 @@ function getApplicationAvailability(campaign: {
     copy: "Tell the brand why your content style fits this campaign.",
     title: "Apply to campaign"
   };
+}
+
+type ApplicationMomentKind = "sent" | "pending" | "accepted" | "rejected";
+
+function ApplicationMomentPanel({ kind }: { kind: ApplicationMomentKind }) {
+  const copy = {
+    sent: {
+      action: "View status",
+      body: "Your pitch is in. BudCast keeps this campaign visible while the brand reviews your profile, portfolio, and fit.",
+      currentIndex: 0,
+      icon: CheckCircle2,
+      label: "Application sent",
+      tone: "primary" as const
+    },
+    pending: {
+      action: "Track application",
+      body: "Brand reviewing is the waiting room. Keep your profile sharp and watch this card for the next decision.",
+      currentIndex: 1,
+      icon: Clock3,
+      label: "Brand reviewing",
+      tone: "pending" as const
+    },
+    accepted: {
+      action: "Coordinate details",
+      body: "Accepted by brand. Confirm product timing, usage rights, payment expectations, and content due dates before shooting.",
+      currentIndex: 2,
+      icon: Sparkles,
+      label: "Accepted by brand",
+      tone: "success" as const
+    },
+    rejected: {
+      action: "Find similar campaigns",
+      body: "Not selected for this round. This campaign was not a match, but your profile stays ready for similar briefs.",
+      currentIndex: 1,
+      icon: MessageCircle,
+      label: "Not selected",
+      tone: "premium" as const
+    }
+  }[kind];
+  const Icon = copy.icon;
+
+  return (
+    <div className="application-moment-pulse mt-5 rounded-[24px] border border-white/[0.08] bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(0,0,0,0.24))] p-4 shadow-[0_20px_48px_rgba(0,0,0,0.28),0_1px_0_rgba(255,255,255,0.045)_inset]">
+      <div className="flex items-start gap-3">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[16px] border border-[#b8ff3d]/18 bg-[#b8ff3d]/10 text-[#e7ff9a]">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <MobileStatusPill tone={copy.tone}>{copy.label}</MobileStatusPill>
+          <p className="mt-3 text-sm font-semibold leading-6 text-[#d8ded1]">{copy.body}</p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <MobileDealTimeline
+          currentIndex={copy.currentIndex}
+          steps={[
+            { label: "Sent", tone: kind === "sent" ? "primary" : "neutral" },
+            { label: "Review", tone: kind === "rejected" ? "premium" : "pending" },
+            { label: "Decision", tone: kind === "accepted" ? "success" : "muted" }
+          ]}
+        />
+      </div>
+      <Button asChild className="mt-4 w-full" variant="secondary">
+        <Link href="/creator-dashboard">
+          {copy.action}
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    </div>
+  );
 }
 
 function CampaignTopBar() {
@@ -256,6 +328,7 @@ export default function CreatorCampaignDetailPage() {
   const [pitch, setPitch] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [applicationMoment, setApplicationMoment] = useState<"sent" | null>(null);
   const [selectedPortfolioIndex, setSelectedPortfolioIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -276,6 +349,10 @@ export default function CreatorCampaignDetailPage() {
     }
   }, [loading, profile, router, session]);
 
+  useEffect(() => {
+    setApplicationMoment(null);
+  }, [params.id]);
+
   async function handleApply(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!campaign.data || applications.isLoading || !acknowledged) return;
@@ -295,7 +372,8 @@ export default function CreatorCampaignDetailPage() {
       setPitch("");
       setAcknowledged(false);
       setSelectedPortfolioIndex(null);
-      setFeedback("Application submitted.");
+      setApplicationMoment("sent");
+      setFeedback(null);
     } catch (error) {
       setFeedback(applyCopy(parseApplyError(error)));
     }
@@ -380,8 +458,12 @@ export default function CreatorCampaignDetailPage() {
   }
 
   const detail = campaign.data;
-  const application = applications.getApplication(detail.id);
-  const applied = Boolean(application);
+  const activeApplication = applications.getApplication(detail.id);
+  const applicationHistory = applications.getApplicationHistory(detail.id);
+  const visibleApplication = activeApplication ?? applicationHistory;
+  const application = activeApplication;
+  const applied = Boolean(activeApplication);
+  const hasDeclinedApplication = applicationHistory?.status === "rejected" && !activeApplication;
   const compensationLabel = getCompensationLabel(detail);
   const compensationValue = getCreatorCompensationValue(detail);
   const remainingSlots = Math.max((detail.slots_available ?? 0) - (detail.slots_filled ?? 0), 0);
@@ -422,10 +504,25 @@ export default function CreatorCampaignDetailPage() {
   const hasAcceptedAssetAccess = application?.status === "accepted" || application?.status === "completed";
   const visibleReferenceImages = hasAcceptedAssetAccess ? referenceImages.slice(0, 6) : referenceImages.slice(0, 2);
   const availability = getApplicationAvailability(detail);
+  const momentKind: ApplicationMomentKind | null =
+    applicationMoment === "sent"
+      ? "sent"
+      : activeApplication?.status === "accepted" || activeApplication?.status === "completed"
+        ? "accepted"
+        : activeApplication?.status
+          ? "pending"
+          : hasDeclinedApplication
+            ? "rejected"
+            : null;
+  const isSubmittedOrApplied = Boolean(activeApplication) || applicationMoment === "sent";
   const ctaCopy = applications.isLoading
     ? "Checking status"
-    : applied
-      ? getCreatorCtaCopy(application?.status)
+    : applicationMoment === "sent"
+      ? "Application sent"
+      : activeApplication
+        ? getCreatorCtaCopy(activeApplication.status)
+        : hasDeclinedApplication
+          ? "Not selected"
       : availability.title;
 
   return (
@@ -712,12 +809,18 @@ export default function CreatorCampaignDetailPage() {
               <p className="mt-3 text-sm leading-7 text-[#d8ded1]">
                 {applications.isLoading
                   ? "BudCast is checking your application status before showing the next action."
-                  : applied
-                  ? application?.status === "accepted"
+                  : applicationMoment === "sent"
+                    ? "Your pitch is in. The brand can now review your profile, portfolio context, and campaign fit."
+                  : activeApplication
+                  ? activeApplication.status === "accepted" || activeApplication.status === "completed"
                     ? "You are accepted. Submit content from your creator work queue."
                     : "The brand can now review your profile, pitch, and portfolio context."
+                  : hasDeclinedApplication
+                    ? "This campaign was not a match. You can still explore similar briefs and re-apply if a campaign reopens."
                   : availability.copy}
               </p>
+
+              {momentKind ? <ApplicationMomentPanel kind={momentKind} /> : null}
 
               {applications.isLoading ? (
                 <div className="mt-5 rounded-[24px] border border-white/[0.075] bg-black/20 p-4 shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
@@ -729,15 +832,15 @@ export default function CreatorCampaignDetailPage() {
                     Checking status
                   </Button>
                 </div>
-              ) : applied ? (
+              ) : isSubmittedOrApplied ? (
                 <div className="mt-5 rounded-[24px] border border-[#c8f060]/20 bg-[#c8f060]/10 p-4 shadow-[0_1px_0_rgba(255,255,255,0.035)_inset]">
                   <div className="flex items-center gap-2 text-[#dff7a8]">
                     <CheckCircle2 className="h-5 w-5" />
-                    <span className="text-sm font-semibold capitalize">{application?.status ?? "pending"}</span>
+                    <span className="text-sm font-semibold capitalize">{visibleApplication?.status ?? "pending"}</span>
                   </div>
                   <Button asChild className="mt-5 w-full" variant="secondary">
                     <Link href="/creator-dashboard">
-                      {application?.status === "accepted" ? "Submit content" : "View status"}
+                      {activeApplication?.status === "accepted" || activeApplication?.status === "completed" ? "Submit content" : "View status"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>

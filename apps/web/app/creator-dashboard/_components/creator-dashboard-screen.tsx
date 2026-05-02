@@ -808,14 +808,15 @@ function CreatorApplicationCard({ application }: { application: ApplicationWithO
   const opportunity = application.opportunity;
   const brandName = opportunity?.brand?.company_name || "Cannabis brand";
   const brandInitials = getCreatorInitials(brandName) || "BC";
+  const moment = getCreatorApplicationMoment(application);
 
   return (
     <Link
-      className="rounded-[26px] border border-white/10 bg-white/[0.04] p-4 transition hover:border-[#b8ff3d]/25"
+      className={`rounded-[26px] border bg-white/[0.04] p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#b8ff3d]/25 active:scale-[0.985] ${moment.cardClass}`}
       href={opportunity?.id ? `/campaigns/${opportunity.id}` : "/creator-dashboard"}
     >
       <div className="flex gap-3">
-        <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.045] text-xs font-black text-[#e7ff9a]">
+        <div className={`grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full border text-xs font-black ${moment.avatarClass}`}>
           {opportunity?.brand?.avatar_url ? (
             <img alt="" className="h-full w-full object-cover" src={opportunity.brand.avatar_url} />
           ) : (
@@ -825,18 +826,89 @@ function CreatorApplicationCard({ application }: { application: ApplicationWithO
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3">
             <h3 className="truncate text-base font-black text-[#fbfbf7]">{opportunity?.title || "Campaign application"}</h3>
-            <span className="shrink-0 rounded-full border border-white/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-[#c7ccc2]">
-              {application.status === "pending" ? "Pending" : application.status === "accepted" ? "Accepted" : application.status === "rejected" ? "Declined" : "Applied"}
+            <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] ${moment.pillClass}`}>
+              {moment.label}
             </span>
           </div>
           <p className="mt-1 text-xs font-bold text-[#aeb5aa]">{brandName}</p>
           <p className="mt-2 text-sm font-medium leading-5 text-[#c7ccc2]">
-            Applied {getSocialTimestamp(application.applied_at)}. Brand response is tracked here.
+            {moment.body}
           </p>
+          <div className={`application-status-rail mt-3 grid grid-cols-3 gap-1.5 ${moment.railClass}`} aria-hidden="true">
+            {["Applied", "Review", "Decision"].map((step, index) => (
+              <span
+                className={`h-1.5 rounded-full ${index <= moment.progressIndex ? moment.progressClass : "bg-white/[0.12]"}`}
+                key={step}
+              />
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <span className="text-[10px] font-black uppercase tracking-[0.1em] text-[#7f877b]">
+              Applied {getSocialTimestamp(application.applied_at)}
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs font-black text-[#e7ff9a]">
+              {moment.action}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </span>
+          </div>
         </div>
       </div>
     </Link>
   );
+}
+
+function getCreatorApplicationMoment(application: ApplicationWithOpportunity) {
+  switch (application.status) {
+    case "accepted":
+    case "completed":
+      return {
+        action: "Coordinate details",
+        avatarClass: "border-[#8ee68e]/22 bg-[#8ee68e]/10 text-[#bff7b6]",
+        body: "Coordinate details with the brand, confirm product or payment expectations, then submit content from your work queue.",
+        cardClass: "border-[#8ee68e]/18 shadow-[0_18px_46px_rgba(142,230,142,0.08)]",
+        label: "Accepted",
+        pillClass: "border-[#8ee68e]/24 bg-[#8ee68e]/12 text-[#bff7b6]",
+        progressClass: "bg-[#8ee68e]",
+        progressIndex: 2,
+        railClass: ""
+      };
+    case "rejected":
+      return {
+        action: "Find similar",
+        avatarClass: "border-[#d7b46a]/22 bg-[#d7b46a]/10 text-[#f0d28d]",
+        body: "This campaign was not a match. Keep your profile current and use the next brief to tighten the pitch.",
+        cardClass: "border-[#d7b46a]/18",
+        label: "Not selected",
+        pillClass: "border-[#d7b46a]/26 bg-[#d7b46a]/12 text-[#f0d28d]",
+        progressClass: "bg-[#d7b46a]",
+        progressIndex: 2,
+        railClass: ""
+      };
+    case "disputed":
+      return {
+        action: "Review issue",
+        avatarClass: "border-[#ff6b4a]/22 bg-[#ff6b4a]/10 text-[#ffab99]",
+        body: "A support issue is open. Review the campaign thread and keep evidence attached to the job.",
+        cardClass: "border-[#ff6b4a]/18",
+        label: "Needs support",
+        pillClass: "border-[#ff6b4a]/25 bg-[#ff6b4a]/12 text-[#ffab99]",
+        progressClass: "bg-[#ff6b4a]",
+        progressIndex: 2,
+        railClass: ""
+      };
+    default:
+      return {
+        action: "Track application",
+        avatarClass: "border-[#f0b85c]/22 bg-[#f0b85c]/10 text-[#ffd58a]",
+        body: "Brand reviewing your profile, pitch, and portfolio context. BudCast keeps the decision visible here.",
+        cardClass: "application-pending-shimmer border-[#f0b85c]/18",
+        label: "Brand reviewing",
+        pillClass: "border-[#f0b85c]/25 bg-[#f0b85c]/12 text-[#ffd58a]",
+        progressClass: "bg-[#f0b85c]",
+        progressIndex: 1,
+        railClass: ""
+      };
+  }
 }
 
 function CreatorWorkLane({

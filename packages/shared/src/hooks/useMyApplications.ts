@@ -16,7 +16,23 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../auth/useAuth";
-import type { Application, CampaignType } from "../types/database";
+import type { Application, ApplicationStatus, CampaignType } from "../types/database";
+
+export const activeApplicationStatuses = [
+  'pending',
+  'accepted',
+  'completed',
+  'disputed'
+] as const satisfies readonly ApplicationStatus[];
+
+const applicationHistoryStatuses = [
+  ...activeApplicationStatuses,
+  'rejected'
+] as const satisfies readonly ApplicationStatus[];
+
+function isActiveApplicationStatus(status: ApplicationStatus) {
+  return activeApplicationStatuses.includes(status as (typeof activeApplicationStatuses)[number]);
+}
 
 /**
  * Minimal opportunity + brand info joined on applications. Kept narrow
@@ -44,8 +60,10 @@ export interface UseMyApplicationsResult {
   error: unknown;
   /** O(1) check: has this creator applied to this opportunity (pending/accepted/completed)? */
   isApplied: (opportunityId: string) => boolean;
-  /** Return the full application row if it exists — useful for detail page state */
+  /** Return the active application row if it exists — rejected history does not block re-application. */
   getApplication: (opportunityId: string) => ApplicationWithOpportunity | undefined;
+  /** Return the latest application row, including declined outcomes for creator-facing history. */
+  getApplicationHistory: (opportunityId: string) => ApplicationWithOpportunity | undefined;
 }
 
 export function useMyApplications(): UseMyApplicationsResult {
@@ -71,7 +89,7 @@ export function useMyApplications(): UseMyApplicationsResult {
         `,
         )
         .eq('creator_id', creatorId!)
-        .in('status', ['pending', 'accepted', 'completed', 'disputed'])
+        .in('status', applicationHistoryStatuses)
         .order('applied_at', { ascending: false });
       if (error) throw error;
       return (data ?? []) as ApplicationWithOpportunity[];
@@ -79,14 +97,26 @@ export function useMyApplications(): UseMyApplicationsResult {
     staleTime: 10_000, // shorter than catalog — freshly-applied state matters
   });
 
-  // Build an O(1) lookup map. useMemo so we don't rebuild every render.
-  const byOpportunityId = useMemo(() => {
+  // Build O(1) lookup maps from the latest row for each opportunity.
+  const historyByOpportunityId = useMemo(() => {
     const map = new Map<string, ApplicationWithOpportunity>();
     (query.data ?? []).forEach((app) => {
-      map.set(app.opportunity_id, app);
+      if (!map.has(app.opportunity_id)) {
+        map.set(app.opportunity_id, app);
+      }
     });
     return map;
   }, [query.data]);
+
+  const byOpportunityId = useMemo(() => {
+    const map = new Map<string, ApplicationWithOpportunity>();
+    historyByOpportunityId.forEach((app) => {
+      if (isActiveApplicationStatus(app.status)) {
+        map.set(app.opportunity_id, app);
+      }
+    });
+    return map;
+  }, [historyByOpportunityId]);
 
   return {
     data: query.data,
@@ -94,5 +124,6 @@ export function useMyApplications(): UseMyApplicationsResult {
     error: query.error,
     isApplied: (id) => byOpportunityId.has(id),
     getApplication: (id) => byOpportunityId.get(id),
+    getApplicationHistory: (id) => historyByOpportunityId.get(id),
   };
 }

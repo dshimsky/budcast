@@ -44,3 +44,35 @@ test("phase 8 creator and brand cards surface marketplace trust cues", () => {
     assert.match(brandDashboard, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("phase 9 application history keeps declined outcomes visible without blocking active applications", () => {
+  const source = readWorkspaceFile("packages/shared/src/hooks/useMyApplications.ts");
+
+  for (const marker of ["activeApplicationStatuses", "'rejected'", "getApplicationHistory"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("phase 9 campaign detail has creator application moments", () => {
+  const source = readWorkspaceFile("apps/web/app/campaigns/[id]/page.tsx");
+
+  for (const marker of ["Application sent", "Brand reviewing", "Accepted by brand", "Not selected", "application-moment-pulse"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("phase 9 creator dashboard application cards have status-specific engagement states", () => {
+  const source = readWorkspaceFile("apps/web/app/creator-dashboard/_components/creator-dashboard-screen.tsx");
+
+  for (const marker of ["Coordinate details", "This campaign was not a match", "application-status-rail"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("phase 9 application animations are reduced-motion safe", () => {
+  const source = readWorkspaceFile("apps/web/app/globals.css");
+
+  for (const marker of ["application-moment-pulse", "application-pending-shimmer", "prefers-reduced-motion"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
