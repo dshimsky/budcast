@@ -54,3 +54,19 @@ test("native campaigns filters match the audit marketplace vocabulary", () => {
     assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("native work tab uses operational lanes instead of a dense application list", () => {
+  const source = readWorkspaceFile("apps/native/app/applications.tsx");
+
+  for (const marker of ["useMySubmissionPipeline", "WorkLane", "Needs action", "Active jobs", "Submitted", "Completed"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("native work cards surface next actions and payment checkpoints", () => {
+  const source = readWorkspaceFile("apps/native/app/applications.tsx");
+
+  for (const marker of ["Submit content", "Open submissions", "Payment checkpoint", "Coordinate details"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});

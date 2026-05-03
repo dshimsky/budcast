@@ -3,28 +3,200 @@ import {
   formatDeadline,
   formatStatus,
   hasCompletedOnboarding,
+  type ApplicationWithOpportunity,
+  type SubmissionPipelineRow,
   useAuth,
-  useMyApplications
+  useMyApplications,
+  useMySubmissionPipeline
 } from "@budcast/shared";
-import { Link, router } from "expo-router";
-import { useEffect, useMemo } from "react";
+import { router } from "expo-router";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { Text, View } from "react-native";
+import { StatusPill, Surface, TrustRow } from "../components/mobile-system";
 import {
   FadeInSection,
   GlassCard,
-  HeroChip,
   MetricTile,
   PremiumScroll,
   PrimaryPill,
   SecondaryPill,
-  SectionTitle,
   SoftCard
 } from "../components/premium";
-import { InfoTile, SectionBlock, SectionEyebrow } from "../components/sections";
+
+type WorkActionTone = "action" | "danger" | "premium" | "trust" | "warning";
+
+function getBrandName(row: SubmissionPipelineRow) {
+  return row.opportunity?.brand?.company_name ?? "BudCast brand";
+}
+
+function getCampaignTitle(row: SubmissionPipelineRow) {
+  return row.opportunity?.title ?? "Untitled campaign";
+}
+
+function needsCreatorAction(row: SubmissionPipelineRow) {
+  return (
+    row.status === "disputed" ||
+    row.disputes.length > 0 ||
+    !row.submission ||
+    row.submission.verification_status === "needs_revision" ||
+    (row.submission.verification_status === "verified" && !row.submission.payment_confirmed_by_creator)
+  );
+}
+
+function isCompletedWork(row: SubmissionPipelineRow) {
+  return row.status === "completed" || Boolean(row.submission?.payment_confirmed_by_creator);
+}
+
+function isSubmittedWork(row: SubmissionPipelineRow) {
+  return row.submission?.verification_status === "pending";
+}
+
+function getWorkAction(row: SubmissionPipelineRow): { label: string; tone: WorkActionTone } {
+  if (row.status === "disputed" || row.disputes.length > 0) {
+    return { label: "Review issue", tone: "danger" };
+  }
+
+  if (!row.submission || row.submission.verification_status === "needs_revision") {
+    return { label: "Submit content", tone: "action" };
+  }
+
+  if (row.submission.verification_status === "verified" && !row.submission.payment_confirmed_by_creator) {
+    return { label: "Payment checkpoint", tone: "warning" };
+  }
+
+  if (row.submission.verification_status === "pending") {
+    return { label: "Open submissions", tone: "trust" };
+  }
+
+  return { label: "Coordinate details", tone: "premium" };
+}
+
+function getWorkSummary(row: SubmissionPipelineRow) {
+  if (row.status === "disputed" || row.disputes.length > 0) {
+    return "A campaign issue needs attention before this job can close cleanly.";
+  }
+
+  if (!row.submission) {
+    return "You were accepted. Submit the creator link, proof, and payout method from the submissions flow.";
+  }
+
+  if (row.submission.verification_status === "needs_revision") {
+    return "The brand needs a revision. Update the post link or proof so the campaign can keep moving.";
+  }
+
+  if (row.submission.verification_status === "verified" && !row.submission.payment_confirmed_by_creator) {
+    return "Content is verified. Confirm payment once the brand payout or product value lands.";
+  }
+
+  if (row.submission.verification_status === "pending") {
+    return "Your submission is in brand review. Keep an eye on this lane for feedback or approval.";
+  }
+
+  return "Campaign requirements are handled. Use this card to keep final brand coordination in one place.";
+}
+
+function WorkLane({
+  children,
+  count,
+  empty,
+  title
+}: {
+  children: ReactNode;
+  count: number;
+  empty: string;
+  title: string;
+}) {
+  return (
+    <View className="gap-3">
+      <View className="flex-row items-center justify-between">
+        <Text className="text-[11px] font-black uppercase tracking-[2px] text-budcast-muted">{title}</Text>
+        <StatusPill tone={count > 0 ? "action" : "default"}>{count}</StatusPill>
+      </View>
+      {count > 0 ? children : (
+        <Surface tone="overlay" className="px-4 py-4">
+          <Text className="text-sm leading-6 text-budcast-muted">{empty}</Text>
+        </Surface>
+      )}
+    </View>
+  );
+}
+
+function WorkJobCard({ row }: { row: SubmissionPipelineRow }) {
+  const action = getWorkAction(row);
+  const completionDate = row.completion_deadline ?? row.opportunity?.application_deadline ?? null;
+
+  return (
+    <Surface tone="raised" className="gap-4 px-4 py-4">
+      <View className="flex-row items-start justify-between gap-3">
+        <View className="min-w-0 flex-1">
+          <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">
+            {getBrandName(row)} · {row.opportunity ? formatCampaignType(row.opportunity.campaign_type) : "Campaign"}
+          </Text>
+          <Text className="mt-2 text-lg font-black leading-6 text-budcast-text">{getCampaignTitle(row)}</Text>
+        </View>
+        <StatusPill tone={action.tone}>{action.label}</StatusPill>
+      </View>
+
+      <Text className="text-sm leading-6 text-surface-200">{getWorkSummary(row)}</Text>
+
+      <TrustRow
+        items={[
+          { label: formatStatus(row.status), tone: row.status === "completed" ? "success" : "trust" },
+          { label: `Due ${formatDeadline(completionDate)}`, tone: "default" },
+          { label: row.opportunity?.rights_confirmed ? "Rights set" : "Rights pending", tone: "premium" }
+        ]}
+      />
+
+      <View className="flex-row flex-wrap gap-3">
+        <PrimaryPill className="px-4 py-3" onPress={() => router.push("/submissions")}>
+          {action.label}
+        </PrimaryPill>
+        <SecondaryPill className="px-4 py-3" onPress={() => router.push(`/campaigns/${row.opportunity_id}`)}>
+          View brief
+        </SecondaryPill>
+      </View>
+    </Surface>
+  );
+}
+
+function WorkApplicationCard({ application }: { application: ApplicationWithOpportunity }) {
+  const opportunity = application.opportunity;
+  const isRejected = application.status === "rejected";
+
+  return (
+    <Surface tone="overlay" className="gap-4 px-4 py-4">
+      <View className="flex-row items-start justify-between gap-3">
+        <View className="min-w-0 flex-1">
+          <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">
+            {opportunity?.brand?.company_name ?? "BudCast brand"} ·{" "}
+            {opportunity ? formatCampaignType(opportunity.campaign_type) : "Campaign"}
+          </Text>
+          <Text className="mt-2 text-base font-black leading-6 text-budcast-text">
+            {opportunity?.title ?? "Untitled campaign"}
+          </Text>
+        </View>
+        <StatusPill tone={isRejected ? "danger" : "warning"}>{formatStatus(application.status)}</StatusPill>
+      </View>
+
+      <Text className="text-sm leading-6 text-budcast-muted">
+        {isRejected
+          ? "Not selected this round. Keep the brief handy if the brand reopens similar work."
+          : "Brand reviewing. This moves into Active jobs when you are accepted."}
+      </Text>
+
+      <View className="flex-row flex-wrap gap-3">
+        <SecondaryPill className="px-4 py-3" onPress={() => router.push(`/campaigns/${application.opportunity_id}`)}>
+          View brief
+        </SecondaryPill>
+      </View>
+    </Surface>
+  );
+}
 
 export function ApplicationsScreen() {
   const { loading, session, profile } = useAuth();
   const applications = useMyApplications();
+  const pipeline = useMySubmissionPipeline();
 
   useEffect(() => {
     if (!loading && !session) {
@@ -36,111 +208,118 @@ export function ApplicationsScreen() {
     }
   }, [loading, profile, session]);
 
-  const acceptedCount = useMemo(
-    () => (applications.data ?? []).filter((application) => application.status === "accepted").length,
-    [applications.data]
+  const pipelineRows = pipeline.data ?? [];
+  const applicationRows = applications.data ?? [];
+
+  const needsActionRows = useMemo(() => pipelineRows.filter(needsCreatorAction), [pipelineRows]);
+  const completedRows = useMemo(() => pipelineRows.filter(isCompletedWork), [pipelineRows]);
+  const submittedRows = useMemo(
+    () => pipelineRows.filter((row) => isSubmittedWork(row) && !needsCreatorAction(row) && !isCompletedWork(row)),
+    [pipelineRows]
+  );
+  const activeRows = useMemo(
+    () =>
+      pipelineRows.filter(
+        (row) => !needsCreatorAction(row) && !isSubmittedWork(row) && !isCompletedWork(row)
+      ),
+    [pipelineRows]
+  );
+  const pendingApplications = useMemo(
+    () => applicationRows.filter((application) => application.status === "pending" || application.status === "rejected"),
+    [applicationRows]
   );
 
-  const completedCount = useMemo(
-    () => (applications.data ?? []).filter((application) => application.status === "completed").length,
-    [applications.data]
-  );
+  const isLoadingWork = applications.isLoading || pipeline.isLoading;
+  const totalWorkCount = pipelineRows.length + pendingApplications.length;
 
   return (
     <PremiumScroll>
       <FadeInSection>
         <GlassCard>
-          <View className="flex-row items-start justify-between">
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-[#e8dccd]">My Work</Text>
-              <Text className="mt-1 text-[10px] uppercase tracking-[2px] text-[#a59a86]">
-                Applications & submissions
+          <View className="flex-row items-start justify-between gap-4">
+            <View className="min-w-0 flex-1">
+              <Text className="text-sm font-medium text-budcast-text">Work</Text>
+              <Text className="mt-2 text-[10px] uppercase tracking-[2px] text-budcast-muted">
+                Applications, content, payment
+              </Text>
+              <Text className="mt-4 text-3xl font-black leading-9 text-budcast-text">
+                Keep every campaign moving.
               </Text>
             </View>
             <View className="items-end">
-              <Text className="text-3xl font-black text-[#fbf8f4]">
-                {applications.data?.length ?? 0}
-              </Text>
-              <Text className="text-xs uppercase tracking-[2px] text-[#a59a86]">total</Text>
+              <Text className="text-3xl font-black text-budcast-lime">{needsActionRows.length}</Text>
+              <Text className="text-xs uppercase tracking-[2px] text-budcast-muted">actions</Text>
             </View>
           </View>
-          <View className="mt-5 flex-row gap-3">
-            <Link asChild href="/store" className="flex-1">
-              <PrimaryPill>Browse campaigns</PrimaryPill>
-            </Link>
+
+          <View className="mt-5 flex-row flex-wrap gap-3">
+            <PrimaryPill className="px-4 py-3" onPress={() => router.push("/submissions")}>
+              Open submissions
+            </PrimaryPill>
+            <SecondaryPill className="px-4 py-3" onPress={() => router.push("/store")}>
+              Browse campaigns
+            </SecondaryPill>
           </View>
         </GlassCard>
       </FadeInSection>
 
       <FadeInSection className="mt-6 flex-row gap-3" delay={60}>
-        <MetricTile className="flex-1" label="Applications" value={String(applications.data?.length ?? 0)} />
-        <MetricTile className="flex-1" label="Accepted" value={String(acceptedCount)} />
-        <MetricTile className="flex-1" label="Completed" value={String(completedCount)} />
+        <MetricTile className="flex-1" label="Needs action" value={String(needsActionRows.length)} />
+        <MetricTile className="flex-1" label="Active" value={String(activeRows.length + submittedRows.length)} />
+        <MetricTile className="flex-1" label="Done" value={String(completedRows.length)} />
       </FadeInSection>
 
-      <FadeInSection className="mt-6 gap-4 pb-8" delay={120}>
-        {applications.data?.map((application) => (
-          <SectionBlock className="bg-[#11130f]" key={application.id}>
-            <View className="flex-row flex-wrap items-start justify-between gap-3">
-              <View className="flex-1">
-                <SectionEyebrow>
-                  {application.opportunity ? formatCampaignType(application.opportunity.campaign_type) : "Campaign"}
-                </SectionEyebrow>
-                <Text className="mt-2 text-[17px] font-extrabold leading-snug text-[#fbf8f4] tracking-tight">
-                  {application.opportunity?.title || "Untitled opportunity"}
-                </Text>
-              </View>
-              <View className={`rounded-full px-3 py-2 ${
-                application.status === "accepted" ? "border border-[#b8ff3d]/30 bg-[#b8ff3d]/10" :
-                application.status === "completed" ? "border border-[#4f98a3]/30 bg-[#4f98a3]/10" :
-                application.status === "rejected" ? "border border-red-500/20 bg-red-500/10" :
-                "border border-[#a98c5b]/30 bg-[#1a1b16]"
-              }`}>
-                <Text className={`text-xs uppercase tracking-[2px] ${
-                  application.status === "accepted" ? "text-[#b8ff3d]" :
-                  application.status === "completed" ? "text-[#4f98a3]" :
-                  application.status === "rejected" ? "text-red-400" :
-                  "text-[#d7c3a0]"
-                }`}>
-                  {formatStatus(application.status)}
-                </Text>
-              </View>
-            </View>
+      <FadeInSection className="mt-6 gap-6 pb-8" delay={120}>
+        <WorkLane count={needsActionRows.length} empty="Accepted jobs that need a link, revision, dispute reply, or payout confirmation will land here." title="Needs action">
+          <View className="gap-3">
+            {needsActionRows.map((row) => (
+              <WorkJobCard key={row.id} row={row} />
+            ))}
+          </View>
+        </WorkLane>
 
-            <View className="mt-4 gap-3">
-              <InfoTile label="Brand">{application.opportunity?.brand?.company_name ?? "Unknown"}</InfoTile>
-              <InfoTile label="Credits spent">{application.credits_spent}</InfoTile>
-              <InfoTile label="Completion deadline">{formatDeadline(application.completion_deadline)}</InfoTile>
-            </View>
+        <WorkLane count={activeRows.length + pendingApplications.length} empty="Apply to campaigns or wait for accepted briefs to start the next creator job." title="Active jobs">
+          <View className="gap-3">
+            {activeRows.map((row) => (
+              <WorkJobCard key={row.id} row={row} />
+            ))}
+            {pendingApplications.map((application) => (
+              <WorkApplicationCard application={application} key={application.id} />
+            ))}
+          </View>
+        </WorkLane>
 
-            <View className="mt-5 flex-row flex-wrap gap-3">
-              <Link asChild href={`/campaigns/${application.opportunity_id}`}>
-                <PrimaryPill className="px-4 py-3">View brief</PrimaryPill>
-              </Link>
-              {application.status === "accepted" || application.status === "completed" ? (
-                <Link asChild href="/submissions">
-                  <SecondaryPill className="px-4 py-3">Open submissions</SecondaryPill>
-                </Link>
-              ) : null}
-            </View>
-          </SectionBlock>
-        ))}
+        <WorkLane count={submittedRows.length} empty="Submitted work in brand review will appear here with clear status and next steps." title="Submitted">
+          <View className="gap-3">
+            {submittedRows.map((row) => (
+              <WorkJobCard key={row.id} row={row} />
+            ))}
+          </View>
+        </WorkLane>
 
-        {applications.isLoading ? (
+        <WorkLane count={completedRows.length} empty="Completed, paid, or archived campaign work will stack here for receipts and proof." title="Completed">
+          <View className="gap-3">
+            {completedRows.map((row) => (
+              <WorkJobCard key={row.id} row={row} />
+            ))}
+          </View>
+        </WorkLane>
+
+        {isLoadingWork ? (
           <SoftCard>
-            <Text className="text-base text-[#d7cdbd]">Loading applications...</Text>
+            <Text className="text-base text-surface-200">Loading work...</Text>
           </SoftCard>
         ) : null}
 
-        {!applications.isLoading && (applications.data?.length ?? 0) === 0 ? (
+        {!isLoadingWork && totalWorkCount === 0 ? (
           <SoftCard>
             <Text className="text-base leading-7 text-surface-300">
-              You have not applied to any content opportunities yet. Browse cannabis brand briefs to find paid work.
+              No active campaign work yet. Browse cannabis brand briefs and apply to jobs that fit your audience.
             </Text>
             <View className="mt-4 flex-row flex-wrap gap-3">
-              <Link asChild href="/store">
-                <PrimaryPill className="px-4 py-3">Browse opportunities</PrimaryPill>
-              </Link>
+              <PrimaryPill className="px-4 py-3" onPress={() => router.push("/store")}>
+                Browse opportunities
+              </PrimaryPill>
             </View>
           </SoftCard>
         ) : null}
