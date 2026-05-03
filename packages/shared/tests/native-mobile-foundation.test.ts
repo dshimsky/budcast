@@ -86,3 +86,19 @@ test("native submission cards explain acceptance, denial, revision, and payment 
     assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("native profile presents creator readiness with mobile primitives", () => {
+  const source = readWorkspaceFile("apps/native/app/profile.tsx");
+
+  for (const marker of ["Avatar", "StatusPill", "ProfileReadinessCard", "Trust signals", "Creator channels", "Marketplace readiness"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("native onboarding uses staged setup progress and role cards", () => {
+  const source = readWorkspaceFile("apps/native/app/onboarding.tsx");
+
+  for (const marker of ["SetupProgress", "RoleOption", "Identity", "Channels", "Niches", "Ready to match"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});

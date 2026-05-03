@@ -1,19 +1,79 @@
 import { hasCompletedOnboarding, useAuth, useMyApplications, useMySubmissionPipeline } from "@budcast/shared";
-import { Link, router } from "expo-router";
-import { useEffect, useMemo } from "react";
+import { router } from "expo-router";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { Text, View } from "react-native";
+import { Avatar, StatusPill, Surface, TrustRow } from "../components/mobile-system";
 import {
   FadeInSection,
   GlassCard,
-  HeroChip,
   MetricTile,
   PremiumScroll,
   PrimaryPill,
   SecondaryPill,
-  SectionTitle,
   SoftCard
 } from "../components/premium";
-import { InfoTile, SectionBlock, SectionEyebrow } from "../components/sections";
+
+function normalizeList(values: unknown) {
+  return Array.isArray(values) ? values.filter((value): value is string => typeof value === "string") : [];
+}
+
+function formatNiche(niche: string) {
+  return niche.replace(/_/g, " ");
+}
+
+function ReadinessItem({ complete, label }: { complete: boolean; label: string }) {
+  return (
+    <View className="flex-row items-center justify-between gap-3">
+      <Text className="flex-1 text-sm leading-6 text-surface-200">{label}</Text>
+      <StatusPill tone={complete ? "success" : "warning"}>{complete ? "Ready" : "Add"}</StatusPill>
+    </View>
+  );
+}
+
+function ProfileReadinessCard({
+  bioReady,
+  channelsReady,
+  identityReady,
+  locationReady,
+  score
+}: {
+  bioReady: boolean;
+  channelsReady: boolean;
+  identityReady: boolean;
+  locationReady: boolean;
+  score: number;
+}) {
+  return (
+    <Surface className="gap-4 px-4 py-5" tone="raised">
+      <View className="flex-row items-start justify-between gap-4">
+        <View className="min-w-0 flex-1">
+          <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">
+            Marketplace readiness
+          </Text>
+          <Text className="mt-2 text-lg font-black leading-6 text-budcast-text">
+            Profile strength is {score}%.
+          </Text>
+        </View>
+        <StatusPill tone={score >= 75 ? "success" : "warning"}>{score >= 75 ? "Strong" : "Needs work"}</StatusPill>
+      </View>
+      <View className="gap-3">
+        <ReadinessItem complete={identityReady} label="Identity" />
+        <ReadinessItem complete={locationReady} label="Market location" />
+        <ReadinessItem complete={channelsReady} label="Creator channels" />
+        <ReadinessItem complete={bioReady} label="Trust signals" />
+      </View>
+    </Surface>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <View className="rounded-surface border border-white/10 bg-white/[0.04] px-4 py-4">
+      <Text className="text-[10px] font-bold uppercase tracking-[1.5px] text-budcast-muted">{label}</Text>
+      <Text className="mt-2 text-sm leading-6 text-surface-200">{value}</Text>
+    </View>
+  );
+}
 
 export function ProfileScreen() {
   const { loading, session, profile, signOut } = useAuth();
@@ -31,11 +91,7 @@ export function ProfileScreen() {
     }
   }, [loading, profile, session]);
 
-  const nicheCount = useMemo(() => {
-    if (!profile?.niches) return 0;
-    return Array.isArray(profile.niches) ? profile.niches.length : 0;
-  }, [profile?.niches]);
-
+  const niches = useMemo(() => normalizeList(profile?.niches), [profile?.niches]);
   const connectedChannels = useMemo(() => {
     return [profile?.instagram, profile?.tiktok, profile?.youtube].filter(Boolean).length;
   }, [profile?.instagram, profile?.tiktok, profile?.youtube]);
@@ -52,46 +108,49 @@ export function ProfileScreen() {
     () =>
       (submissionPipeline.data ?? []).filter((row) => {
         const submission = row.submission;
-        return (
-          submission?.verification_status === "verified" &&
-          submission.payment_confirmed_by_brand &&
-          !submission.payment_confirmed_by_creator
-        );
+        return submission?.verification_status === "verified" && !submission.payment_confirmed_by_creator;
       }).length,
     [submissionPipeline.data]
   );
+
+  const identityReady = Boolean(profile?.name || profile?.company_name);
+  const locationReady = Boolean(profile?.location);
+  const channelsReady = profile?.user_type === "creator" ? connectedChannels > 0 : Boolean(profile?.website);
+  const bioReady = Boolean(profile?.bio);
+  const readinessScore =
+    [identityReady, locationReady, channelsReady, bioReady].filter(Boolean).length * 25;
+
+  const displayName = loading ? "Loading..." : profile?.name || profile?.company_name || "Your BudCast identity";
 
   return (
     <PremiumScroll>
       <FadeInSection>
         <GlassCard>
-          <View className="flex-row items-start justify-between gap-4">
-            <View className="flex-1">
-              <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#a59a86]">Profile</Text>
-              <Text className="mt-2 text-[22px] font-black leading-tight tracking-tight text-[#fbf8f4]">
-                {loading ? "Loading..." : profile?.name || profile?.company_name || "Your BudCast identity"}
-              </Text>
-              {(profile?.location || profile?.email) ? (
-                <Text className="mt-1.5 text-xs text-[#a59a86]" numberOfLines={1}>
-                  {[profile?.location, profile?.email].filter(Boolean).join(" · ")}
-                </Text>
-              ) : null}
-            </View>
-            {profile?.user_type ? (
-              <View className="rounded-full border border-[#a98c5b]/30 bg-[#1a1b16] px-3 py-1.5">
-                <Text className="text-[10px] font-bold uppercase tracking-[2px] text-[#d7c3a0]">
-                  {profile.user_type}
-                </Text>
+          <View className="flex-row items-start gap-4">
+            <Avatar
+              label={displayName}
+              size={58}
+              source={profile?.avatar_url ? { uri: profile.avatar_url } : null}
+            />
+            <View className="min-w-0 flex-1">
+              <View className="flex-row flex-wrap items-center gap-2">
+                <Text className="text-[10px] font-bold uppercase tracking-[2px] text-budcast-muted">Profile</Text>
+                {profile?.user_type ? <StatusPill tone="premium">{profile.user_type}</StatusPill> : null}
               </View>
-            ) : null}
+              <Text className="mt-2 text-2xl font-black leading-8 text-budcast-text">{displayName}</Text>
+              <Text className="mt-1.5 text-sm leading-5 text-budcast-muted" numberOfLines={2}>
+                {[profile?.location, profile?.email].filter(Boolean).join(" - ") || "Complete your public identity"}
+              </Text>
+            </View>
           </View>
-          <View className="mt-5 flex-row gap-3">
-            <Link asChild href="/profile-edit" className="flex-1">
-              <PrimaryPill>Edit profile</PrimaryPill>
-            </Link>
-            <Link asChild href="/onboarding">
-              <SecondaryPill>Setup</SecondaryPill>
-            </Link>
+
+          <View className="mt-5 flex-row flex-wrap gap-3">
+            <PrimaryPill className="px-4 py-3" onPress={() => router.push("/profile-edit")}>
+              Edit profile
+            </PrimaryPill>
+            <SecondaryPill className="px-4 py-3" onPress={() => router.push("/onboarding")}>
+              Setup
+            </SecondaryPill>
           </View>
         </GlassCard>
       </FadeInSection>
@@ -101,88 +160,87 @@ export function ProfileScreen() {
         <MetricTile
           className="flex-1"
           label={profile?.user_type === "creator" ? "Niches" : "Channels"}
-          value={profile?.user_type === "creator" ? String(nicheCount) : String(connectedChannels)}
+          value={profile?.user_type === "creator" ? String(niches.length) : String(connectedChannels)}
         />
-        <MetricTile
-          className="flex-1"
-          label="Status"
-          value={hasCompletedOnboarding(profile) ? "Ready" : "Setup"}
-        />
+        <MetricTile className="flex-1" label="Ready" value={`${readinessScore}%`} />
       </FadeInSection>
 
       <FadeInSection className="mt-6 gap-4 pb-8" delay={120}>
+        <ProfileReadinessCard
+          bioReady={bioReady}
+          channelsReady={channelsReady}
+          identityReady={identityReady}
+          locationReady={locationReady}
+          score={readinessScore}
+        />
+
         {profile?.user_type === "creator" ? (
-          <SoftCard>
-            <SectionEyebrow>Creator hub</SectionEyebrow>
-            <View className="mt-4 flex-row flex-wrap gap-3">
-              <Link asChild href="/store">
-                <PrimaryPill>Browse opportunities</PrimaryPill>
-              </Link>
-              <Link asChild href="/applications">
-                <SecondaryPill>My applications</SecondaryPill>
-              </Link>
-              <Link asChild href="/submissions">
-                <SecondaryPill>My submissions</SecondaryPill>
-              </Link>
+          <Surface className="gap-4 px-4 py-5" tone="raised">
+            <View className="flex-row items-start justify-between gap-3">
+              <View className="min-w-0 flex-1">
+                <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">
+                  Creator hub
+                </Text>
+                <Text className="mt-2 text-lg font-black leading-6 text-budcast-text">
+                  Work pipeline snapshot
+                </Text>
+              </View>
+              <StatusPill tone={awaitingPayout > 0 ? "warning" : "trust"}>{awaitingPayout} payout</StatusPill>
             </View>
-            <View className="mt-4 flex-row gap-2">
-              <View className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3">
-                <Text className="text-xl font-black text-[#fbf8f4]">{pendingApplications}</Text>
-                <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Pending</Text>
-              </View>
-              <View className="flex-1 rounded-xl border border-[#b8ff3d]/20 bg-[#b8ff3d]/[0.04] px-3 py-3">
-                <Text className="text-xl font-black text-[#b8ff3d]">{acceptedApplications}</Text>
-                <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Accepted</Text>
-              </View>
-              <View className="flex-1 rounded-xl border border-[#4f98a3]/20 bg-[#4f98a3]/[0.04] px-3 py-3">
-                <Text className="text-xl font-black text-[#4f98a3]">{awaitingPayout}</Text>
-                <Text className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#a59a86]">Pay out</Text>
-              </View>
+            <TrustRow
+              items={[
+                { label: `${pendingApplications} pending`, tone: "default" },
+                { label: `${acceptedApplications} accepted`, tone: "action" },
+                { label: `${awaitingPayout} payout`, tone: awaitingPayout > 0 ? "warning" : "success" }
+              ]}
+            />
+            <View className="flex-row flex-wrap gap-3">
+              <PrimaryPill className="px-4 py-3" onPress={() => router.push("/store")}>
+                Browse campaigns
+              </PrimaryPill>
+              <SecondaryPill className="px-4 py-3" onPress={() => router.push("/applications")}>
+                Work
+              </SecondaryPill>
+              <SecondaryPill className="px-4 py-3" onPress={() => router.push("/submissions")}>
+                Submissions
+              </SecondaryPill>
             </View>
-          </SoftCard>
+          </Surface>
         ) : null}
 
-        <SectionBlock>
-          <SectionEyebrow>Bio</SectionEyebrow>
-          <Text className="mt-3 text-base leading-7 text-[#e8dccd]">
+        <Surface className="gap-3 px-4 py-5" tone="raised">
+          <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">Bio</Text>
+          <Text className="text-base leading-7 text-surface-200">
             {profile?.bio || "Add a short profile summary so matches feel more credible and contextual."}
           </Text>
-        </SectionBlock>
-
-        <SoftCard>
-          <SectionEyebrow>Account details</SectionEyebrow>
-          <View className="mt-4 gap-3">
-            <InfoTile label="Email">{profile?.email ?? "No active session"}</InfoTile>
-            <InfoTile label="User type">{profile?.user_type ?? "Unknown"}</InfoTile>
-            <InfoTile label="Location">{profile?.location ?? "Not set"}</InfoTile>
-          </View>
-        </SoftCard>
+        </Surface>
 
         {profile?.user_type === "creator" ? (
-          <SoftCard>
-            <SectionEyebrow>Creator footprint</SectionEyebrow>
-            <View className="mt-4 gap-3">
-              <InfoTile label="Instagram">{profile?.instagram ?? "Not connected"}</InfoTile>
-              <InfoTile label="TikTok">{profile?.tiktok ?? "Not connected"}</InfoTile>
-              <InfoTile label="Niches">
-                {nicheCount > 0 && Array.isArray(profile?.niches)
-                  ? profile.niches.map((niche) => niche.replace(/_/g, " ")).join(", ")
-                  : "No niches selected yet"}
-              </InfoTile>
-              <InfoTile label="Marketplace stats">
-                {profile?.total_campaigns ?? 0} completed campaigns, {profile?.review_count ?? 0} reviews,{" "}
-                {profile?.review_score != null ? profile.review_score.toFixed(1) : "New"} rating
-              </InfoTile>
-            </View>
-          </SoftCard>
+          <Surface className="gap-3 px-4 py-5" tone="raised">
+            <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">
+              Creator channels
+            </Text>
+            <DetailRow label="Instagram" value={profile?.instagram ?? "Not connected"} />
+            <DetailRow label="TikTok" value={profile?.tiktok ?? "Not connected"} />
+            <DetailRow
+              label="Niches"
+              value={niches.length > 0 ? niches.map(formatNiche).join(", ") : "No niches selected yet"}
+            />
+            <DetailRow
+              label="Trust signals"
+              value={`${profile?.total_campaigns ?? 0} completed campaigns, ${profile?.review_count ?? 0} reviews, ${
+                profile?.review_score != null ? profile.review_score.toFixed(1) : "New"
+              } rating`}
+            />
+          </Surface>
         ) : (
-          <SoftCard>
-            <SectionEyebrow>Brand footprint</SectionEyebrow>
-            <View className="mt-4 gap-3">
-              <InfoTile label="Company">{profile?.company_name ?? "Not set"}</InfoTile>
-              <InfoTile label="Website">{profile?.website ?? "Not set"}</InfoTile>
-            </View>
-          </SoftCard>
+          <Surface className="gap-3 px-4 py-5" tone="raised">
+            <Text className="text-[10px] font-bold uppercase tracking-[1.6px] text-budcast-muted">
+              Brand footprint
+            </Text>
+            <DetailRow label="Company" value={profile?.company_name ?? "Not set"} />
+            <DetailRow label="Website" value={profile?.website ?? "Not set"} />
+          </Surface>
         )}
 
         <SoftCard>
