@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import {
   ActivityIndicator,
   Animated,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -11,6 +12,8 @@ import {
   type ViewProps
 } from "react-native";
 import { Surface } from "./mobile-system";
+
+const useNativeAnimationDriver = Platform.OS !== "web";
 
 // ── Layout ──────────────────────────────────────────────────────────
 
@@ -57,13 +60,13 @@ export function FadeInSection({
         toValue: 1,
         duration: 360,
         delay,
-        useNativeDriver: true
+        useNativeDriver: useNativeAnimationDriver
       }),
       Animated.timing(translateY, {
         toValue: 0,
         duration: 360,
         delay,
-        useNativeDriver: true
+        useNativeDriver: useNativeAnimationDriver
       })
     ]);
     animation.start();

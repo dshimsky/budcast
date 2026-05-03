@@ -102,3 +102,21 @@ test("native onboarding uses staged setup progress and role cards", () => {
     assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("native preview serves expo entry bundles as modules", () => {
+  const source = readWorkspaceFile("apps/native/scripts/preview-web.mjs");
+
+  for (const marker of ["transformIndexHtml", "type=\"module\"", "entry-"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("native web animations avoid unsupported native driver warnings", () => {
+  const premiumSource = readWorkspaceFile("apps/native/components/premium.tsx");
+  const submissionsSource = readWorkspaceFile("apps/native/app/submissions.tsx");
+
+  for (const source of [premiumSource, submissionsSource]) {
+    assert.match(source, /Platform\.OS !== "web"/);
+    assert.doesNotMatch(source, /useNativeDriver: true/);
+  }
+});

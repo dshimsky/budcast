@@ -21,6 +21,13 @@ const MIME_TYPES = {
   ".woff2": "font/woff2",
 };
 
+function transformIndexHtml(html) {
+  return html.replace(
+    /<script src="(\/_expo\/static\/js\/web\/entry-[^"]+\.js)" defer><\/script>/,
+    '<script type="module" src="$1" defer></script>'
+  );
+}
+
 function getContentType(filePath) {
   return MIME_TYPES[extname(filePath)] ?? "application/octet-stream";
 }
@@ -37,15 +44,15 @@ const server = createServer(async (request, response) => {
   try {
     const data = await readFile(requestedPath);
     response.writeHead(200, { "Content-Type": getContentType(requestedPath) });
-    response.end(data);
+    response.end(extname(requestedPath) === ".html" ? transformIndexHtml(data.toString("utf8")) : data);
     return;
   } catch {}
 
   try {
     const indexPath = join(distDir, "index.html");
-    const data = await readFile(indexPath);
+    const data = await readFile(indexPath, "utf8");
     response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    response.end(data);
+    response.end(transformIndexHtml(data));
   } catch (error) {
     response.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
     response.end(error instanceof Error ? error.message : "Preview server failed.");

@@ -13,7 +13,7 @@ import {
 import type { PaymentMethod, PostType } from "@budcast/shared";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Animated, Pressable, Text, TextInput, View } from "react-native";
+import { Animated, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { StatusPill, Surface, TrustRow } from "../components/mobile-system";
 import { FadeInSection, GlassCard, MetricTile, PremiumScroll, PrimaryPill, SoftCard } from "../components/premium";
 
@@ -27,6 +27,7 @@ const postTypes: PostType[] = [
 ];
 
 const timelineSteps = ["Accepted", "Submit", "Review", "Payment", "Complete"] as const;
+const useNativeAnimationDriver = Platform.OS !== "web";
 
 type SubmissionMomentTone = "action" | "danger" | "premium" | "success" | "trust" | "warning";
 
@@ -119,12 +120,12 @@ function SubmissionPulse() {
         Animated.timing(pulse, {
           duration: 900,
           toValue: 1,
-          useNativeDriver: true
+          useNativeDriver: useNativeAnimationDriver
         }),
         Animated.timing(pulse, {
           duration: 900,
           toValue: 0,
-          useNativeDriver: true
+          useNativeDriver: useNativeAnimationDriver
         })
       ])
     );
