@@ -70,3 +70,19 @@ test("native work cards surface next actions and payment checkpoints", () => {
     assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("native submission flow uses a visible creator journey timeline", () => {
+  const source = readWorkspaceFile("apps/native/app/submissions.tsx");
+
+  for (const marker of ["SubmissionTimeline", "Accepted", "Submit", "Review", "Payment", "Complete"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("native submission cards explain acceptance, denial, revision, and payment states", () => {
+  const source = readWorkspaceFile("apps/native/app/submissions.tsx");
+
+  for (const marker of ["getSubmissionMoment", "Accepted by brand", "Revision requested", "Payment ready", "Completed"]) {
+    assert.match(source, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
